@@ -1,39 +1,37 @@
-import type { IShape } from '.'
-import type V2 from '../types/Vector'
+import type { Shape } from '.'
+import type Vector2D from '../utils/Vector'
+import { V2D } from '../utils/Vector'
 
 interface CircleOptions {
-  ctx: CanvasRenderingContext2D
-  position: V2
-  radius: number
-  color: string
+  position?: Vector2D
+  radius?: number
+  color?: string
 }
+
 /**
  * 圆形
  */
-export default class Circle implements IShape {
-  ctx: CanvasRenderingContext2D
-  position: V2
+export default class Circle implements Shape, CircleOptions {
+  position: Vector2D
   radius: number
   color: string
-  constructor({ ctx, position, radius, color }: CircleOptions) {
-    this.ctx = ctx
-    this.position = position
-    this.radius = radius
-    this.color = color
+  constructor({ position, radius, color }: CircleOptions) {
+    this.position = position || new V2D()
+    this.radius = radius || 0
+    this.color = color || 'black'
   }
-  draw(): void {
-    this.ctx.fillStyle = this.color
-    this.ctx.strokeStyle = this.color
-    this.ctx.beginPath()
-    this.ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI)
-    // this.ctx.fill();
-    this.ctx.stroke()
-    this.ctx.closePath()
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = this.color
+    ctx.strokeStyle = this.color
+    ctx.beginPath()
+    ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI)
+    ctx.stroke()
+    ctx.closePath()
 
-    // circle center
-    this.ctx.beginPath()
-    this.ctx.arc(this.position.x, this.position.y, 1, 0, 2 * Math.PI)
-    this.ctx.fill()
-    this.ctx.closePath()
+    // 画圆心
+    ctx.beginPath()
+    ctx.arc(this.position.x, this.position.y, 1, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.closePath()
   }
 }

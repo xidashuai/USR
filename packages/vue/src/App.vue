@@ -1,7 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TheCanvas from './views/TheCanvas/TheCanvas.vue'
+</script>
 
 <template>
-  <div class="app"></div>
+  <div class="app">
+    <TheCanvas />
+  </div>
 </template>
 
 <style scoped>

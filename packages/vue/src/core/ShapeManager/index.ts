@@ -1,25 +1,29 @@
-import type { IShape } from '@/core/Shapes'
+import type { Shape } from '@/core/Shapes'
 
 /**
  * 管理一个画布中的所有形状
  */
-abstract class ShapeManager {
-  static shapes: IShape[] = []
-  static push(shape: IShape) {
+export default class ShapeManager {
+  ctx: CanvasRenderingContext2D
+  shapes: Shape[] = []
+  constructor(ctx: CanvasRenderingContext2D) {
+    this.ctx = ctx
+  }
+  push(shape: Shape) {
     this.shapes.push(shape)
   }
-  static pop() {
+  pop() {
     return this.shapes.pop()
   }
-  static remove(shape: IShape) {
+  remove(shape: Shape) {
     this.shapes = this.shapes.filter(s => s !== shape)
   }
   /**
    * 绘制所有形状
    */
-  static drawShapes() {
+  drawShapes() {
     this.shapes.forEach(shape => {
-      shape.draw()
+      shape.draw(this.ctx)
     })
   }
 }
