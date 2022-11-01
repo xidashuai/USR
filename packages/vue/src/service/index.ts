@@ -5,7 +5,7 @@ const apiRequest = new ApiRequest({
   // baseURL: import.meta.env.VITE_BASE_API,
   // timeout: import.meta.env.VITE_TIMEOUT,
   interceptors: {
-    requestInterceptor: (config) => {
+    requestInterceptor: config => {
       //携带token拦截
       //解决Object is possibly 'undefined'.
       if (config.headers === undefined) {
@@ -18,16 +18,16 @@ const apiRequest = new ApiRequest({
       }
       return config
     },
-    requestInterceptorCatch: (error) => {
+    requestInterceptorCatch: error => {
       return error
     },
-    responseInterceptor: (res) => {
+    responseInterceptor: res => {
       return res
     },
-    responseInterceptorCatch: (error) => {
+    responseInterceptorCatch: error => {
       return error
-    }
-  }
+    },
+  },
 })
 
 export default apiRequest

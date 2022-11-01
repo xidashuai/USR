@@ -29,7 +29,7 @@ class ApiRequest {
 
     //添加所有的拦截器
     this.instance.interceptors.request.use(
-      (config) => {
+      config => {
         if (this.showLoading) {
           // this.loading = ElLoading.service({
           //   lock: true,
@@ -39,12 +39,12 @@ class ApiRequest {
         }
         return config
       },
-      (error) => {
+      error => {
         return error
       }
     )
     this.instance.interceptors.response.use(
-      (res) => {
+      res => {
         // 将loading关闭
         // this.loading?.close()
         const data = res.data
@@ -54,7 +54,7 @@ class ApiRequest {
           return data
         }
       },
-      (error) => {
+      error => {
         // 将loading组件关闭
         // this.loading?.close()
         if (error.response.status === 404) {
@@ -77,7 +77,7 @@ class ApiRequest {
       }
       this.instance
         .request<any, T>(config)
-        .then((res) => {
+        .then(res => {
           // 1.单个请求对数据的处理
           if (config.interceptors?.responseInterceptor) {
             res = config.interceptors.responseInterceptor(res)
@@ -88,7 +88,7 @@ class ApiRequest {
           // 3.将结果resolve返回出去
           resolve(res)
         })
-        .catch((err) => {
+        .catch(err => {
           this.showLoading = DEAFULT_LOADING
           reject(err)
           return err
