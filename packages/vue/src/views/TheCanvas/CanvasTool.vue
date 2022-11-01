@@ -1,40 +1,7 @@
 <script setup lang="ts">
-import { CanvasEvent } from '@/core/EventObserver'
-import Circle from '@/core/Shapes/Circle'
-import Rectangle from '@/core/Shapes/Rectangle'
-import { V2D } from '@/core/types/Vector'
-
 import CanvasToolIcon from './CanvasToolIcon.vue'
-
-const getCanvas = () => {
-  return document.querySelector('canvas')
-}
-const calcRandomPosition = () => {
-  return new V2D(Math.random() * 800, Math.random() * 450)
-}
-const canvasEvent = new CanvasEvent(getCanvas())
-const clickPen = () => {
-  const drawCircle = () => {
-    const circle = new Circle({
-      position: calcRandomPosition(),
-      radius: 10,
-      color: 'red',
-    })
-    circle.draw(getCanvas().getContext('2d'))
-  }
-  canvasEvent.click(drawCircle)
-}
-const clickEraser = () => {
-  const drawRectangle = () => {
-    const circle = new Rectangle({
-      position: calcRandomPosition(),
-      w: 20,
-      h: 20,
-    })
-    circle.draw(getCanvas().getContext('2d'))
-  }
-  canvasEvent.click(drawRectangle)
-}
+const clickPen = () => {}
+const clickEraser = () => {}
 const clickShapes = () => {}
 const clickText = () => {}
 const clickImg = () => {}
