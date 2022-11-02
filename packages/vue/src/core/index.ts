@@ -1,5 +1,5 @@
 import { CanvasEvent } from './EventObserver'
-import { Layer } from './ShapeManager'
+import { Layer } from './Layer'
 import Circle from './Shapes/Circle'
 import Line from './Shapes/Line'
 import Rectangle from './Shapes/Rectangle'
