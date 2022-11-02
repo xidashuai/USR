@@ -19,5 +19,4 @@ test('only one event', () => {
   canvas.addEventListener('mousedown', md1)
   canvas.addEventListener('mousedown', md2)
   canvas.addEventListener('mousedown', md3)
-  getEventListeners(canvas, 'mousedown')
 })

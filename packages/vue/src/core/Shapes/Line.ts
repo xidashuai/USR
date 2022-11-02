@@ -9,8 +9,7 @@ interface LineOptions {
 /**
  * 直线
  */
-export default class Line implements Shape, LineOptions {
-  wb: WB
+export default class Line implements Shape {
   begin: Vector2D
   end: Vector2D
   constructor({ begin, end }: LineOptions) {
@@ -23,26 +22,5 @@ export default class Line implements Shape, LineOptions {
     ctx.lineTo(this.end.x, this.end.y)
     ctx.stroke()
     ctx.closePath()
-  }
-  dragToDraw(e: MouseEvent) {
-    this.begin = new V2D(e.offsetX, e.offsetY)
-
-    this.wb.shapeManager.push(this)
-    this.wb.shapeManager.drawShapes()
-
-    const mm = (e: MouseEvent) => {
-      this.end.x = e.offsetX
-      this.end.y = e.offsetY
-
-      this.wb.shapeManager.drawShapes()
-    }
-    window.addEventListener('mousemove', mm)
-    window.addEventListener(
-      'mouseup',
-      () => {
-        window.removeEventListener('mouseup', mm)
-      },
-      { once: true }
-    )
   }
 }

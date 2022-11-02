@@ -2,13 +2,14 @@
   <div class="canvasContainer">
     <BackIcon />
     <canvas width="800" height="450" ref="canvasRef" />
-    <CanvasTool />
+    <ShapeToolBar />
   </div>
 </template>
 
 <script setup lang="ts">
 import BackIcon from './BackIcon.vue'
 import CanvasTool from './CanvasTool.vue'
+import ShapeToolBar from './ShapeToolBar.vue'
 </script>
 
 <style scoped lang="scss">

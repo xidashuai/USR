@@ -3,6 +3,16 @@ import path from 'path'
 
 export default defineConfig({
   test: {
+    setupFiles: ['./vitest.setup.ts'],
+    deps: {
+      inline: ['vitest-canvas-mock'],
+    },
+    threads: false,
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable',
+      },
+    },
     globals: true,
     environment: 'jsdom',
   },

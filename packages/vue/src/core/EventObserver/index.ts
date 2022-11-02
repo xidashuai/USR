@@ -56,7 +56,8 @@ export class CanvasEvent {
     this.getType('click').clear()
   }
   mouseDown(fn: MouseFN) {
-    this.add('mousedown', fn)
+    // this.add('mousedown', fn)
+    this.canvas.onmousedown = fn
   }
   offMouseDown() {
     this.getType('mousedown').forEach(l => {
