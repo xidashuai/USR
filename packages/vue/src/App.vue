@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import TheCanvas from './views/TheCanvas/TheCanvas.vue'
 </script>
 
 <template>
   <div class="app">
-    <TheCanvas />
+    <router-view />
   </div>
 </template>
 
