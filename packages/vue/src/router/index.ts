@@ -5,22 +5,22 @@ import localCache from '@/utils/cache'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/main',
+    redirect: '/main'
   },
   {
     path: '/main',
     name: 'main',
-    component: () => import('@/views/main/Main.vue'),
+    component: () => import('@/views/main/Main.vue')
   },
   {
     path: '/home',
     name: 'home',
-    component: () => import('@/views/HomeView/HomeView.vue'),
-  },
+    component: () => import('@/views/HomeView/HomeView.vue')
+  }
 ]
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
 })
 
 router.beforeEach(to => {})
