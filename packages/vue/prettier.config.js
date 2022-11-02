@@ -1,14 +1,14 @@
 /* eslint-disable no-undef */
 module.exports = {
-  plugins: [require('prettier-plugin-tailwindcss')],
-  tailwindConfig: './tailwind.config.js',
+  // plugins: [require('prettier-plugin-tailwindcss')],
+  // tailwindConfig: './tailwind.config.js',
   arrowParens: 'avoid',
-  endOfLine: 'lf',
+  endOfLine: 'auto',
   printWidth: 80,
   semi: false,
   tabWidth: 2,
-  trailingComma: 'es5',
+  trailingComma: 'none',
   useTabs: false,
   singleQuote: true,
-  bracketSpacing: true,
+  bracketSpacing: true
 }
