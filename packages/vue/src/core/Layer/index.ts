@@ -5,33 +5,30 @@ import { SnapshotManager } from '../Snapshot'
 /**
  * 管理一个画布中的所有形状
  */
-export class Layer implements SnapshotOriginator {
+export class Layer {
   ctx: CanvasRenderingContext2D
   shapes: Shape[] = []
+  pending_redo: Shape[] = []
   get size() {
     return this.shapes.length
   }
-
-  history: SnapshotManager = new SnapshotManager(this)
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx
   }
 
   push(shape: Shape) {
-    this.history.create()
     this.shapes.push(shape)
   }
 
   pop() {
-    this.history.create()
     return this.shapes.pop()
   }
 
   remove(shape: Shape) {
-    this.history.create()
     this.shapes = this.shapes.filter(s => s !== shape)
   }
+
   /**
    * 绘制所有形状
    */
@@ -50,13 +47,5 @@ export class Layer implements SnapshotOriginator {
 
   restore(snapshot) {
     this.shapes = snapshot.shapes
-  }
-
-  undo() {
-    this.history.undo()
-  }
-
-  redo() {
-    this.history.redo()
   }
 }

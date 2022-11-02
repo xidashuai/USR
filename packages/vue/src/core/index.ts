@@ -3,7 +3,8 @@ import { Layer } from './Layer'
 import Circle from './Shapes/Circle'
 import Line from './Shapes/Line'
 import Rectangle from './Shapes/Rectangle'
-import { V2D } from './utils/Vector'
+import { SnapshotManager } from './Snapshot'
+import { distance, V2D, Vector2D } from './utils/Vector'
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
@@ -13,6 +14,7 @@ export default class WB {
   ctx: CanvasRenderingContext2D
   canvasEvent: CanvasEvent
   layer: Layer
+  history: SnapshotManager
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -20,23 +22,27 @@ export default class WB {
 
     this.canvasEvent = new CanvasEvent(this.canvas)
     this.layer = new Layer(this.ctx)
+    this.history = new SnapshotManager(this.layer)
   }
 
   addCircle(options): Circle {
     const circle = new Circle(options)
     this.layer.push(circle)
+    this.history.create()
     return circle
   }
 
   addRectangle(options): Rectangle {
     const rectangle = new Rectangle(options)
     this.layer.push(rectangle)
+    this.history.create()
     return rectangle
   }
 
   addLine(options): Line {
     const line = new Line(options)
     this.layer.push(line)
+    this.history.create()
     return line
   }
 
@@ -44,26 +50,58 @@ export default class WB {
     this.layer.drawShapes()
   }
 
-  dragToDrawRectangle(e: MouseEvent) {
-    const position = new V2D(e.offsetX, e.offsetY)
-    const rectangle = this.addRectangle({ position })
-    const move = (e: MouseEvent) => {
-      rectangle.w = e.offsetX - rectangle.position.x
-      rectangle.h = e.offsetY - rectangle.position.y
-      this.layer.drawShapes()
-    }
-    moveUp(move)
+  undo() {
+    this.history.undo()
+    this.drawShapes()
   }
 
-  dragToDrawLine(e: MouseEvent) {
-    const begin = new V2D(e.offsetX, e.offsetY)
-    const line = this.addLine({ begin })
-    const move = (e: MouseEvent) => {
-      line.end.x = e.offsetX
-      line.end.y = e.offsetY
-      this.layer.drawShapes()
-    }
-    moveUp(move)
+  redo() {
+    this.history.redo()
+    this.drawShapes()
+  }
+
+  dragToDrawLine() {
+    this.canvasEvent.mouseDown((e: MouseEvent) => {
+      const begin = m2v(e)
+
+      const line = this.addLine({ begin })
+      const move = (e: MouseEvent) => {
+        line.end = m2v(e)
+        this.layer.drawShapes()
+      }
+      moveUp(move)
+    })
+  }
+
+  dragToDrawRectangle() {
+    this.canvasEvent.mouseDown((e: MouseEvent) => {
+      const rectangle = this.addRectangle({
+        position: m2v(e),
+      })
+
+      const move = (e: MouseEvent) => {
+        rectangle.w = e.offsetX - rectangle.position.x
+        rectangle.h = e.offsetY - rectangle.position.y
+        this.layer.drawShapes()
+      }
+
+      moveUp(move)
+    })
+  }
+
+  dragToDrawCircle() {
+    this.canvasEvent.mouseDown((e: MouseEvent) => {
+      const circle = this.addCircle({ position: m2v(e) })
+
+      const move = (e: MouseEvent) => {
+        console.log(m2v(e))
+
+        circle.radius = distance(m2v(e), circle.position)
+        this.drawShapes()
+      }
+
+      moveUp(move)
+    })
   }
 }
 
@@ -79,6 +117,10 @@ export function useWB(canvas?: HTMLCanvasElement) {
   throw Error('未初始化')
 }
 
+/**
+ * 添加鼠标移动事件并在抬起时取消
+ * @param moveFN
+ */
 function moveUp(moveFN) {
   window.addEventListener('mousemove', moveFN)
   window.addEventListener(
@@ -88,4 +130,14 @@ function moveUp(moveFN) {
     },
     { once: true }
   )
+}
+
+/**
+ * mouse position to vector
+ * @param e MouseEvent
+ * @returns
+ */
+function m2v(e: MouseEvent): Vector2D {
+  const { x, y } = new V2D(e.offsetX, e.offsetY)
+  return { x, y }
 }

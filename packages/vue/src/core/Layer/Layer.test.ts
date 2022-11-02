@@ -25,19 +25,3 @@ test('remove', () => {
   layer.remove(rect)
   expect(layer.size).toBe(0)
 })
-
-test('undo', () => {
-  layer.push(rect)
-  layer.push(rect)
-  layer.push(rect)
-  layer.push(rect)
-
-  layer.undo()
-  expect(layer.size).toBe(3)
-
-  layer.undo()
-  expect(layer.size).toBe(2)
-
-  layer.redo()
-  expect(layer.size).toBe(3)
-})

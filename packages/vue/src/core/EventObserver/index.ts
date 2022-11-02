@@ -28,24 +28,29 @@ export class CanvasEvent {
   events: {
     [key in EventType]?: Set<EventListener<key>>
   } = {}
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
   }
+
   add(type: EventType, fn: EventListener<typeof type>) {
-    this.getType(type).add(fn)
+    this.getEventListener(type).add(fn)
     this.canvas.addEventListener(type, fn)
   }
+
   remove(type: EventType, fn: EventListener<typeof type>) {
-    this.getType(type).delete(fn)
+    this.getEventListener(type).delete(fn)
     this.canvas.removeEventListener(type, fn)
   }
-  getType(type: EventType) {
+
+  getEventListener(type: EventType) {
     if (this.events[type]) {
       return this.events[type]
     }
     this.events[type] = new Set<EventListener<typeof type>>()
     return this.events[type]
   }
+
   /**
    * 确保mousedown事件只有一个listener
    * @param fn
@@ -55,11 +60,12 @@ export class CanvasEvent {
     this.add('click', fn)
   }
   offClick() {
-    this.getType('click').forEach(l => {
+    this.getEventListener('click').forEach(l => {
       this.canvas.removeEventListener('click', l)
     })
-    this.getType('click').clear()
+    this.getEventListener('click').clear()
   }
+
   /**
    * 确保mousedown事件只有一个listener
    * @param fn
@@ -69,9 +75,27 @@ export class CanvasEvent {
     this.add('mousedown', fn)
   }
   offMouseDown() {
-    this.getType('mousedown').forEach(l => {
+    this.getEventListener('mousedown').forEach(l => {
       this.canvas.removeEventListener('mousedown', l)
     })
-    this.getType('mousedown').clear()
+    this.getEventListener('mousedown').clear()
+  }
+}
+
+/**
+ * 节流
+ * @param callback
+ * @param interval
+ * @returns
+ */
+function throttle(callback: (...args: any[]) => any, interval: number) {
+  let enableCall = true
+
+  return function (...args: any[]) {
+    if (!enableCall) return
+
+    enableCall = false
+    callback.apply(this, args)
+    setTimeout(() => (enableCall = true), interval)
   }
 }

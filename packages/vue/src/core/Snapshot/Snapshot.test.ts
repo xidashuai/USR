@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 
-import { SnapshotOriginator, SnapshotManager } from './index'
+import { SnapshotOriginator, SnapshotManager, snapshotManager } from './index'
 
 class TestSnapshot implements SnapshotOriginator {
   value: number = 0
@@ -10,7 +10,7 @@ class TestSnapshot implements SnapshotOriginator {
 }
 
 const testOrigin = new TestSnapshot()
-const sm = new SnapshotManager(testOrigin)
+const sm = snapshotManager(testOrigin)
 
 test('add snapshot', () => {
   sm.create()

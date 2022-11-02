@@ -1,22 +1,36 @@
-import { getEventListeners } from 'events'
-import { test, it } from 'vitest'
-import { JSDOM } from 'jsdom'
+import { test, expect } from 'vitest'
+import { createCanvas } from '../utils/Canvas'
+import { CanvasEvent } from './index'
 
-test('only one event', () => {
-  const canvas = document.createElement('canvas')
-  const md1 = () => {
-    console.log('- md 1')
-  }
-  const md2 = () => {
-    console.log('- md 2')
-  }
-  const md3 = () => {
-    console.log('- md 3')
-  }
-  canvas.onmousedown = md1
-  console.log(canvas.onmousedown)
-  canvas.onmousedown = md2
-  canvas.addEventListener('mousedown', md1)
-  canvas.addEventListener('mousedown', md2)
-  canvas.addEventListener('mousedown', md3)
+const canvas = createCanvas()
+const canvasEvent = new CanvasEvent(canvas)
+
+const fn1 = () => {
+  console.log('- fn 1')
+}
+const fn2 = () => {
+  console.log('- fn 2')
+}
+const fn3 = () => {
+  console.log('- fn 3')
+}
+
+test('should no duplicate listener', () => {
+  canvasEvent.add('mousedown', fn1)
+  canvasEvent.add('mousedown', fn1)
+  expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
+
+  canvasEvent.add('mousedown', fn2)
+  expect(canvasEvent.getEventListener('mousedown').size).toBe(2)
+})
+
+test('should only has one mouse-down event', () => {
+  canvasEvent.mouseDown(fn3)
+  expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
+
+  canvasEvent.mouseDown(fn2)
+  expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
+
+  canvasEvent.remove('mousedown', fn2)
+  expect(canvasEvent.getEventListener('mousedown').size).toBe(0)
 })

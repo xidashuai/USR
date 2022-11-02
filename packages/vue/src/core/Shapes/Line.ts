@@ -1,5 +1,4 @@
 import type { Shape } from '.'
-import type WB from '..'
 import { V2D, Vector2D } from '../utils/Vector'
 
 interface LineOptions {
