@@ -46,7 +46,12 @@ export class CanvasEvent {
     this.events[type] = new Set<EventListener<typeof type>>()
     return this.events[type]
   }
+  /**
+   * 确保mousedown事件只有一个listener
+   * @param fn
+   */
   click(fn: MouseFN) {
+    this.offClick()
     this.add('click', fn)
   }
   offClick() {
@@ -55,9 +60,13 @@ export class CanvasEvent {
     })
     this.getType('click').clear()
   }
+  /**
+   * 确保mousedown事件只有一个listener
+   * @param fn
+   */
   mouseDown(fn: MouseFN) {
-    // this.add('mousedown', fn)
-    this.canvas.onmousedown = fn
+    this.offMouseDown()
+    this.add('mousedown', fn)
   }
   offMouseDown() {
     this.getType('mousedown').forEach(l => {

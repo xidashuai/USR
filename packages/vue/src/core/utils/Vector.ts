@@ -35,6 +35,6 @@ export function offset(v1: Vector2D, v2: Vector2D): Vector2D {
  * @returns
  */
 export function distance(v1: Vector2D, v2: Vector2D): number {
-  const offsetVector = offset(v1, v2)
-  return Math.sqrt(offsetVector.x ** 2 + offsetVector.y ** 2)
+  const { x: offsetX, y: offsetY } = offset(v1, v2)
+  return Math.sqrt(offsetX ** 2 + offsetY ** 2)
 }

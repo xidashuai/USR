@@ -1,5 +1,5 @@
 import { CanvasEvent } from './EventObserver'
-import ShapeManager from './ShapeManager'
+import { Layer } from './ShapeManager'
 import Circle from './Shapes/Circle'
 import Line from './Shapes/Line'
 import Rectangle from './Shapes/Rectangle'
@@ -12,55 +12,56 @@ export default class WB {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   canvasEvent: CanvasEvent
-  shapeManager: ShapeManager
+  layer: Layer
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.ctx = this.canvas.getContext('2d')
 
     this.canvasEvent = new CanvasEvent(this.canvas)
-    this.shapeManager = new ShapeManager(this.ctx)
+    this.layer = new Layer(this.ctx)
   }
+
   addCircle(options): Circle {
     const circle = new Circle(options)
-    this.shapeManager.push(circle)
+    this.layer.push(circle)
     return circle
   }
+
   addRectangle(options): Rectangle {
     const rectangle = new Rectangle(options)
-    this.shapeManager.push(rectangle)
+    this.layer.push(rectangle)
     return rectangle
   }
+
   addLine(options): Line {
     const line = new Line(options)
-    this.shapeManager.push(line)
+    this.layer.push(line)
     return line
   }
+
   drawShapes() {
-    this.shapeManager.drawShapes()
+    this.layer.drawShapes()
   }
-  click(fn) {
-    this.canvasEvent.click(fn)
-  }
-  mouseDown(fn) {
-    this.canvasEvent.mouseDown(fn)
-  }
+
   dragToDrawRectangle(e: MouseEvent) {
     const position = new V2D(e.offsetX, e.offsetY)
     const rectangle = this.addRectangle({ position })
     const move = (e: MouseEvent) => {
       rectangle.w = e.offsetX - rectangle.position.x
       rectangle.h = e.offsetY - rectangle.position.y
-      this.shapeManager.drawShapes()
+      this.layer.drawShapes()
     }
     moveUp(move)
   }
+
   dragToDrawLine(e: MouseEvent) {
     const begin = new V2D(e.offsetX, e.offsetY)
     const line = this.addLine({ begin })
     const move = (e: MouseEvent) => {
       line.end.x = e.offsetX
       line.end.y = e.offsetY
-      this.shapeManager.drawShapes()
+      this.layer.drawShapes()
     }
     moveUp(move)
   }

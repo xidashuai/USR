@@ -1,27 +1,43 @@
 import { test, expect } from 'vitest'
-import ShapeManager from './index'
+import { Layer } from './index'
 import Rectangle from '../Shapes/Rectangle'
 import { createCtx } from '@/core/utils/Canvas'
 
 const ctx = createCtx()
 
 const rect = new Rectangle()
-const shapeManager = new ShapeManager(ctx!)
+const layer = new Layer(ctx!)
 
 test('push', () => {
-  expect(shapeManager.ctx).toBeDefined()
-  shapeManager.push(rect)
-  expect(shapeManager.size).toBe(1)
+  expect(layer.ctx).toBeDefined()
+  layer.push(rect)
+  expect(layer.size).toBe(1)
 })
 
 test('pop', () => {
-  shapeManager.pop()
-  expect(shapeManager.size).toBe(0)
+  layer.pop()
+  expect(layer.size).toBe(0)
 })
 
 test('remove', () => {
-  shapeManager.push(rect)
-  expect(shapeManager.size).toBe(1)
-  shapeManager.remove(rect)
-  expect(shapeManager.size).toBe(0)
+  layer.push(rect)
+  expect(layer.size).toBe(1)
+  layer.remove(rect)
+  expect(layer.size).toBe(0)
+})
+
+test('undo', () => {
+  layer.push(rect)
+  layer.push(rect)
+  layer.push(rect)
+  layer.push(rect)
+
+  layer.undo()
+  expect(layer.size).toBe(3)
+
+  layer.undo()
+  expect(layer.size).toBe(2)
+
+  layer.redo()
+  expect(layer.size).toBe(3)
 })

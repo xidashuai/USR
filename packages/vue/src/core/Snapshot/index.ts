@@ -1,9 +1,12 @@
 import _ from 'lodash'
+
+/**在改变状态之前应该记录快照 */
 export interface SnapshotOriginator {
   restore(snapshot: any): void
 }
+
 /**
- * @todo 快照，支持undo/redo
+ * 快照，支持undo/redo
  */
 export class SnapshotManager {
   readonly undoStack: SnapshotOriginator[] = []
@@ -20,27 +23,26 @@ export class SnapshotManager {
   undo() {
     const snapshot = this.undoStack.pop()
     if (snapshot) {
-      console.table(this.origin)
-      this.redoStack.push(this.origin)
+      this.redoStack.push(_.cloneDeep(this.origin))
       this.origin.restore(snapshot)
     }
   }
   redo() {
     const snapshot = this.redoStack.pop()
     if (snapshot) {
-      this.undoStack.push(this.origin)
+      this.undoStack.push(_.cloneDeep(this.origin))
       this.origin.restore(snapshot)
     }
   }
 }
 
-export function snapshotManager(origin: SnapshotOriginator) {
+/**函数实现，需重构 */
+export function snapshotManager(origin: SnapshotOriginator): SnapshotManager {
   const undoStack: SnapshotOriginator[] = []
   const redoStack: SnapshotOriginator[] = []
-  const _origin: SnapshotOriginator = origin
 
   function create() {
-    const snapshot = _.cloneDeep(_origin)
+    const snapshot = _.cloneDeep(origin)
     undoStack.push(snapshot)
     redoStack.splice(0, redoStack.length)
   }
@@ -48,23 +50,21 @@ export function snapshotManager(origin: SnapshotOriginator) {
   function undo() {
     const snapshot = undoStack.pop()
     if (snapshot) {
-      console.table(_origin)
-      redoStack.push(_origin)
-      console.log(redoStack)
-
-      _origin.restore(snapshot)
+      redoStack.push(_.cloneDeep(origin))
+      origin.restore(snapshot)
     }
   }
 
   function redo() {
     const snapshot = redoStack.pop()
     if (snapshot) {
-      undoStack.push(_origin)
-      _origin.restore(snapshot)
+      undoStack.push(_.cloneDeep(origin))
+      origin.restore(snapshot)
     }
   }
 
   return {
+    origin,
     undoStack,
     redoStack,
     create,

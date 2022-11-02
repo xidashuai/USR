@@ -111,6 +111,6 @@
     "vitest.config.*",
     "cypress.config.*",
     "playwright.config.*"
-  ],
-  "exclude": ["**/*.test.ts"]
+  ]
+  // "exclude": ["**/*.test.ts"] /**单元测试时注释掉 **/
 }

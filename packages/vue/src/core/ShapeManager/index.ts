@@ -1,27 +1,35 @@
 import type { Shape } from '@/core/Shapes'
 import type { SnapshotOriginator } from '../Snapshot'
-import type { SnapshotManager } from '../Snapshot'
+import { SnapshotManager } from '../Snapshot'
 
 /**
  * 管理一个画布中的所有形状
  */
-export default class ShapeManager implements SnapshotOriginator {
+export class Layer implements SnapshotOriginator {
   ctx: CanvasRenderingContext2D
   shapes: Shape[] = []
   get size() {
     return this.shapes.length
   }
-  history: SnapshotManager
+
+  history: SnapshotManager = new SnapshotManager(this)
+
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx
   }
+
   push(shape: Shape) {
+    this.history.create()
     this.shapes.push(shape)
   }
+
   pop() {
+    this.history.create()
     return this.shapes.pop()
   }
+
   remove(shape: Shape) {
+    this.history.create()
     this.shapes = this.shapes.filter(s => s !== shape)
   }
   /**
@@ -33,13 +41,22 @@ export default class ShapeManager implements SnapshotOriginator {
       shape.draw(this.ctx)
     })
   }
+
   clearCanvas() {
     const w = this.ctx.canvas.width
     const h = this.ctx.canvas.height
     this.ctx.clearRect(0, 0, w, h)
   }
-  createSnapshot() {}
+
   restore(snapshot) {
     this.shapes = snapshot.shapes
+  }
+
+  undo() {
+    this.history.undo()
+  }
+
+  redo() {
+    this.history.redo()
   }
 }
