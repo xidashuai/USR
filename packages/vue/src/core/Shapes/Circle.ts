@@ -1,6 +1,5 @@
 import type { Shape } from '.'
-import type Vector2D from '../utils/Vector'
-import { V2D } from '../utils/Vector'
+import { V2D, Vector2D } from '../utils/Vector'
 
 interface CircleOptions {
   position?: Vector2D
