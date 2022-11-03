@@ -1,20 +1,31 @@
 import { CanvasEvent } from './EventObserver'
 import { Layer } from './Layer'
-import Circle from './Shapes/Circle'
-import Line from './Shapes/Line'
-import Rectangle from './Shapes/Rectangle'
+import {
+  Brush,
+  BrushOptions,
+  Circle,
+  CircleOptions,
+  Line,
+  LineOptions,
+  Oval,
+  OvalOptions,
+  Rectangle,
+  RectangleOptions
+} from './Shapes'
 import { SnapshotManager } from './Snapshot'
-import { distance, V2D, Vector2D } from './utils/Vector'
+import { calcMousePos, moveUp } from './utils/events'
+import { distance, offset, Vector2D } from './utils/vector'
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
+ * 记得在修改状态之前创建快照
  */
-export default class WB {
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
-  canvasEvent: CanvasEvent
-  layer: Layer
-  history: SnapshotManager
+export default class WhiteBoard {
+  readonly canvas: HTMLCanvasElement
+  readonly ctx: CanvasRenderingContext2D
+  readonly canvasEvent: CanvasEvent
+  readonly layer: Layer
+  readonly history: SnapshotManager
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -25,128 +36,122 @@ export default class WB {
     this.history = new SnapshotManager(this.layer)
   }
 
-  addCircle(options): Circle {
+  addCircle(options: CircleOptions): Circle {
+    this.history.addSnapshot()
     const circle = new Circle(options)
     this.layer.push(circle)
-    this.history.create()
     return circle
   }
 
-  addRectangle(options): Rectangle {
+  addRectangle(options: RectangleOptions): Rectangle {
+    this.history.addSnapshot()
     const rectangle = new Rectangle(options)
     this.layer.push(rectangle)
-    this.history.create()
     return rectangle
   }
 
-  addLine(options): Line {
+  addLine(options: LineOptions): Line {
+    this.history.addSnapshot()
     const line = new Line(options)
     this.layer.push(line)
-    this.history.create()
     return line
   }
 
-  drawShapes() {
+  addOval(options: OvalOptions): Oval {
+    this.history.addSnapshot()
+    const oval = new Oval(options)
+    this.layer.push(oval)
+    return oval
+  }
+
+  addBrush(options: BrushOptions): Brush {
+    this.history.addSnapshot()
+    const brush = new Brush(options)
+    this.layer.push(brush)
+    return brush
+  }
+
+  undo(): void {
+    this.history.undo()
     this.layer.drawShapes()
   }
 
-  undo() {
-    this.history.undo()
-    this.drawShapes()
-  }
-
-  redo() {
+  redo(): void {
     this.history.redo()
-    this.drawShapes()
+    this.layer.drawShapes()
   }
 
-  dragToDrawLine() {
-    this.canvasEvent.mouseDown((e: MouseEvent) => {
-      const begin = m2v(e)
-
-      const line = this.addLine({ begin })
-      const move = (e: MouseEvent) => {
-        line.end = m2v(e)
-        this.layer.drawShapes()
-      }
-      moveUp(move)
-    })
+  getMousePos(e: MouseEvent): Vector2D {
+    return calcMousePos(e, this.canvas)
   }
 
-  dragToDrawRectangle() {
-    this.canvasEvent.mouseDown((e: MouseEvent) => {
-      const rectangle = this.addRectangle({
-        position: m2v(e)
-      })
+  useMouseDown() {
+    return {
+      drawLine: () => {
+        this.canvasEvent.mouseDown((e: MouseEvent) => {
+          const begin = this.getMousePos(e)
+          const line = this.addLine({ begin })
 
-      const move = (e: MouseEvent) => {
-        rectangle.w = e.offsetX - rectangle.position.x
-        rectangle.h = e.offsetY - rectangle.position.y
-        this.layer.drawShapes()
+          const move = (e: MouseEvent) => {
+            line.end = this.getMousePos(e)
+            this.layer.drawShapes()
+          }
+
+          moveUp(move)
+        })
+      },
+      drawRectangle: () => {
+        this.canvasEvent.mouseDown((e: MouseEvent) => {
+          const rectangle = this.addRectangle({
+            pos: this.getMousePos(e)
+          })
+
+          const move = (e: MouseEvent) => {
+            rectangle.w = this.getMousePos(e).x - rectangle.pos.x
+            rectangle.h = this.getMousePos(e).y - rectangle.pos.y
+            this.layer.drawShapes()
+          }
+
+          moveUp(move)
+        })
+      },
+      drawCircle: () => {
+        this.canvasEvent.mouseDown((e: MouseEvent) => {
+          const circle = this.addCircle({ pos: this.getMousePos(e) })
+
+          const move = (e: MouseEvent) => {
+            circle.radius = distance(this.getMousePos(e), circle.pos)
+            this.layer.drawShapes()
+          }
+
+          moveUp(move)
+        })
+      },
+      drawOval: () => {
+        this.canvasEvent.mouseDown((e: MouseEvent) => {
+          const oval = this.addOval({ pos: this.getMousePos(e) })
+
+          const move = (e: MouseEvent) => {
+            oval.radiusX = Math.abs(this.getMousePos(e).x - oval.pos.x)
+            oval.radiusY = Math.abs(this.getMousePos(e).y - oval.pos.y)
+            this.layer.drawShapes()
+          }
+
+          moveUp(move)
+        })
       }
-
-      moveUp(move)
-    })
-  }
-
-  dragToDrawCircle() {
-    this.canvasEvent.mouseDown((e: MouseEvent) => {
-      const circle = this.addCircle({ position: m2v(e) })
-
-      const move = (e: MouseEvent) => {
-        console.log(m2v(e))
-
-        circle.radius = distance(m2v(e), circle.position)
-        this.drawShapes()
-      }
-
-      moveUp(move)
-    })
+    }
   }
 }
 
-let wb: WB | null = null
+let whiteboard: WhiteBoard | null = null
 export function useWB(canvas?: HTMLCanvasElement) {
-  if (wb !== null) {
-    return wb
+  if (whiteboard !== null) {
+    return whiteboard
   }
   if (canvas) {
-    wb = new WB(canvas)
-    return wb
+    whiteboard = new WhiteBoard(canvas)
+    return whiteboard
   }
   throw Error('未初始化')
-}
-
-/**
- * 添加鼠标移动事件并在抬起时取消
- * @param moveFN
- */
-function moveUp(moveFN) {
-  window.addEventListener('mousemove', moveFN)
-  window.addEventListener(
-    'mouseup',
-    () => {
-      window.removeEventListener('mousemove', moveFN)
-    },
-    { once: true }
-  )
-}
-
-/**
- * mouse position to vector
- * @param e MouseEvent
- * @returns
- */
-function m2v(e: MouseEvent): Vector2D {
-  const { x, y } = new V2D(e.offsetX, e.offsetY)
-  return { x, y }
-}
-
-function calcCanvasCoordinate(
-  e: MouseEvent,
-  canvas: HTMLCanvasElement
-): Vector2D {
-  const x = e.clientX - canvas.getBoundingClientRect().left
-  const y = e.clientY - canvas.getBoundingClientRect().top
-  return { x, y }
 }

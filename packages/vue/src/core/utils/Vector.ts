@@ -6,19 +6,11 @@ export interface Vector2D {
   y: number
 }
 
-export class V2D implements Vector2D {
-  public x: number = 0
-  public y: number = 0
-  public constructor(x: number = 0, y: number = 0) {
-    this.x = x
-    this.y = y
-  }
-}
-
-function toVector2D(x: number, y: number): Vector2D {
+function toVector2D(x: number = 0, y: number = 0): Vector2D {
   return { x, y }
 }
-export const toV2D = toVector2D
+export const V2D = toVector2D
+
 /**
  * 计算两点之间的偏移量
  * @param v1
@@ -28,7 +20,7 @@ export const toV2D = toVector2D
 export function offset(v1: Vector2D, v2: Vector2D): Vector2D {
   return {
     x: v1.x - v2.x,
-    y: v2.y - v2.y
+    y: v1.y - v2.y
   }
 }
 
@@ -40,5 +32,35 @@ export function offset(v1: Vector2D, v2: Vector2D): Vector2D {
  */
 export function distance(v1: Vector2D, v2: Vector2D): number {
   const { x: offsetX, y: offsetY } = offset(v1, v2)
-  return Math.sqrt(offsetX ** 2 + offsetY ** 2)
+  return Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2))
+}
+
+export interface Rect {
+  width: number
+  height: number
+}
+
+export interface RectBounding extends Rect {
+  left: number
+  right: number
+  bottom: number
+  top: number
+  x: number
+  y: number
+}
+
+export function isInRectArea(p: Vector2D, area: RectBounding) {
+  if (p.x < area.left) {
+    return false
+  }
+  if (p.x > area.right) {
+    return false
+  }
+  if (p.y < area.top) {
+    return false
+  }
+  if (p.y > area.bottom) {
+    return false
+  }
+  return true
 }

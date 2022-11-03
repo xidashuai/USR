@@ -81,21 +81,3 @@ export class CanvasEvent {
     this.getEventListener('mousedown').clear()
   }
 }
-
-/**
- * 节流
- * @param callback
- * @param interval
- * @returns
- */
-function throttle(callback: (...args: any[]) => any, interval: number) {
-  let enableCall = true
-
-  return function (...args: any[]) {
-    if (!enableCall) return
-
-    enableCall = false
-    callback.apply(this, args)
-    setTimeout(() => (enableCall = true), interval)
-  }
-}

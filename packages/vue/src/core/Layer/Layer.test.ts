@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import { Layer } from './index'
-import Rectangle from '../Shapes/Rectangle'
-import { createCtx } from '@/core/utils/Canvas'
+import { Rectangle } from '../Shapes'
+import { createCtx } from '@/core/utils/canvas'
 
 const ctx = createCtx()
 

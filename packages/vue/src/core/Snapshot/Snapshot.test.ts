@@ -1,25 +1,28 @@
 import { test, expect } from 'vitest'
 
-import { SnapshotOriginator, SnapshotManager, snapshotManager } from './index'
+import { SnapshotOriginator, SnapshotManager } from './index'
 
 class TestSnapshot implements SnapshotOriginator {
   value: number = 0
+  snapshot() {
+    return { value: this.value }
+  }
   restore(snapshot: any): void {
     this.value = snapshot.value
   }
 }
 
 const testOrigin = new TestSnapshot()
-const sm = snapshotManager(testOrigin)
+const sm = new SnapshotManager(testOrigin)
 
 test('add snapshot', () => {
-  sm.create()
+  sm.addSnapshot()
   testOrigin.value = 1
 
-  sm.create()
+  sm.addSnapshot()
   testOrigin.value = 2
 
-  sm.create()
+  sm.addSnapshot()
   testOrigin.value = 3
 
   expect(sm.undoStack).toEqual([{ value: 0 }, { value: 1 }, { value: 2 }])

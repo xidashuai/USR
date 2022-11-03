@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CanvasToolIcon from './CanvasToolIcon.vue'
 const clickPen = () => {}
 const clickEraser = () => {}
 const clickShapes = () => {}
