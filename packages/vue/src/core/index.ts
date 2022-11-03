@@ -76,7 +76,7 @@ export default class WB {
   dragToDrawRectangle() {
     this.canvasEvent.mouseDown((e: MouseEvent) => {
       const rectangle = this.addRectangle({
-        position: m2v(e),
+        position: m2v(e)
       })
 
       const move = (e: MouseEvent) => {
@@ -139,5 +139,14 @@ function moveUp(moveFN) {
  */
 function m2v(e: MouseEvent): Vector2D {
   const { x, y } = new V2D(e.offsetX, e.offsetY)
+  return { x, y }
+}
+
+function calcCanvasCoordinate(
+  e: MouseEvent,
+  canvas: HTMLCanvasElement
+): Vector2D {
+  const x = e.clientX - canvas.getBoundingClientRect().left
+  const y = e.clientY - canvas.getBoundingClientRect().top
   return { x, y }
 }

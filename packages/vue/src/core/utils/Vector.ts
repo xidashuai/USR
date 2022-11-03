@@ -15,6 +15,10 @@ export class V2D implements Vector2D {
   }
 }
 
+function toVector2D(x: number, y: number): Vector2D {
+  return { x, y }
+}
+export const toV2D = toVector2D
 /**
  * 计算两点之间的偏移量
  * @param v1
@@ -24,7 +28,7 @@ export class V2D implements Vector2D {
 export function offset(v1: Vector2D, v2: Vector2D): Vector2D {
   return {
     x: v1.x - v2.x,
-    y: v2.y - v2.y,
+    y: v2.y - v2.y
   }
 }
 

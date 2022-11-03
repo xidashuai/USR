@@ -26,8 +26,8 @@ const apiRequest = new ApiRequest({
     },
     responseInterceptorCatch: error => {
       return error
-    },
-  },
+    }
+  }
 })
 
 export default apiRequest

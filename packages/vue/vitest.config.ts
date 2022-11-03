@@ -5,20 +5,20 @@ export default defineConfig({
   test: {
     setupFiles: ['./vitest.setup.ts'],
     deps: {
-      inline: ['vitest-canvas-mock'],
+      inline: ['vitest-canvas-mock']
     },
     threads: false,
     environmentOptions: {
       jsdom: {
-        resources: 'usable',
-      },
+        resources: 'usable'
+      }
     },
     globals: true,
-    environment: 'jsdom',
+    environment: 'jsdom'
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 })

@@ -91,7 +91,7 @@ export function snapshotManager(origin: SnapshotOriginator): SnapshotManager {
     redoStack,
     create,
     undo,
-    redo,
+    redo
   }
 }
 
