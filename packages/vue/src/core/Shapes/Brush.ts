@@ -1,5 +1,5 @@
 import { BrushOptions, Circle, Shape } from '.'
-import type { Vector2D } from '../utils/vector'
+import type { Vector2D } from '../utils/Vector'
 
 export class Brush implements Shape, BrushOptions {
   brushShape?: Shape = new Circle({ radius: 10 })

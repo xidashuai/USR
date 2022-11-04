@@ -36,19 +36,25 @@
 
         <div class="index_content_right_title">
           <h2>
-            您可以创建一个可命名的私有白板，并自定义其URL，所有知道它名字的人都可以访问它。
+            您可以创建一个可命名的私有白板，只有有知道它的房间号的人都可以访问它；
+            您也可以创建公开的白板，所有人都可以在公共的房间列表看到它。
           </h2>
         </div>
         <div class="index_content_right_button">
           <input type="text" placeholder="输入白板名字" v-model="roomName" />
-          <button @click="createPrivateBoard">创建私人白板</button>
+          <button @click="createPrivateBoard">创建白板</button>
         </div>
       </div>
     </div>
   </div>
 
   <div v-show="isShow">
-    <Popup @click="clickOut" />
+    <Popup
+      @click="clickOut"
+      :isName="name"
+      :room="roomValue"
+      :roomName="roomNameValue"
+    />
   </div>
 </template>
 
@@ -61,19 +67,27 @@ const router = useRouter()
 const room = ref('')
 const roomName = ref('')
 const isShow = ref(false)
+const name = ref('')
+const roomValue = ref('')
+const roomNameValue = ref('')
 const joinPublicWhiteBoard = () => {
-  router.push('/whiteboard')
+  router.push('/home')
 }
 const joinPrivateBoard = () => {
   if (room.value) {
     isShow.value = true
+    name.value = 'join'
+    roomValue.value = room.value
   }
 }
 const createPrivateBoard = () => {
   if (roomName.value) {
     isShow.value = true
+    name.value = 'create'
+    roomNameValue.value = roomName.value
   }
 }
+
 const clickOut = (e: MouseEvent) => {
   const target = e.target as HTMLElement
 
@@ -84,7 +98,7 @@ const clickOut = (e: MouseEvent) => {
 </script>
 <style lang="scss" scoped>
 .index {
-  background-color: #ccc;
+  background-color: #f3f4f6;
   height: 100%;
   display: flex;
   flex-direction: column;

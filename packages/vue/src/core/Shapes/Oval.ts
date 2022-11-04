@@ -1,5 +1,5 @@
 import type { OvalOptions, Shape } from '.'
-import type { Vector2D } from '../utils/vector'
+import type { Vector2D } from '../utils/Vector'
 
 export class Oval implements Shape, OvalOptions {
   constructor(options: OvalOptions) {
