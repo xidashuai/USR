@@ -1,15 +1,20 @@
 <template>
   <div class="canvasContainer">
-    <BackIcon />
-    <canvas width="800" height="450" ref="canvasRef" />
+    <BackIcon @click="backHome" />
+    <canvas width="1260" height="800" ref="canvasRef" />
     <ShapeToolBar />
   </div>
 </template>
 
 <script setup lang="ts">
+import router from '@/router'
 import BackIcon from './BackIcon.vue'
 import CanvasTool from './CanvasTool.vue'
 import ShapeToolBar from './ShapeToolBar.vue'
+
+const backHome = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped lang="scss">
