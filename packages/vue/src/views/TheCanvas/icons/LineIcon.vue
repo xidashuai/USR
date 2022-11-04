@@ -14,7 +14,7 @@ import IconWrapper from './IconWrapper.vue'
 import { useWhiteBoard } from '@/stores/useWhiteBoard'
 const wb = useWhiteBoard()
 const clickLine = () => {
-  wb.instance().useMouseDown().drawLine()
+  wb.instance().useDrawLine()
 }
 </script>
 

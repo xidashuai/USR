@@ -14,7 +14,7 @@ import IconWrapper from './IconWrapper.vue'
 import { useWhiteBoard } from '@/stores/useWhiteBoard'
 const wb = useWhiteBoard()
 const clickCircle = () => {
-  wb.instance().useMouseDown().drawCircle()
+  wb.instance().useDrawCircle()
 }
 </script>
 

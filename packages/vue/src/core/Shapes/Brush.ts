@@ -1,40 +1,43 @@
-import { BrushOptions, Circle, Shape, ShapeOptions } from '.'
+import { BrushOptions, Circle, Shape } from '.'
 import type { Vector2D } from '../utils/vector'
 
 export class Brush implements Shape, BrushOptions {
   brushShape?: Shape = new Circle({ radius: 10 })
-  path?: Vector2D[] = [{ x: 0, y: 0 }]
+  vectors?: Vector2D[] = [{ x: 0, y: 0 }]
   begin?: Vector2D
   end?: Vector2D
-  fill?: string
-  stroke?: string
-  interval: number = 1
-  cache: Vector2D[] = []
+  fillStyle?: string
+  strokeStyle?: string
+
   constructor(options: BrushOptions) {
     Object.assign(this, options)
   }
+
   draw(ctx: CanvasRenderingContext2D): void {
-    this.path.forEach(v => {
-      this.brushShape.pos = v
-      this.brushShape.draw(ctx)
-    })
+    const shadowPath = shadow(this.vectors)
+    const a = shadowPath.shift()
+
+    const brushPath = new Path2D()
+    brushPath.moveTo(a.x, a.y)
+    let b = shadowPath.shift()
+    let c = shadowPath.shift()
+    while (b || c) {
+      // 只有两点之间做直线，有三点做贝塞尔曲线
+      c
+        ? brushPath.quadraticCurveTo(b.x, b.y, c.x, c.y)
+        : brushPath.lineTo(b.x, b.y)
+      b = shadowPath.shift()
+      c = shadowPath.shift()
+    }
+    ctx.stroke(brushPath)
   }
 }
 
-const lerp = (a: number, b: number, t: number) => {
-  return a + (b - a) * t
-}
-
-function insert(p1: Vector2D, p2: Vector2D) {
-  const step = 10
-  const result = []
-  for (let i = 0; i < step; i++) {
-    result.push({
-      x: lerp(p1.x, p2.x, i / step),
-      y: lerp(p1.y, p2.y, i / step)
-    })
+/**提供shift，不改变原数组大小 */
+function shadow(arr: any[]) {
+  let i = 0
+  const shift = () => {
+    return arr[i++]
   }
-  result.push({ ...p2 })
-
-  return result
+  return { shift }
 }

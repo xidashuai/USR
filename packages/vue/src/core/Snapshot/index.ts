@@ -9,8 +9,8 @@ export interface SnapshotOriginator<T = any> {
  * 快照，支持undo/redo, 使用时记得在修改状态前创建快照
  */
 export class SnapshotManager {
-  readonly undoStack: SnapshotOriginator[] = []
-  readonly redoStack: SnapshotOriginator[] = []
+  readonly undoStack: any[] = []
+  readonly redoStack: any[] = []
   readonly limit: number = 100
 
   readonly origin: SnapshotOriginator

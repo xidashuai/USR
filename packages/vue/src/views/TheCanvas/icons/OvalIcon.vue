@@ -15,7 +15,7 @@ import IconWrapper from './IconWrapper.vue'
 import { useWhiteBoard } from '@/stores/useWhiteBoard'
 const wb = useWhiteBoard()
 const clickOval = () => {
-  wb.instance().useMouseDown().drawOval()
+  wb.instance().useDrawOval()
 }
 </script>
 

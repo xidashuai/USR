@@ -16,6 +16,6 @@ import { useWhiteBoard } from '@/stores/useWhiteBoard'
 const wb = useWhiteBoard()
 
 const clickRectangle = () => {
-  wb.instance().useMouseDown().drawRectangle()
+  wb.instance().useDrawRectangle()
 }
 </script>

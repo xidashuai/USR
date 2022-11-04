@@ -3,7 +3,8 @@ import type { Vector2D } from '../utils/vector'
 
 export class Oval implements Shape, OvalOptions {
   constructor(options: OvalOptions) {
-    Object.assign(this, options)
+    Object.assign(this, JSON.parse(JSON.stringify(options)))
+    // Object.assign(this, options)
   }
   pos?: Vector2D = { x: 0, y: 0 }
 
@@ -13,14 +14,15 @@ export class Oval implements Shape, OvalOptions {
   startAngle: number = 0
   endAngle: number = Math.PI * 2
   counterclockwise: boolean = true
-  fill?: string = 'white'
-  stroke?: string = 'black'
+  fillStyle?: string = 'white'
+  strokeStyle?: string = 'black'
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.beginPath()
-    ctx.fillStyle = this.fill
-    ctx.strokeStyle = this.stroke
-    ctx.ellipse(
+    const path = new Path2D()
+    ctx.save()
+    ctx.fillStyle = this.fillStyle
+    ctx.strokeStyle = this.strokeStyle
+    path.ellipse(
       this.pos.x,
       this.pos.y,
       this.radiusX,
@@ -30,7 +32,7 @@ export class Oval implements Shape, OvalOptions {
       this.endAngle,
       this.counterclockwise
     )
-    ctx.stroke()
-    ctx.closePath()
+    ctx.stroke(path)
+    ctx.restore()
   }
 }

@@ -2,17 +2,17 @@ import { test, expect } from 'vitest'
 
 import { SnapshotOriginator, SnapshotManager } from './index'
 
-class TestSnapshot implements SnapshotOriginator {
+class TestOrigintor implements SnapshotOriginator {
   value: number = 0
   snapshot() {
     return { value: this.value }
   }
-  restore(snapshot: any): void {
+  restore(snapshot): void {
     this.value = snapshot.value
   }
 }
 
-const testOrigin = new TestSnapshot()
+const testOrigin = new TestOrigintor()
 const sm = new SnapshotManager(testOrigin)
 
 test('add snapshot', () => {
@@ -37,6 +37,9 @@ test('add snapshot', () => {
 
   sm.redo()
   expect(testOrigin.value).toBe(2)
+
+  sm.redo()
+  expect(testOrigin.value).toBe(3)
 
   sm.redo()
   expect(testOrigin.value).toBe(3)

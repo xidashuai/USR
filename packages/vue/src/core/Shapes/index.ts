@@ -7,8 +7,8 @@ export * from './Oval'
 export * from './Brush'
 
 export interface ShapeOptions {
-  fill?: string
-  stroke?: string
+  fillStyle?: string
+  strokeStyle?: string
   pos?: Vector2D
 }
 
@@ -42,6 +42,5 @@ export interface OvalOptions extends ShapeOptions {
 export interface CurveOptions extends LineOptions {}
 
 export interface BrushOptions extends ShapeOptions, CurveOptions {
-  path?: Vector2D[]
-  brushShape?: ShapeOptions
+  vectors?: Vector2D[]
 }

@@ -9,6 +9,8 @@ import { SnapshotManager } from '../Snapshot'
 export class Layer implements SnapshotOriginator {
   ctx: CanvasRenderingContext2D
   readonly shapes: Shape[] = []
+
+  cache: HTMLCanvasElement
   get size() {
     return this.shapes.length
   }
@@ -42,6 +44,26 @@ export class Layer implements SnapshotOriginator {
     this.shapes.forEach(shape => {
       shape.draw(this.ctx)
     })
+  }
+
+  createCache() {
+    this.cache = this.renderShapesOffscreen()
+  }
+  drawCache() {
+    this.clearCanvas()
+    this.ctx.drawImage(this.cache, 0, 0)
+  }
+  renderShapesOffscreen() {
+    const offscreenCanvas = document.createElement('canvas')
+    offscreenCanvas.width = this.ctx.canvas.getBoundingClientRect().width
+    offscreenCanvas.height = this.ctx.canvas.getBoundingClientRect().height
+    const ctx = offscreenCanvas.getContext('2d')
+
+    this.shapes.forEach(shape => {
+      shape.draw(ctx)
+    })
+
+    return offscreenCanvas
   }
 
   clearCanvas() {

@@ -13,7 +13,9 @@
 import IconWrapper from './IconWrapper.vue'
 import { useWhiteBoard } from '@/stores/useWhiteBoard'
 const wb = useWhiteBoard()
-const clickPen = () => {}
+const clickPen = () => {
+  wb.instance().useDrawBrush()
+}
 </script>
 
 <style scoped></style>

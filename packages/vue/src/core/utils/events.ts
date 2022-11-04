@@ -53,7 +53,7 @@ export function calcMousePos(
  * @param interval
  * @returns
  */
-function throttle(callback: (...args: any[]) => any, interval: number) {
+export function throttle(callback: (...args: any[]) => any, interval: number) {
   let enableCall = true
 
   return function (...args: any[]) {
