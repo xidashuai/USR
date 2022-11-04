@@ -1,25 +1,19 @@
-import type { Shape } from '.'
-import { V2D, Vector2D } from '../utils/Vector'
+import type { LineOptions, Shape } from '.'
+import { V2D, Vector2D } from '../utils/vector'
 
-interface LineOptions {
-  begin?: Vector2D
-  end?: Vector2D
-}
 /**
  * 直线
  */
-export default class Line implements Shape {
-  begin: Vector2D
-  end: Vector2D
-  constructor({ begin, end }: LineOptions) {
-    this.begin = begin || new V2D()
-    this.end = end || new V2D()
+export class Line implements Shape, LineOptions {
+  constructor(options: LineOptions) {
+    Object.assign(this, options)
   }
+  begin: Vector2D = V2D()
+  end: Vector2D = V2D()
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.beginPath()
-    ctx.moveTo(this.begin.x, this.begin.y)
-    ctx.lineTo(this.end.x, this.end.y)
-    ctx.stroke()
-    ctx.closePath()
+    const path = new Path2D()
+    path.moveTo(this.begin.x, this.begin.y)
+    path.lineTo(this.end.x, this.end.y)
+    ctx.stroke(path)
   }
 }

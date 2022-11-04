@@ -1,29 +1,30 @@
 import _ from 'lodash'
 
-export interface SnapshotOriginator {
-  restore(snapshot: any): void
+export interface SnapshotOriginator<T = any> {
+  snapshot(): T
+  restore(snapshot: T): void
 }
 
 /**
  * 快照，支持undo/redo, 使用时记得在修改状态前创建快照
  */
 export class SnapshotManager {
-  readonly undoStack: SnapshotOriginator[] = []
-  readonly redoStack: SnapshotOriginator[] = []
-  readonly origin: SnapshotOriginator
+  readonly undoStack: any[] = []
+  readonly redoStack: any[] = []
   readonly limit: number = 100
+
+  readonly origin: SnapshotOriginator
   constructor(origin: SnapshotOriginator) {
     this.origin = origin
-    ;(window as any).sm = this
   }
   /**
    * 创建快照
    */
-  create() {
+  addSnapshot() {
     if (this.undoStack.length > this.limit) {
       this.undoStack.shift()
     }
-    const snapshot = _.cloneDeep(this.origin)
+    const snapshot = this.origin.snapshot()
     this.undoStack.push(snapshot)
     this.redoStack.slice(0, this.redoStack.length)
   }
@@ -33,10 +34,8 @@ export class SnapshotManager {
    */
   undo() {
     const snapshot = this.undoStack.pop()
-    console.log(snapshot)
-
     if (snapshot) {
-      this.redoStack.push(_.cloneDeep(this.origin))
+      this.redoStack.push(this.origin.snapshot())
       this.origin.restore(snapshot)
     }
   }
@@ -47,54 +46,54 @@ export class SnapshotManager {
   redo() {
     const snapshot = this.redoStack.pop()
     if (snapshot) {
-      this.undoStack.push(_.cloneDeep(this.origin))
+      this.undoStack.push(this.origin.snapshot())
       this.origin.restore(snapshot)
     }
   }
 }
 
 /**函数实现，需重构 */
-export function snapshotManager(origin: SnapshotOriginator): SnapshotManager {
-  const undoStack: SnapshotOriginator[] = []
-  const redoStack: SnapshotOriginator[] = []
-  const limit = 100
+// export function snapshotManager(origin: SnapshotOriginator): SnapshotManager {
+//   const undoStack: SnapshotOriginator[] = []
+//   const redoStack: SnapshotOriginator[] = []
+//   const limit = 100
 
-  function create() {
-    if (undoStack.length === limit) {
-      undoStack.shift()
-    }
-    const snapshot = cloneDeep(origin)
-    undoStack.push(snapshot)
-    redoStack.splice(0, redoStack.length)
-  }
+//   function create() {
+//     if (undoStack.length === limit) {
+//       undoStack.shift()
+//     }
+//     const snapshot = origin.snapshot()
+//     undoStack.push(snapshot)
+//     redoStack.splice(0, redoStack.length)
+//   }
 
-  function undo() {
-    const snapshot = undoStack.pop()
-    if (snapshot) {
-      redoStack.push(cloneDeep(origin))
-      origin.restore(snapshot)
-    }
-  }
+//   function undo() {
+//     const snapshot = undoStack.pop()
+//     if (snapshot) {
+//       redoStack.push(origin.snapshot())
+//       origin.restore(snapshot)
+//     }
+//   }
 
-  function redo() {
-    const snapshot = redoStack.pop()
-    if (snapshot) {
-      undoStack.push(cloneDeep(origin))
-      origin.restore(snapshot)
-    }
-  }
+//   function redo() {
+//     const snapshot = redoStack.pop()
+//     if (snapshot) {
+//       undoStack.push(origin.snapshot())
+//       origin.restore(snapshot)
+//     }
+//   }
 
-  return {
-    origin,
-    limit,
-    undoStack,
-    redoStack,
-    create,
-    undo,
-    redo,
-  }
-}
+//   return {
+//     origin,
+//     limit,
+//     undoStack,
+//     redoStack,
+//     addSnapshot: create,
+//     undo,
+//     redo
+//   }
+// }
 
-function cloneDeep(obj) {
-  return Object.assign({}, obj)
-}
+// function cloneDeep(obj) {
+//   return Object.assign({}, obj)
+// }

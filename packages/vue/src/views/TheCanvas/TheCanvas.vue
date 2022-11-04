@@ -2,19 +2,30 @@
   <div class="canvasContainer">
     <BackIcon @click="backHome" />
     <canvas width="1260" height="800" ref="canvasRef" />
-    <ShapeToolBar />
+    <AsyncShapeToolBar />
   </div>
 </template>
 
 <script setup lang="ts">
 import router from '@/router'
-import BackIcon from './BackIcon.vue'
-import CanvasTool from './CanvasTool.vue'
-import ShapeToolBar from './ShapeToolBar.vue'
-
+import BackIcon from './icons/BackIcon.vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
+import { useWhiteBoard } from '@/stores/useWhiteBoard'
 const backHome = () => {
   router.push('/')
 }
+
+const wb = useWhiteBoard()
+const canvasRef = ref<HTMLCanvasElement>(null)
+
+onMounted(() => {
+  wb.canvas = canvasRef.value
+})
+
+const AsyncShapeToolBar = defineAsyncComponent({
+  loader: () => import('./ShapeToolBar.vue'),
+  delay: 10000
+})
 </script>
 
 <style scoped lang="scss">

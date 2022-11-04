@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TheCanvas from './views/TheCanvas/TheCanvas.vue'
 </script>
 
 <template>

@@ -23,6 +23,9 @@ type EventType = keyof HTMLElementEventMap
 interface EventListener<T extends EventType> {
   (this: HTMLCanvasElement, ev: HTMLElementEventMap[T]): any
 }
+/**
+ * 策略模式，更换canvas事件
+ */
 export class CanvasEvent {
   canvas: HTMLCanvasElement
   events: {
@@ -52,7 +55,7 @@ export class CanvasEvent {
   }
 
   /**
-   * 确保mousedown事件只有一个listener
+   * 确保click事件只有一个listener
    * @param fn
    */
   click(fn: MouseFN) {
@@ -79,23 +82,5 @@ export class CanvasEvent {
       this.canvas.removeEventListener('mousedown', l)
     })
     this.getEventListener('mousedown').clear()
-  }
-}
-
-/**
- * 节流
- * @param callback
- * @param interval
- * @returns
- */
-function throttle(callback: (...args: any[]) => any, interval: number) {
-  let enableCall = true
-
-  return function (...args: any[]) {
-    if (!enableCall) return
-
-    enableCall = false
-    callback.apply(this, args)
-    setTimeout(() => (enableCall = true), interval)
   }
 }
