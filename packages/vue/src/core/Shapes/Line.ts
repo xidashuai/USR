@@ -1,5 +1,5 @@
 import type { LineOptions, Shape } from '.'
-import { V2D, Vector2D } from '../utils/vector'
+import { V2D, Vector2D } from '../utils/Vector'
 
 /**
  * 直线

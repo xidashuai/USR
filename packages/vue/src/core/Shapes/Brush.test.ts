@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { V2D, Vector2D } from '../utils/vector'
+import { V2D, Vector2D } from '../utils/Vector'
 
 test('asfd', () => {
   const point = [

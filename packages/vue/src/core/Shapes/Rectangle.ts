@@ -1,5 +1,5 @@
 import type { RectangleOptions, Shape } from '.'
-import { V2D, Vector2D } from '../utils/vector'
+import { V2D, Vector2D } from '../utils/Vector'
 
 /**
  * 长方形

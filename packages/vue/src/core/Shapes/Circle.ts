@@ -1,5 +1,5 @@
 import type { CircleOptions, Shape } from '.'
-import { V2D, Vector2D } from '../utils/vector'
+import { V2D, Vector2D } from '../utils/Vector'
 
 /**
  * 圆形

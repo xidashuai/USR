@@ -14,7 +14,7 @@ import {
 } from './Shapes'
 import { SnapshotManager } from './Snapshot'
 import { calcMousePos, moveUp } from './utils/events'
-import { distance, offset, Vector2D } from './utils/vector'
+import { distance, offset, Vector2D } from './utils/Vector'
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据

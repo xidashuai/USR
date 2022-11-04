@@ -38,14 +38,18 @@ export function updateUsername(userid: number, newname: string) {
  * @param isPublic
  *
  */
-export function createRoom(ownerid: number, roomname: string, isPublic: number) {
+export function createRoom(
+  ownerid: number,
+  roomname: string,
+  isPublic: number
+) {
   return apiRequest.request({
     url: `/createroom`,
     method: 'POST',
     data: {
       ownerid,
       roomname,
-      public:isPublic
+      public: isPublic
     }
   })
 }
