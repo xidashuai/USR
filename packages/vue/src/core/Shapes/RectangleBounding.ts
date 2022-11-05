@@ -1,5 +1,5 @@
 import type { RectangleBoundingOptions, RectangleOptions, Shape } from '.'
-import type { RectBounding, Vector2D } from '../utils/vector'
+import type { RectBounding, Vector2D } from '../utils/Vector'
 
 /**
  * 长方形
