@@ -25,10 +25,10 @@ test('should no duplicate listener', () => {
 })
 
 test('should only has one mouse-down event', () => {
-  canvasEvent.mouseDown(fn3)
+  canvasEvent.setMouseDown(fn3)
   expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
 
-  canvasEvent.mouseDown(fn2)
+  canvasEvent.setMouseDown(fn2)
   expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
 
   canvasEvent.remove('mousedown', fn2)

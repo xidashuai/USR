@@ -58,7 +58,7 @@ export class CanvasEvent {
    * 确保click事件只有一个listener
    * @param fn
    */
-  click(fn: MouseFN) {
+  setClick(fn: MouseFN) {
     this.offClick()
     this.add('click', fn)
   }
@@ -73,7 +73,7 @@ export class CanvasEvent {
    * 确保mousedown事件只有一个listener
    * @param fn
    */
-  mouseDown(fn: MouseFN) {
+  setMouseDown(fn: MouseFN) {
     this.offMouseDown()
     this.add('mousedown', fn)
   }
