@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { createCanvas } from '../utils/canvas'
+import { createCanvas } from '../utils/Canvas'
 import { CanvasEvent } from './index'
 
 const canvas = createCanvas()

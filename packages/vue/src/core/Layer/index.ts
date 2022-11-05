@@ -1,7 +1,7 @@
 import type { Shape } from '@/core/Shapes'
 import _ from 'lodash'
 import type { SnapshotOriginator } from '../Snapshot'
-import type { RectBounding, Vector2D } from '../utils/vector'
+import type { RectBounding, Vector2D } from '../utils/Vector'
 
 /**
  * 管理一个画布中的所有形状

@@ -15,13 +15,14 @@ import {
 } from './Shapes'
 import { SnapshotManager } from './Snapshot'
 import { calcMousePos, moveUp } from './utils/events'
+
 import {
   calcRectBounding,
   distance,
   insert,
   smooth3Vector,
   Vector2D
-} from './utils/vector'
+} from './utils/Vector'
 
 import { logoUrl } from '@/assets'
 /**

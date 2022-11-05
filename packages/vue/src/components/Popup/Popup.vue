@@ -49,6 +49,7 @@ const isPublic = ref('true')
 const create = () => {
   if (username.value && isPublic.value) {
     console.log(username.value, isPublic.value)
+    console.log(roomName.value, 'roomName')
   }
 }
 // 匿名创建白板

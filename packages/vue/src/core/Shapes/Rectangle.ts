@@ -6,7 +6,7 @@ import {
   RectBounding,
   V2D,
   Vector2D
-} from '../utils/vector'
+} from '../utils/Vector'
 
 /**
  * 长方形

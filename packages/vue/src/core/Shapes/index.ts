@@ -1,4 +1,4 @@
-import type { RectBounding, Vector2D } from '../utils/vector'
+import type { RectBounding, Vector2D } from '../utils/Vector'
 
 export * from './Line'
 export * from './Circle'
