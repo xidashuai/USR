@@ -11,7 +11,8 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write . --ignore-path .prettierignore"
+    "format": "prettier --write . --ignore-path .prettierignore",
+    "precommit": "pnpm lint && pnpm format && pnpm build"
   },
   "dependencies": {
     "axios": "^1.1.3",

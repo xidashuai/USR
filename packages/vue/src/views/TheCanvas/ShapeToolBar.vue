@@ -7,6 +7,7 @@
     <LineIcon />
     <UndoIcon />
     <RedoIcon />
+    <AreaIcon />
   </div>
 </template>
 
@@ -18,6 +19,7 @@ import OvalIcon from './icons/OvalIcon.vue'
 import UndoIcon from './icons/UndoIcon.vue'
 import RedoIcon from './icons/RedoIcon.vue'
 import BrushIcon from './icons/BrushIcon.vue'
+import AreaIcon from './icons/AreaIcon.vue'
 </script>
 
 <style scoped>

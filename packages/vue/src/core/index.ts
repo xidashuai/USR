@@ -10,11 +10,12 @@ import {
   Oval,
   OvalOptions,
   Rectangle,
-  RectangleOptions
+  RectangleOptions,
+  Shape
 } from './Shapes'
 import { SnapshotManager } from './Snapshot'
 import { calcMousePos, moveUp } from './utils/events'
-import { distance, offset, Vector2D } from './utils/vector'
+import { calcRectBounding, distance, offset, Vector2D } from './utils/vector'
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
@@ -115,6 +116,66 @@ export default class WhiteBoard {
     this.canvasEvent.mouseDown(fn)
   }
 
+  setClick(fn: (this: GlobalEventHandlers, ev: MouseEvent) => any) {
+    this.canvasEvent.click(fn)
+  }
+
+  /**@todo */
+  useSelect() {
+    this.setMouseDown((e: MouseEvent) => {
+      this.createCache()
+
+      const posMouseDown = this.getMousePos(e)
+      let area
+      const move = (e: MouseEvent) => {
+        this.ctx.save()
+        this.drawCache()
+
+        const pos = this.getMousePos(e)
+        const areaPath = new Path2D()
+        this.ctx.fillStyle = 'rgba(77, 173, 190, 0.3)'
+        areaPath.rect(
+          posMouseDown.x,
+          posMouseDown.y,
+          pos.x - posMouseDown.x,
+          pos.y - posMouseDown.y
+        )
+        this.ctx.fill(areaPath)
+
+        area = calcRectBounding(posMouseDown, pos)
+        this.ctx.restore()
+      }
+
+      moveUp(move, () => {
+        this.layer.getShapesInArea(area)
+        this.layer.shapesSelected.forEach(s => {
+          s.setSelect()
+        })
+        this.drawShapes()
+        this.useMove()
+      })
+    })
+  }
+
+  useMove() {
+    this.setMouseDown((e: MouseEvent) => {
+      this.addSnapshot()
+      let pre = this.getMousePos(e)
+
+      const move = (e: MouseEvent) => {
+        const cur = this.getMousePos(e)
+        this.layer.shapesSelected.forEach(shape => {
+          shape.move(cur.x - pre.x, cur.y - pre.y)
+          shape.draw(this.ctx)
+        })
+        pre = cur
+        this.drawShapes()
+      }
+
+      moveUp(move)
+    })
+  }
+
   useDrawLine() {
     this.setMouseDown((e: MouseEvent) => {
       const begin = this.getMousePos(e)
@@ -189,24 +250,6 @@ export default class WhiteBoard {
       moveUp(move)
     })
   }
-}
-
-const lerp = (a: number, b: number, t: number) => {
-  return a + (b - a) * t
-}
-
-function insert(p1: Vector2D, p2: Vector2D) {
-  const step = 10
-  const result = []
-  for (let i = 0; i < step; i++) {
-    result.push({
-      x: lerp(p1.x, p2.x, i / step),
-      y: lerp(p1.y, p2.y, i / step)
-    })
-  }
-  result.push({ ...p2 })
-
-  return result
 }
 
 let wb: WhiteBoard | null = null

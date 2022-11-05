@@ -1,4 +1,4 @@
-import type { Vector2D } from '../utils/vector'
+import type { RectBounding, Vector2D } from '../utils/vector'
 
 export * from './Line'
 export * from './Circle'
@@ -10,10 +10,17 @@ export interface ShapeOptions {
   fillStyle?: string
   strokeStyle?: string
   pos?: Vector2D
+  selected?: boolean
 }
 
 export interface Shape extends ShapeOptions {
   draw(ctx: CanvasRenderingContext2D): void
+  isInnerPos(pos: Vector2D): boolean
+  isInArea(area: RectBounding): boolean
+  setSelect(): void
+  unSelect(): void
+  toggleSelect(): void
+  move(x: number, y: number): void
 }
 
 export interface CircleOptions extends ShapeOptions {

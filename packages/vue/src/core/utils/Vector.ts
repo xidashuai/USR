@@ -24,6 +24,11 @@ export function offset(v1: Vector2D, v2: Vector2D): Vector2D {
   }
 }
 
+export function moveVector(v: Vector2D, x: number = 0, y: number = 0) {
+  v.x += x
+  v.y += y
+}
+
 /**
  * 计算两点之间的距离
  * @param v1
@@ -32,7 +37,7 @@ export function offset(v1: Vector2D, v2: Vector2D): Vector2D {
  */
 export function distance(v1: Vector2D, v2: Vector2D): number {
   const { x: offsetX, y: offsetY } = offset(v1, v2)
-  return Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2))
+  return Math.round(Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2)))
 }
 
 /**
@@ -49,8 +54,7 @@ export function lerp(a: number, b: number, t: number): number {
  * @param p2
  * @returns 插值后的数组
  */
-export function insert(p1: Vector2D, p2: Vector2D) {
-  const step = 10
+export function insert(p1: Vector2D, p2: Vector2D, step = calcStep(p1, p2, 2)) {
   const result = []
   for (let i = 0; i < step; i++) {
     result.push({
@@ -70,7 +74,7 @@ function getQuadraticBezierPosition(
   t: number
 ): number {
   if (t < 0.0 || t > 1.0) {
-    throw new Error('t的取值范围必须为[0,1]')
+    throw new Error('t的取值范围为[0,1]')
   }
   const t1: number = 1.0 - t
   const t2: number = t1 * t1
@@ -89,7 +93,7 @@ export function getQuadraticBezierVector(
   }
 }
 
-const arrayIterator = (arr: any[]) => {
+export function arrayIterator(arr: any[]) {
   let i = 0
   const next = () => {
     return arr[i++]
@@ -98,24 +102,50 @@ const arrayIterator = (arr: any[]) => {
 }
 
 /**
- * @todo 转化成贝塞尔曲线向量
- * @param step
+ * 平滑路径
  * @param vectors
  */
-function insertQBezier(step: number, vectors: Vector2D[]) {
+export function smoothPath(vectors: Vector2D[]) {
+  if (vectors.length < 2) {
+    return
+  }
   const result: Vector2D[] = []
-  // getQuadraticBezierVector()
+
+  const smooth3Vector = (
+    start: Vector2D,
+    ctrl: Vector2D,
+    end: Vector2D,
+    step: number
+  ) => {
+    for (let i = 0; i < step; i++) {
+      const t = i / step
+      const toInsert = getQuadraticBezierVector(start, ctrl, end, t)
+      result.push(toInsert)
+    }
+    result.push(end)
+  }
+
   const v = arrayIterator(vectors)
 
-  const start = v.next()
-  const ctrl = v.next()
-  const end = v.next()
-  const t = 0
+  let start = v.next()
+  let ctrl = v.next()
+  let end = v.next()
 
-  for (let i = 1; i < step; i++) {
-    const toInsert = getQuadraticBezierVector(start, ctrl, end, t)
-    result.push(toInsert)
+  while (start && ctrl && end) {
+    const step = calcStep(start, ctrl, 2)
+    smooth3Vector(start, ctrl, end, step)
+    start = end
+    ctrl = v.next()
+    end = v.next()
   }
+  if (ctrl) {
+    result.push(...insert(start, ctrl))
+  }
+  return result
+}
+
+export function calcStep(p1: Vector2D, p2: Vector2D, interval: number): number {
+  return Math.floor(distance(p1, p2) / interval)
 }
 
 export interface Rect {
@@ -130,6 +160,28 @@ export interface RectBounding extends Rect {
   top: number
   x: number
   y: number
+}
+
+export function calcRectBounding(a: Vector2D, b: Vector2D): RectBounding {
+  const x = a.x < b.x ? a.x : b.x
+  const y = a.y < b.y ? a.y : b.y
+  const width = Math.abs(b.x - a.x)
+  const height = Math.abs(b.y - a.y)
+
+  const left = x
+  const top = y
+  const right = x + width
+  const bottom = y + height
+  return {
+    x,
+    y,
+    width,
+    height,
+    left,
+    top,
+    right,
+    bottom
+  }
 }
 
 /**

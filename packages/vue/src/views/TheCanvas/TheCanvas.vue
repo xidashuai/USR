@@ -16,6 +16,7 @@ const canvasRef = ref<HTMLCanvasElement>(null)
 
 onMounted(() => {
   wb.canvas = canvasRef.value
+  wb.instance().useSelect()
 })
 
 const AsyncShapeToolBar = defineAsyncComponent({

@@ -1,35 +1,64 @@
-import { BrushOptions, Circle, Shape } from '.'
-import type { Vector2D } from '../utils/vector'
+import type { BrushOptions, Shape } from '.'
+import {
+  arrayIterator,
+  moveVector,
+  RectBounding,
+  Vector2D
+} from '../utils/vector'
 
 export class Brush implements Shape, BrushOptions {
-  brushShape?: Shape = new Circle({ radius: 10 })
-  vectors?: Vector2D[] = [{ x: 0, y: 0 }]
-  begin?: Vector2D
-  end?: Vector2D
-  fillStyle?: string
-  strokeStyle?: string
-
   constructor(options: BrushOptions) {
     Object.assign(this, options)
   }
+  vectors?: Vector2D[] = [{ x: 0, y: 0 }]
+
+  selected?: boolean = false
+  toggleSelect() {
+    this.selected = !this.selected
+  }
+  setSelect(): void {
+    this.selected = true
+  }
+  unSelect(): void {
+    this.selected = false
+  }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    const shadowPath = shadow(this.vectors)
-    const a = shadowPath.shift()
+    ctx.save()
 
+    if (this.selected) {
+      ctx.strokeStyle = 'blue'
+    }
     const brushPath = new Path2D()
+    const shadowPath = arrayIterator(this.vectors)
+    const a = shadowPath.next()
     brushPath.moveTo(a.x, a.y)
-    let b = shadowPath.shift()
-    let c = shadowPath.shift()
+    let b = shadowPath.next()
+    let c = shadowPath.next()
     while (b || c) {
       // 只有两点之间做直线，有三点做贝塞尔曲线
       c
         ? brushPath.quadraticCurveTo(b.x, b.y, c.x, c.y)
         : brushPath.lineTo(b.x, b.y)
-      b = shadowPath.shift()
-      c = shadowPath.shift()
+      b = shadowPath.next()
+      c = shadowPath.next()
     }
     ctx.stroke(brushPath)
+    ctx.restore()
+  }
+
+  isInnerPos(pos: Vector2D): boolean {
+    return false
+  }
+
+  isInArea(area: RectBounding): boolean {
+    return false
+  }
+
+  move(x: number, y: number): void {
+    this.vectors.forEach(v => {
+      moveVector(v, x, y)
+    })
   }
 }
 
@@ -39,5 +68,5 @@ function shadow(arr: any[]) {
   const shift = () => {
     return arr[i++]
   }
-  return { shift }
+  return { next: shift }
 }
