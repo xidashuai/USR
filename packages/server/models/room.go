@@ -12,7 +12,7 @@ import (
 )
 var Roomer=make(map[string]map[string]struct{})
 var Chatclient = make(map[string]*websocket.Conn)
-var Rux sync.Mutex
+var Rux sync.RWMutex  //加个读写锁解决map线程不安全
 var wsupgrader = websocket.Upgrader{
 	ReadBufferSize:   1024,
 	WriteBufferSize:  1024,
@@ -24,6 +24,7 @@ var wsupgrader = websocket.Upgrader{
 }
 
 func Addroom(context *gin.Context){
+
 roomid:= context.Query("roomid")
 userid:= context.Query("userid")
 wshandletlfunc(context.Writer,context.Request,roomid,userid)
@@ -33,8 +34,25 @@ wshandletlfunc(context.Writer,context.Request,roomid,userid)
 func Createroom (context *gin.Context){
 Db.AutoMigrate(&Room{})
 var newroom Room
-context.ShouldBind(&newroom)
+var roomuser User
+ err1:=context.ShouldBind(&newroom)
+ if err1!=nil{
+	 context.JSON(200,gin.H{
+		 "issucceed":false,
+		 "msg":"创建房间失败,传参有误",
+	 })
+	 return
+ }
+ result:=Db.Where("id=?",newroom.Ownerid).First(&roomuser)
+ if result.RowsAffected==0{
+	 context.JSON(200,gin.H{
+		 "issucceed":false,
+		 "msg":"创建房间失败,该用户不存在",
+	 })
+	 return
+ }
  tx:=Db.Create(&newroom)
+ newroom.Owner=roomuser
 	if tx.RowsAffected ==0{
 		context.JSON(200,gin.H{
 			"issucceed":false,
@@ -44,12 +62,20 @@ context.ShouldBind(&newroom)
 	}
 	context.JSON(200,gin.H{
 		"issucceed":true,
-		"msg":"创建房间成功",
+		"msg":newroom,
 	})
 }
+
 func Getroomlist (context *gin.Context){
 	page:=context.Query("page")
-	intpage,_:=strconv.Atoi(page)
+	intpage,err1:=strconv.Atoi(page)
+	if err1!=nil {
+		context.JSON(200, gin.H{
+			"issucceed": false,
+			"msg":       "传参有误",
+		})
+		return
+	}
 	inpage:=intpage*10
 	rlist:=make([]Room,0)
 	Db.Where("public=?",0).Preload("Owner").Offset(inpage).Limit(10).Find(&rlist)
@@ -79,16 +105,18 @@ func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid
 		log.Println(err)
 		return
 	}
-
+        //写锁
 	Rux.Lock()
     Chatclient[userid]=conn
 	Roomer[roomid][userid]= struct{}{}
 	Rux.Unlock()
 	for{
 		var Rmessage Receivexy
+		//读取数据且自带心跳机制
 		err1:=conn.ReadJSON(&Rmessage)
 		if err1!=nil{
 			log.Println(userid+"."+roomid+"退出")
+			//上锁避免map出错
 			Rux.Lock()
 			delete(Chatclient,userid)
 			del:=Roomer[roomid]
@@ -97,11 +125,16 @@ func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid
 			Rux.Unlock()
 		}
 		if Rmessage.Roomid!=""{
-			//广播
+			//异步广播
 			rom:=Roomer[roomid]
 			for i:=range rom{
-				con:=Chatclient[i]
-				con.WriteJSON(&Rmessage)
+				go func(i string) {
+					Rux.RLock()
+					con:=Chatclient[i]
+					con.WriteJSON(&Rmessage)
+					Rux.RUnlock()
+				}(i)
+
 			}
 		}
 		Rmessage=Receivexy{}
@@ -119,8 +152,8 @@ type Receivexy struct{
 
 type Room struct {
 	gorm.Model
-	Roomname string `form:"roomname"`
-	Ownerid string  `form:"ownerid"`
+	Roomname string `form:"roomname" `
+	Ownerid string  `form:"ownerid" validate:"required"`
 	Owner User `gorm:"foreignKey:Ownerid"`
 	Public int   `form:"public"`
 }
