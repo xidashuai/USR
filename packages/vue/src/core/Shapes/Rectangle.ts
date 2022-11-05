@@ -1,4 +1,4 @@
-import type { RectangleOptions, Shape } from '.'
+import { RectangleBounding, RectangleOptions, Shape } from '.'
 import {
   calcRectBounding,
   isInRectArea,
@@ -41,7 +41,8 @@ export class Rectangle implements Shape, RectangleOptions {
     ctx.save()
     const path = new Path2D()
     if (this.selected) {
-      ctx.strokeStyle = 'blue'
+      const b = new RectangleBounding(this.getRectBounding())
+      b.draw(ctx)
     }
     path.rect(this.pos.x, this.pos.y, this.w, this.h)
     ctx.stroke(path)

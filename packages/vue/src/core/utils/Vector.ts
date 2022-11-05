@@ -45,7 +45,7 @@ export function distance(v1: Vector2D, v2: Vector2D): number {
  * @param t 插值的比例，在[0,1]之间
  */
 export function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t
+  return Math.round(a + (b - a) * t)
 }
 
 /**
@@ -67,6 +67,14 @@ export function insert(p1: Vector2D, p2: Vector2D, step = calcStep(p1, p2, 2)) {
   return result
 }
 
+/**
+ * 贝塞尔曲线标量插值
+ * @param start
+ * @param ctrl
+ * @param end
+ * @param t
+ * @returns
+ */
 function getQuadraticBezierPosition(
   start: number,
   ctrl: number,
@@ -81,6 +89,14 @@ function getQuadraticBezierPosition(
   return t2 * start + 2.0 * t * t1 * ctrl + t * t * end
 }
 
+/**
+ * 贝塞尔曲线向量插值
+ * @param start
+ * @param ctrl
+ * @param end
+ * @param t
+ * @returns
+ */
 export function getQuadraticBezierVector(
   start: Vector2D,
   ctrl: Vector2D,
@@ -89,8 +105,34 @@ export function getQuadraticBezierVector(
 ): Vector2D {
   return {
     x: getQuadraticBezierPosition(start.x, ctrl.x, end.x, t),
-    y: getQuadraticBezierPosition(start.y, ctrl.y, ctrl.y, t)
+    y: getQuadraticBezierPosition(start.y, ctrl.y, end.y, t)
   }
+}
+
+/**
+ * 使用贝塞尔曲线平滑三点
+ * @param start
+ * @param ctrl
+ * @param end
+ * @param step
+ * @returns
+ */
+export function smooth3Vector(
+  start: Vector2D,
+  ctrl: Vector2D,
+  end: Vector2D,
+  step: number = calcStep(start, ctrl)
+): Vector2D[] {
+  const result: Vector2D[] = []
+
+  for (let i = 0; i < step; i++) {
+    const t = i / step
+    const toInsert = getQuadraticBezierVector(start, ctrl, end, t)
+    result.push(toInsert)
+  }
+
+  result.push(end)
+  return result
 }
 
 export function arrayIterator(arr: any[]) {
@@ -111,20 +153,6 @@ export function smoothPath(vectors: Vector2D[]) {
   }
   const result: Vector2D[] = []
 
-  const smooth3Vector = (
-    start: Vector2D,
-    ctrl: Vector2D,
-    end: Vector2D,
-    step: number
-  ) => {
-    for (let i = 0; i < step; i++) {
-      const t = i / step
-      const toInsert = getQuadraticBezierVector(start, ctrl, end, t)
-      result.push(toInsert)
-    }
-    result.push(end)
-  }
-
   const v = arrayIterator(vectors)
 
   let start = v.next()
@@ -132,8 +160,9 @@ export function smoothPath(vectors: Vector2D[]) {
   let end = v.next()
 
   while (start && ctrl && end) {
-    const step = calcStep(start, ctrl, 2)
-    smooth3Vector(start, ctrl, end, step)
+    const sm = smooth3Vector(start, ctrl, end)
+    sm.pop()
+    result.push(...sm)
     start = end
     ctrl = v.next()
     end = v.next()
@@ -144,8 +173,19 @@ export function smoothPath(vectors: Vector2D[]) {
   return result
 }
 
-export function calcStep(p1: Vector2D, p2: Vector2D, interval: number): number {
-  return Math.floor(distance(p1, p2) / interval)
+/**
+ * 计算两点之间插值的数量
+ * @param a
+ * @param b
+ * @param interval 每个插值之间间隔的像素
+ * @returns
+ */
+export function calcStep(
+  a: Vector2D,
+  b: Vector2D,
+  interval: number = 1
+): number {
+  return Math.floor(distance(a, b) / interval)
 }
 
 export interface Rect {

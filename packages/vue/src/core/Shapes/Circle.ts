@@ -1,4 +1,4 @@
-import type { CircleOptions, Shape } from '.'
+import { CircleOptions, RectangleBounding, Shape } from '.'
 import {
   distance,
   isInRectArea,
@@ -36,7 +36,8 @@ export class Circle implements Shape, CircleOptions {
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.save()
     if (this.selected) {
-      ctx.strokeStyle = 'blue'
+      const b = new RectangleBounding(this.getRectBounding())
+      b.draw(ctx)
     }
     const circle = new Path2D()
     circle.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI)
@@ -59,5 +60,17 @@ export class Circle implements Shape, CircleOptions {
 
   move(x: number, y: number): void {
     moveVector(this.pos, x, y)
+  }
+
+  getRectBounding(): RectBounding {
+    const x = this.pos.x - this.radius
+    const y = this.pos.y - this.radius
+    const width = this.radius * 2
+    const height = width
+    const left = x
+    const top = y
+    const right = x + width
+    const bottom = y + height
+    return { x, y, width, height, left, top, right, bottom }
   }
 }

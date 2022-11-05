@@ -5,6 +5,7 @@ export * from './Circle'
 export * from './Rectangle'
 export * from './Oval'
 export * from './Brush'
+export * from './RectangleBounding'
 
 export interface ShapeOptions {
   fillStyle?: string
@@ -21,6 +22,7 @@ export interface Shape extends ShapeOptions {
   unSelect(): void
   toggleSelect(): void
   move(x: number, y: number): void
+  getRectBounding(): RectBounding
 }
 
 export interface CircleOptions extends ShapeOptions {
@@ -51,3 +53,5 @@ export interface CurveOptions extends LineOptions {}
 export interface BrushOptions extends ShapeOptions, CurveOptions {
   vectors?: Vector2D[]
 }
+
+export interface RectangleBoundingOptions extends ShapeOptions, RectBounding {}

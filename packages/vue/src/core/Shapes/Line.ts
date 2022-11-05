@@ -1,5 +1,6 @@
-import type { LineOptions, Shape } from '.'
+import { LineOptions, RectangleBounding, Shape } from '.'
 import {
+  calcRectBounding,
   isInRectArea,
   moveVector,
   RectBounding,
@@ -32,7 +33,8 @@ export class Line implements Shape, LineOptions {
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.save()
     if (this.selected) {
-      ctx.strokeStyle = 'blue'
+      const b = new RectangleBounding(this.getRectBounding())
+      b.draw(ctx)
     }
     const path = new Path2D()
     path.moveTo(this.begin.x, this.begin.y)
@@ -59,5 +61,9 @@ export class Line implements Shape, LineOptions {
   move(x: number, y: number): void {
     moveVector(this.begin, x, y)
     moveVector(this.end, x, y)
+  }
+
+  getRectBounding(): RectBounding {
+    return calcRectBounding(this.begin, this.end)
   }
 }

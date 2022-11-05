@@ -20,12 +20,12 @@ const canvasRef = ref<HTMLCanvasElement>(null)
 
 onMounted(() => {
   wb.canvas = canvasRef.value
-  wb.instance().useSelect()
+  wb.instance()
 })
 
 const AsyncShapeToolBar = defineAsyncComponent({
   loader: () => import('./ShapeToolBar.vue'),
-  delay: 10000
+  delay: 1000
 })
 </script>
 
