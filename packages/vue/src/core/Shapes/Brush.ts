@@ -60,6 +60,9 @@ export class Brush implements Shape, BrushOptions {
       moveVector(v, x, y)
     })
   }
+  getRectBounding(): RectBounding {
+    throw Error('un implement')
+  }
 }
 
 /**提供shift，不改变原数组大小 */

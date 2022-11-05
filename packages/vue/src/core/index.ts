@@ -160,6 +160,10 @@ export default class WhiteBoard {
 
       moveUp(move, () => {
         this.layer.getShapesInArea(area)
+        if (this.layer.shapesSelected.length < 1) {
+          this.useSelect()
+          return
+        }
         this.layer.setSelectedStyle()
         this.drawShapes()
         this.useMove()
@@ -169,6 +173,7 @@ export default class WhiteBoard {
 
   useMove() {
     this.setMouseDown((e: MouseEvent) => {
+      this.layer.unsetSelectedStyle()
       this.addSnapshot()
 
       this.layer.setSelectedStyle()

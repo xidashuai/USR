@@ -1,5 +1,6 @@
-import type { OvalOptions, Shape } from '.'
+import { OvalOptions, RectangleBounding, Shape } from '.'
 import {
+  calcRectBounding,
   isInRectArea,
   moveVector,
   RectBounding,
@@ -36,7 +37,8 @@ export class Oval implements Shape, OvalOptions {
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.save()
     if (this.selected) {
-      ctx.strokeStyle = 'blue'
+      const b = new RectangleBounding(this.getRectBounding())
+      b.draw(ctx)
     }
     const path = new Path2D()
     path.ellipse(
@@ -63,5 +65,11 @@ export class Oval implements Shape, OvalOptions {
 
   move(x: number, y: number): void {
     moveVector(this.pos, x, y)
+  }
+  getRectBounding(): RectBounding {
+    return calcRectBounding(
+      { x: this.pos.x - this.radiusX, y: this.pos.y - this.radiusY },
+      { x: this.pos.x + this.radiusX, y: this.pos.y + this.radiusY }
+    )
   }
 }
