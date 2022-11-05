@@ -42,6 +42,13 @@ export class Layer implements SnapshotOriginator {
     fn(this.shapesSelected)
   }
 
+  setSelectedStyle() {
+    this.shapesSelected.forEach(s => s.setSelect())
+  }
+  unsetSelectedStyle() {
+    this.shapesSelected.forEach(s => s.unSelect())
+  }
+
   clearSelected() {
     this.shapesSelected.splice(0, this.shapesSelected.length)
   }

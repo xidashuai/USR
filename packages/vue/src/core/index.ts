@@ -15,7 +15,7 @@ import {
 } from './Shapes'
 import { SnapshotManager } from './Snapshot'
 import { calcMousePos, moveUp } from './utils/events'
-import { calcRectBounding, distance, offset, Vector2D } from './utils/vector'
+import { calcRectBounding, distance, Vector2D } from './utils/vector'
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
@@ -148,9 +148,7 @@ export default class WhiteBoard {
 
       moveUp(move, () => {
         this.layer.getShapesInArea(area)
-        this.layer.shapesSelected.forEach(s => {
-          s.setSelect()
-        })
+        this.layer.setSelectedStyle()
         this.drawShapes()
         this.useMove()
       })
@@ -160,6 +158,8 @@ export default class WhiteBoard {
   useMove() {
     this.setMouseDown((e: MouseEvent) => {
       this.addSnapshot()
+
+      this.layer.setSelectedStyle()
       let pre = this.getMousePos(e)
 
       const move = (e: MouseEvent) => {
@@ -172,7 +172,9 @@ export default class WhiteBoard {
         this.drawShapes()
       }
 
-      moveUp(move)
+      moveUp(move, () => {
+        this.layer.unsetSelectedStyle()
+      })
     })
   }
 

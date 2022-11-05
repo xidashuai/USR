@@ -1,4 +1,4 @@
-import type { Vector2D } from './Vector'
+import type { Vector2D } from './vector'
 
 /**
  * 添加鼠标移动事件并在抬起时取消
