@@ -4,7 +4,7 @@ import {
   moveVector,
   RectBounding,
   Vector2D
-} from '../utils/vector'
+} from '../utils/Vector'
 
 export class Oval implements Shape, OvalOptions {
   constructor(options: OvalOptions) {

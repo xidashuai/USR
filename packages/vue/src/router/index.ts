@@ -18,8 +18,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/HomeView/HomeView.vue')
   },
   {
-    path: '/canvas',
-    name: 'canvas',
+    path: '/white',
+    name: 'white',
     component: () => import('@/views/TheCanvas/TheCanvas.vue')
   }
 ]
