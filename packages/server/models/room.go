@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 )
-var Roomer=make(map[string]map[string]struct{})
+var Roomer=make(map[string]map[string]struct{})//对应房间的在线成员列表，用map模拟集合加快存取速度
 var Chatclient = make(map[string]*websocket.Conn)
 var Rux sync.RWMutex  //加个读写锁解决map线程不安全
 var wsupgrader = websocket.Upgrader{
@@ -23,13 +23,6 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-func Addroom(context *gin.Context){
-
-roomid:= context.Query("roomid")
-userid:= context.Query("userid")
-wshandletlfunc(context.Writer,context.Request,roomid,userid)
-
-}
 
 func Createroom (context *gin.Context){
 Db.AutoMigrate(&Room{})
@@ -92,6 +85,12 @@ func Getroomlist (context *gin.Context){
 	})
 }
 
+func Addroom(context *gin.Context){
+	roomid:= context.Query("roomid")
+	userid:= context.Query("userid")
+	log.Println(userid+" 用户进入 "+roomid+"房间 ")
+	wshandletlfunc(context.Writer,context.Request,roomid,userid)
+}
 
 
 func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid string) {
@@ -105,17 +104,22 @@ func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid
 		log.Println(err)
 		return
 	}
-        //写锁
+//写锁
 	Rux.Lock()
     Chatclient[userid]=conn
-	Roomer[roomid][userid]= struct{}{}
+	before:=Roomer[roomid]
+	if before==nil{
+		before=make(map[string]struct{})
+	}
+	before[userid]= struct{}{}
+	Roomer[roomid]= before
 	Rux.Unlock()
 	for{
 		var Rmessage Receivexy
 		//读取数据且自带心跳机制
 		err1:=conn.ReadJSON(&Rmessage)
 		if err1!=nil{
-			log.Println(userid+"."+roomid+"退出")
+			log.Println(userid+" 用户退出 "+roomid+"房间")
 			//上锁避免map出错
 			Rux.Lock()
 			delete(Chatclient,userid)
@@ -123,19 +127,24 @@ func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid
 			delete(del,userid)
 			Roomer[roomid]=del
 			Rux.Unlock()
+			break
 		}
 		if Rmessage.Roomid!=""{
 			//异步广播
 			rom:=Roomer[roomid]
 			for i:=range rom{
-				go func(i string) {
+				go func(i string,Rmessage Receivexy) {
+					if i==userid{
+						return
+					}
 					Rux.RLock()
 					con:=Chatclient[i]
 					con.WriteJSON(&Rmessage)
 					Rux.RUnlock()
-				}(i)
+				}(i,Rmessage)
 
 			}
+			time.Sleep(100)
 		}
 		Rmessage=Receivexy{}
 
@@ -146,8 +155,8 @@ func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid
 
 type Receivexy struct{
 	Roomid string
- 	x float64
-	y float64
+ 	X float64
+	Y float64
 }
 
 type Room struct {
