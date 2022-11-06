@@ -43,7 +43,7 @@ export class Brush extends SelectState implements Shape, BrushOptions {
   }
 
   isInArea(area: RectBounding): boolean {
-    return true
+    return false
   }
 
   move(x: number, y: number): void {

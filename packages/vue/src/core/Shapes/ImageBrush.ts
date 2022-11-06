@@ -45,7 +45,7 @@ export class ImageBrush extends SelectState implements Shape {
   }
 
   isInArea(area: RectBounding): boolean {
-    return true
+    return false
   }
 
   move(x: number, y: number): void {
