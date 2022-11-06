@@ -1,4 +1,6 @@
 import { LineOptions, RectangleBounding, Shape } from '.'
+import { drawNoSideEffect } from '../utils/Canvas'
+import Path from '../utils/Path'
 import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
@@ -17,21 +19,19 @@ export class Line extends SelectState implements Shape, LineOptions {
     super()
     Object.assign(this, options)
   }
-  pos?: Vector2D
 
   begin: Vector2D = V2D()
   end: Vector2D = V2D()
+
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.save()
-    if (this.selected) {
-      const b = new RectangleBounding(this.getRectBounding())
-      b.draw(ctx)
-    }
-    const path = new Path2D()
-    path.moveTo(this.begin.x, this.begin.y)
-    path.lineTo(this.end.x, this.end.y)
-    ctx.stroke(path)
-    ctx.restore()
+    drawNoSideEffect(ctx)(ctx => {
+      if (this.selected) {
+        const b = new RectangleBounding(this.getRectBounding())
+        b.draw(ctx)
+      }
+      const path = Path.line(this.begin, this.end)
+      ctx.stroke(path)
+    })
   }
 
   isInnerPos(pos: Vector2D): boolean {

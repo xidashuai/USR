@@ -224,6 +224,20 @@ export function calcRectBounding(a: Vector2D, b: Vector2D): RectBounding {
   }
 }
 
+export function calcRectBoundingCorner(rect: RectBounding): {
+  lt: Vector2D
+  rt: Vector2D
+  rb: Vector2D
+  lb: Vector2D
+} {
+  return {
+    lt: { x: rect.left, y: rect.top },
+    rt: { x: rect.right, y: rect.top },
+    rb: { x: rect.right, y: rect.bottom },
+    lb: { x: rect.left, y: rect.bottom }
+  }
+}
+
 /**
  * 判断点是否在一个长方形区域内
  * @param p
@@ -244,4 +258,21 @@ export function isInRectArea(p: Vector2D, area: RectBounding) {
     return false
   }
   return true
+}
+
+/**
+ * 函数柯里化
+ * @param area
+ * @returns
+ */
+export const isInArea = (area: RectBounding) => {
+  return (pos: Vector2D) => {
+    return isInRectArea(pos, area)
+  }
+}
+
+export function areaInOtherArea(area1: RectBounding, area2: RectBounding) {
+  const isIn = isInArea(area2)
+  const corner = calcRectBoundingCorner(area1)
+  return isIn(corner.lt) && isIn(corner.rb)
 }

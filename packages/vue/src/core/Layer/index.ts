@@ -1,6 +1,7 @@
 import type { Shape } from '@/core/Shapes'
 import _ from 'lodash'
 import type { SnapshotOriginator } from '../Snapshot'
+import { clearCanvas } from '../utils/Canvas'
 import type { RectBounding, Vector2D } from '../utils/Vector'
 
 /**
@@ -31,15 +32,30 @@ export class Layer implements SnapshotOriginator {
   }
 
   remove(shape: Shape) {
-    this.clear()
-    this.shapes.push(...this.shapes.filter(s => s !== shape))
+    // this.clear()
+    _.remove(this.shapes, _shape => _shape === shape)
+    // this.shapes.push(...this.shapes.filter(s => s !== shape))
   }
 
   /**限定能修改的形状 */
   shapesSelected: Shape[] = []
 
-  modifySelected(fn: (shapesSelected: Shape[]) => void): void {
-    fn(this.shapesSelected)
+  /**更好的api */
+  get selected() {
+    return {
+      shapes: this.shapesSelected,
+      forEach: this.modifySelected,
+      setStyleAsActive: this.setSelectedStyle,
+      setStyleAsDefault: this.unsetSelectedStyle,
+      clear: this.clearSelected,
+      remove: this.deleteSelected
+    }
+  }
+
+  modifySelected(fn: (shape: Shape) => void): void {
+    this.shapesSelected.forEach(shape => {
+      fn(shape)
+    })
   }
 
   setSelectedStyle() {
@@ -51,6 +67,12 @@ export class Layer implements SnapshotOriginator {
 
   clearSelected() {
     this.shapesSelected.splice(0, this.shapesSelected.length)
+  }
+
+  deleteSelected() {
+    this.selected.forEach(shape => {
+      this.remove(shape)
+    })
   }
 
   getShapesInArea(area: RectBounding): Shape[] {
@@ -80,9 +102,7 @@ export class Layer implements SnapshotOriginator {
   }
 
   clearCanvas(): void {
-    const w = this.ctx.canvas.width
-    const h = this.ctx.canvas.height
-    this.ctx.clearRect(0, 0, w, h)
+    clearCanvas(this.ctx)
   }
 
   /**缓存 */

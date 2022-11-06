@@ -27,7 +27,8 @@ import {
 } from './utils/Vector'
 
 import { brushUrl, logoUrl } from '@/assets'
-import { clearCanvas } from './utils/Canvas'
+import { clearCanvas, drawNoSideEffect } from './utils/Canvas'
+import Path from './utils/Path'
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
  * 记得在修改状态之前创建快照
@@ -52,51 +53,49 @@ export default class WhiteBoard {
     this.history.addSnapshot()
   }
 
-  addCircle(options: CircleOptions): Circle {
+  addShape(shape) {
     this.addSnapshot()
-    const circle = new Circle(options)
-    this.layer.push(circle)
-    return circle
+    this.layer.push(shape)
+    return shape
+  }
+
+  addCircle(options: CircleOptions): Circle {
+    return this.addShape(new Circle(options))
   }
 
   addRectangle(options: RectangleOptions): Rectangle {
-    this.addSnapshot()
-    const rectangle = new Rectangle(options)
-    this.layer.push(rectangle)
-    return rectangle
+    return this.addShape(new Rectangle(options))
   }
 
   addLine(options: LineOptions): Line {
-    this.addSnapshot()
-    const line = new Line(options)
-    this.layer.push(line)
-    return line
+    return this.addShape(new Line(options))
   }
 
   addOval(options: OvalOptions): Oval {
-    this.addSnapshot()
-    const oval = new Oval(options)
-    this.layer.push(oval)
-    return oval
+    return this.addShape(new Oval(options))
   }
 
   addBrush(options: BrushOptions): Brush {
-    this.addSnapshot()
-    const brush = new Brush(options)
-    this.layer.push(brush)
-    return brush
+    return this.addShape(new Brush(options))
   }
 
-  private getMousePos(e: MouseEvent): Vector2D {
-    return calcMousePos(e, this.canvas)
+  addImageBrush(options) {
+    const brush = new ImageBrush(options)
+    brush.useCacheCtx(cacheCtx => {
+      cacheCtx.canvas.width = this.canvas.width
+      cacheCtx.canvas.height = this.canvas.height
+    })
+    return this.addShape(brush)
   }
 
   createCache() {
     this.layer.createCache()
   }
+
   drawCache() {
     this.layer.drawCache()
   }
+
   drawShapes() {
     this.layer.drawShapes()
   }
@@ -132,38 +131,47 @@ export default class WhiteBoard {
     this.canvasEvent.setClick(fn)
   }
 
-  /**@todo */
+  private getMousePos(e: MouseEvent): Vector2D {
+    return calcMousePos(e, this.canvas)
+  }
+
   useSelect() {
     this.setMouseDown((e: MouseEvent) => {
       this.createCache()
 
-      const posMouseDown = this.getMousePos(e)
+      const start = this.getMousePos(e)
+
       let area
+      let end
       const move = (e: MouseEvent) => {
-        this.ctx.save()
         this.drawCache()
 
-        const pos = this.getMousePos(e)
-        const areaPath = new Path2D()
+        this.ctx.save()
+
+        const cur = this.getMousePos(e)
+
+        const areaPath = Path.rectangle(start, cur.x - start.x, cur.y - start.y)
+
         this.ctx.fillStyle = 'rgba(77, 173, 190, 0.3)'
-        areaPath.rect(
-          posMouseDown.x,
-          posMouseDown.y,
-          pos.x - posMouseDown.x,
-          pos.y - posMouseDown.y
-        )
         this.ctx.fill(areaPath)
 
-        area = calcRectBounding(posMouseDown, pos)
+        end = cur
+
         this.ctx.restore()
       }
 
       moveUp(move, () => {
+        const area = calcRectBounding(start, end)
         this.layer.getShapesInArea(area)
+
+        // 如果没选中, 可重新选择
         if (this.layer.shapesSelected.length < 1) {
+          this.drawShapes()
           this.useSelect()
           return
         }
+
+        // 选中后可移动
         this.layer.setSelectedStyle()
         this.drawShapes()
         this.useMove()
@@ -173,17 +181,16 @@ export default class WhiteBoard {
 
   useMove() {
     this.setMouseDown((e: MouseEvent) => {
+      // 移动前保存快照
       this.layer.unsetSelectedStyle()
       this.addSnapshot()
-
       this.layer.setSelectedStyle()
-      let pre = this.getMousePos(e)
 
+      let pre = this.getMousePos(e)
       const move = (e: MouseEvent) => {
         const cur = this.getMousePos(e)
         this.layer.shapesSelected.forEach(shape => {
           shape.move(cur.x - pre.x, cur.y - pre.y)
-          shape.draw(this.ctx)
         })
         pre = cur
         this.drawShapes()
@@ -211,28 +218,13 @@ export default class WhiteBoard {
   }
 
   useDrawImageBrush(brushType) {
-    // const showBrush = (e: MouseEvent) => {
-    //   const pos = this.getMousePos(e)
-    //   clearCanvas(this.ctx)
-    //   drawImage(pos.x, pos.y)
-    // }
-
-    // window.addEventListener('mousemove', showBrush)
-
     this.setMouseDown((e: MouseEvent) => {
       let start = this.getMousePos(e)
       this.createCache()
 
-      this.addSnapshot()
-      const brush = new ImageBrush({ vectors: [{ x: start.x, y: start.y }] })
-      this.layer.push(brush)
+      const brush = this.addImageBrush({})
+
       brush.img.src = brushUrl[brushType]
-      brush.useCacheCtx(cacheCtx => {
-        cacheCtx.canvas.width = this.canvas.width
-        cacheCtx.canvas.height = this.canvas.height
-        cacheCtx.drawImage(brush.img, start.x, start.y, 20, 20)
-        brush.draw(this.ctx)
-      })
 
       // 线性插值
       const move = (e: MouseEvent) => {
@@ -261,7 +253,6 @@ export default class WhiteBoard {
       //   oddTimes = !oddTimes
 
       //   if (oddTimes) {
-      //     // console.table({ start, ctrl, end })
       //     console.log(
       //       start.x < ctrl.x && start.y < ctrl.y,
       //       ctrl.x < end.x && ctrl.y < end.y
@@ -283,7 +274,7 @@ export default class WhiteBoard {
   useDrawRectangle() {
     this.setMouseDown((e: MouseEvent) => {
       this.layer.createCache()
-      this.layer.drawCache()
+
       const rectangle = this.addRectangle({
         pos: this.getMousePos(e)
       })
@@ -329,7 +320,9 @@ export default class WhiteBoard {
   useDrawBrush() {
     this.setMouseDown((e: MouseEvent) => {
       this.createCache()
+
       const brush = this.addBrush({ vectors: [this.getMousePos(e)] })
+
       const move = (e: MouseEvent) => {
         this.drawCache()
         const pos = this.getMousePos(e)

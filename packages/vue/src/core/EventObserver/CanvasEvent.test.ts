@@ -15,7 +15,7 @@ const fn3 = () => {
   console.log('- fn 3')
 }
 
-test('should no duplicate listener', () => {
+test('没有重复的方法', () => {
   canvasEvent.add('mousedown', fn1)
   canvasEvent.add('mousedown', fn1)
   expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
@@ -24,7 +24,7 @@ test('should no duplicate listener', () => {
   expect(canvasEvent.getEventListener('mousedown').size).toBe(2)
 })
 
-test('should only has one mouse-down event', () => {
+test('setMouseDown(): 一个mousedown事件只有一个listener', () => {
   canvasEvent.setMouseDown(fn3)
   expect(canvasEvent.getEventListener('mousedown').size).toBe(1)
 

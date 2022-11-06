@@ -17,6 +17,7 @@ export class SnapshotManager {
   constructor(origin: SnapshotOriginator) {
     this.origin = origin
   }
+
   /**
    * 创建快照
    */

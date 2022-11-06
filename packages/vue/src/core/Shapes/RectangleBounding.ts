@@ -1,4 +1,5 @@
 import type { RectangleBoundingOptions, RectangleOptions, Shape } from '.'
+import { clearCanvas } from '../utils/Canvas'
 import SelectState from '../utils/SelectState'
 import type { RectBounding, Vector2D } from '../utils/Vector'
 
@@ -31,33 +32,36 @@ export class RectangleBounding
     ctx.save()
     const path = new Path2D()
     path.rect(this.left, this.top, this.width, this.height)
+    path.closePath()
 
     const ltCircle = new Path2D()
     ltCircle.arc(this.left, this.top, 6, 0, 2 * Math.PI)
+    ltCircle.closePath()
 
     const rtCircle = new Path2D()
     rtCircle.arc(this.right, this.top, 6, 0, 2 * Math.PI)
+    rtCircle.closePath()
 
     const rbCircle = new Path2D()
     rbCircle.arc(this.right, this.bottom, 6, 0, 2 * Math.PI)
+    rbCircle.closePath()
 
     const lbCircle = new Path2D()
-    path.moveTo(this.left, this.bottom)
     lbCircle.arc(this.left, this.bottom, 6, 0, 2 * Math.PI)
+    lbCircle.closePath()
 
     const ax = this.center().x
     const ay = this.top - 30
     const topCircle = new Path2D()
     topCircle.arc(ax, ay, 6, 0, 2 * Math.PI)
+    topCircle.closePath()
 
-    ctx.beginPath()
+    ctx.stroke(path)
     ctx.stroke(ltCircle)
     ctx.stroke(rtCircle)
     ctx.stroke(rbCircle)
     ctx.stroke(lbCircle)
     ctx.stroke(topCircle)
-    ctx.stroke(path)
-    ctx.closePath()
     ctx.restore()
   }
 

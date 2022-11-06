@@ -6,12 +6,15 @@ import _ from 'lodash'
 
 const ctx = createCtx()
 
-const rect = new Rectangle()
+const rect1 = new Rectangle()
+const rect2 = new Rectangle()
+const rect3 = new Rectangle()
+const rect4 = new Rectangle()
 const layer = new Layer(ctx!)
 
 test('push', () => {
   expect(layer.ctx).toBeDefined()
-  layer.push(rect)
+  layer.push(rect1)
   expect(layer.size).toBe(1)
 })
 
@@ -21,8 +24,14 @@ test('pop', () => {
 })
 
 test('remove', () => {
-  layer.push(rect)
+  layer.push(rect1)
+  layer.push(rect2)
+  expect(layer.size).toBe(2)
+  layer.remove(rect1)
   expect(layer.size).toBe(1)
-  layer.remove(rect)
+})
+
+test('clear', () => {
+  layer.clear()
   expect(layer.size).toBe(0)
 })

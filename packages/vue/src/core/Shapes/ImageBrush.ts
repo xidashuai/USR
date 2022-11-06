@@ -1,16 +1,12 @@
 import type { BrushOptions, Shape } from '.'
 import SelectState from '../utils/SelectState'
-import {
-  arrayIterator,
-  moveVector,
-  RectBounding,
-  Vector2D
-} from '../utils/Vector'
+import type { RectBounding, Vector2D } from '../utils/Vector'
 
 import { brushUrl } from '@/assets'
+import { drawCanvasElement } from '../utils/Canvas'
 
 export class ImageBrush extends SelectState implements Shape {
-  constructor(options: BrushOptions) {
+  constructor(options?: BrushOptions) {
     super()
     Object.assign(this, options)
     this.img.src = brushUrl.icicles
@@ -24,16 +20,11 @@ export class ImageBrush extends SelectState implements Shape {
   cacheCtx = this.cache.getContext('2d')
 
   draw(ctx: CanvasRenderingContext2D): void {
-    // const drawImage = (x, y) => {
-    //   ctx.drawImage(this.img, x, y, 20, 20)
-    // }
-    // ctx.save()
-    // this.vectors.forEach(v => {
-    //   drawImage(v.x, v.y)
-    // })
-    // ctx.restore()
+    drawCanvasElement(ctx, this.cache)
+  }
 
-    ctx.drawImage(this.cache, 0, 0, ctx.canvas.width, ctx.canvas.height)
+  drawImg(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    ctx.drawImage(this.img, x, y)
   }
 
   useCacheCtx(fn: (ctx: CanvasRenderingContext2D) => void) {
@@ -49,11 +40,7 @@ export class ImageBrush extends SelectState implements Shape {
   }
 
   move(x: number, y: number): void {
-    console.log(this.vectors.length)
-
-    this.vectors.forEach(v => {
-      moveVector(v, x, y)
-    })
+    throw Error('un implement')
   }
 
   getRectBounding(): RectBounding {

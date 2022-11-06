@@ -1,13 +1,17 @@
-export function createCanvas(): HTMLCanvasElement {
-  return document.createElement('canvas')
+export function createCanvas(
+  width?: number,
+  height?: number
+): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  if (width) canvas.width = width
+  if (height) canvas.height = height
+  return canvas
 }
 
 export function createCtx(): CanvasRenderingContext2D {
   const canvas = createCanvas()
-  canvas.width = 800
-  canvas.height = 450
   const ctx = canvas.getContext('2d')
-  return ctx!
+  return ctx
 }
 
 export function clearCanvas(ctx: CanvasRenderingContext2D) {
@@ -17,9 +21,7 @@ export function clearCanvas(ctx: CanvasRenderingContext2D) {
 export function drawNoSideEffect(ctx: CanvasRenderingContext2D) {
   return (cb: (ctx: CanvasRenderingContext2D) => void) => {
     ctx.save()
-    ctx.beginPath()
     cb(ctx)
-    ctx.closePath()
     ctx.restore()
   }
 }
@@ -29,4 +31,11 @@ export function drawAsEraser(ctx: CanvasRenderingContext2D, path: Path2D) {
     ctx.globalCompositeOperation = 'destination-out'
     ctx.fill(path)
   })
+}
+
+export function drawCanvasElement(
+  ctx: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement
+) {
+  ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height)
 }

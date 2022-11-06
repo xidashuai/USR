@@ -1,6 +1,9 @@
 import { OvalOptions, RectangleBounding, Shape } from '.'
+import { drawNoSideEffect } from '../utils/Canvas'
+import Path from '../utils/Path'
 import SelectState from '../utils/SelectState'
 import {
+  areaInOtherArea,
   calcRectBounding,
   isInRectArea,
   moveVector,
@@ -26,24 +29,14 @@ export class Oval extends SelectState implements Shape, OvalOptions {
   strokeStyle?: string = 'black'
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.save()
-    if (this.selected) {
-      const b = new RectangleBounding(this.getRectBounding())
-      b.draw(ctx)
-    }
-    const path = new Path2D()
-    path.ellipse(
-      this.pos.x,
-      this.pos.y,
-      this.radiusX,
-      this.radiusY,
-      this.rotation,
-      this.startAngle,
-      this.endAngle,
-      this.counterclockwise
-    )
-    ctx.stroke(path)
-    ctx.restore()
+    drawNoSideEffect(ctx)(ctx => {
+      if (this.selected) {
+        const b = new RectangleBounding(this.getRectBounding())
+        b.draw(ctx)
+      }
+      const path = Path.oval(this.pos, this.radiusX, this.radiusY)
+      ctx.stroke(path)
+    })
   }
 
   isInnerPos(pos: Vector2D): boolean {
@@ -51,12 +44,13 @@ export class Oval extends SelectState implements Shape, OvalOptions {
   }
 
   isInArea(area: RectBounding): boolean {
-    return isInRectArea(this.pos, area)
+    return areaInOtherArea(this.getRectBounding(), area)
   }
 
   move(x: number, y: number): void {
     moveVector(this.pos, x, y)
   }
+
   getRectBounding(): RectBounding {
     return calcRectBounding(
       { x: this.pos.x - this.radiusX, y: this.pos.y - this.radiusY },

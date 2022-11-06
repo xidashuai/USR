@@ -1,7 +1,11 @@
 import { CircleOptions, RectangleBounding, Shape } from '.'
+import { drawNoSideEffect } from '../utils/Canvas'
+import Path from '../utils/Path'
 import SelectState from '../utils/SelectState'
 import {
+  areaInOtherArea,
   distance,
+  isInArea,
   isInRectArea,
   moveVector,
   RectBounding,
@@ -20,25 +24,21 @@ export class Circle extends SelectState implements Shape, CircleOptions {
 
   radius: number = 0
   pos: Vector2D = V2D()
-  get center() {
-    return this.pos
-  }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.save()
-    if (this.selected) {
-      const b = new RectangleBounding(this.getRectBounding())
-      b.draw(ctx)
-    }
-    const circle = new Path2D()
-    circle.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI)
-    ctx.stroke(circle)
-    ctx.restore()
+    drawNoSideEffect(ctx)(ctx => {
+      if (this.selected) {
+        const b = new RectangleBounding(this.getRectBounding())
+        b.draw(ctx)
+      }
 
-    // 画圆心
-    const center = new Path2D()
-    center.arc(this.pos.x, this.pos.y, 1, 0, 2 * Math.PI)
-    ctx.fill(center)
+      const circle = Path.circle(this.pos, this.radius)
+      ctx.stroke(circle)
+
+      // 画圆心
+      const center = Path.circle(this.pos, 1)
+      ctx.fill(center)
+    })
   }
 
   isInnerPos(pos: Vector2D): boolean {
@@ -46,7 +46,8 @@ export class Circle extends SelectState implements Shape, CircleOptions {
   }
 
   isInArea(area: RectBounding): boolean {
-    return isInRectArea(this.pos, area)
+    const bounding = this.getRectBounding()
+    return areaInOtherArea(bounding, area)
   }
 
   move(x: number, y: number): void {

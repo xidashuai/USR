@@ -1,7 +1,9 @@
 import { RectangleBounding, RectangleOptions, Shape } from '.'
+import { drawNoSideEffect } from '../utils/Canvas'
 import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
+  isInArea,
   isInRectArea,
   moveVector,
   RectBounding,
@@ -29,15 +31,15 @@ export class Rectangle extends SelectState implements Shape, RectangleOptions {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.save()
-    const path = new Path2D()
-    if (this.selected) {
-      const b = new RectangleBounding(this.getRectBounding())
-      b.draw(ctx)
-    }
-    path.rect(this.pos.x, this.pos.y, this.w, this.h)
-    ctx.stroke(path)
-    ctx.restore()
+    drawNoSideEffect(ctx)(ctx => {
+      const path = new Path2D()
+      if (this.selected) {
+        const b = new RectangleBounding(this.getRectBounding())
+        b.draw(ctx)
+      }
+      path.rect(this.pos.x, this.pos.y, this.w, this.h)
+      ctx.stroke(path)
+    })
   }
 
   get acrossCorner() {
@@ -56,7 +58,8 @@ export class Rectangle extends SelectState implements Shape, RectangleOptions {
   }
 
   isInArea(area: RectBounding): boolean {
-    return isInRectArea(this.center, area)
+    const isIn = isInArea(area)
+    return isIn(this.pos) && isIn(this.acrossCorner)
   }
 
   move(x: number, y: number): void {
