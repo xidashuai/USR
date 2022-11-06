@@ -1,4 +1,5 @@
 import { LineOptions, RectangleBounding, Shape } from '.'
+import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
   isInRectArea,
@@ -11,22 +12,12 @@ import {
 /**
  * 直线
  */
-export class Line implements Shape, LineOptions {
+export class Line extends SelectState implements Shape, LineOptions {
   constructor(options: LineOptions) {
+    super()
     Object.assign(this, options)
   }
   pos?: Vector2D
-
-  selected?: boolean = false
-  toggleSelect() {
-    this.selected = !this.selected
-  }
-  setSelect(): void {
-    this.selected = true
-  }
-  unSelect(): void {
-    this.selected = false
-  }
 
   begin: Vector2D = V2D()
   end: Vector2D = V2D()

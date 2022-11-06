@@ -7,35 +7,37 @@ import {
   Vector2D
 } from '../utils/Vector'
 
-export class Brush extends SelectState implements Shape, BrushOptions {
+import { brushUrl } from '@/assets'
+
+export class ImageBrush extends SelectState implements Shape {
   constructor(options: BrushOptions) {
     super()
     Object.assign(this, options)
+    this.img.src = brushUrl.icicles
   }
 
-  vectors?: Vector2D[] = [{ x: 0, y: 0 }]
-  draw(ctx: CanvasRenderingContext2D): void {
-    ctx.save()
+  img = new Image()
 
-    if (this.selected) {
-      ctx.strokeStyle = 'blue'
-    }
-    const brushPath = new Path2D()
-    const shadowPath = arrayIterator(this.vectors)
-    const a = shadowPath.next()
-    brushPath.moveTo(a.x, a.y)
-    let b = shadowPath.next()
-    let c = shadowPath.next()
-    while (b || c) {
-      // 只有两点之间做直线，有三点做贝塞尔曲线
-      c
-        ? brushPath.quadraticCurveTo(b.x, b.y, c.x, c.y)
-        : brushPath.lineTo(b.x, b.y)
-      b = shadowPath.next()
-      c = shadowPath.next()
-    }
-    ctx.stroke(brushPath)
-    ctx.restore()
+  vectors?: Vector2D[] = [{ x: 0, y: 0 }]
+
+  cache: HTMLCanvasElement = document.createElement('canvas')
+  cacheCtx = this.cache.getContext('2d')
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    // const drawImage = (x, y) => {
+    //   ctx.drawImage(this.img, x, y, 20, 20)
+    // }
+    // ctx.save()
+    // this.vectors.forEach(v => {
+    //   drawImage(v.x, v.y)
+    // })
+    // ctx.restore()
+
+    ctx.drawImage(this.cache, 0, 0, ctx.canvas.width, ctx.canvas.height)
+  }
+
+  useCacheCtx(fn: (ctx: CanvasRenderingContext2D) => void) {
+    fn(this.cacheCtx)
   }
 
   isInnerPos(pos: Vector2D): boolean {

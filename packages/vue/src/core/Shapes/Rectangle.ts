@@ -1,4 +1,5 @@
 import { RectangleBounding, RectangleOptions, Shape } from '.'
+import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
   isInRectArea,
@@ -11,20 +12,10 @@ import {
 /**
  * 长方形
  */
-export class Rectangle implements Shape, RectangleOptions {
+export class Rectangle extends SelectState implements Shape, RectangleOptions {
   constructor(options?: RectangleOptions) {
+    super()
     Object.assign(this, options)
-  }
-
-  selected?: boolean = false
-  toggleSelect() {
-    this.selected = !this.selected
-  }
-  setSelect(): void {
-    this.selected = true
-  }
-  unSelect(): void {
-    this.selected = false
   }
 
   pos: Vector2D = V2D()

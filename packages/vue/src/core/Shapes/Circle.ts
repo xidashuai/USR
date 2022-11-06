@@ -1,4 +1,5 @@
 import { CircleOptions, RectangleBounding, Shape } from '.'
+import SelectState from '../utils/SelectState'
 import {
   distance,
   isInRectArea,
@@ -11,8 +12,9 @@ import {
 /**
  * 圆形
  */
-export class Circle implements Shape, CircleOptions {
+export class Circle extends SelectState implements Shape, CircleOptions {
   constructor(options?: CircleOptions) {
+    super()
     Object.assign(this, options)
   }
 
@@ -20,17 +22,6 @@ export class Circle implements Shape, CircleOptions {
   pos: Vector2D = V2D()
   get center() {
     return this.pos
-  }
-
-  selected?: boolean = false
-  toggleSelect() {
-    this.selected = !this.selected
-  }
-  setSelect(): void {
-    this.selected = true
-  }
-  unSelect(): void {
-    this.selected = false
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

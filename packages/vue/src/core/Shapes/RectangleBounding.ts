@@ -1,13 +1,19 @@
 import type { RectangleBoundingOptions, RectangleOptions, Shape } from '.'
+import SelectState from '../utils/SelectState'
 import type { RectBounding, Vector2D } from '../utils/Vector'
 
 /**
  * 长方形
  */
-export class RectangleBounding implements Shape, RectangleBoundingOptions {
+export class RectangleBounding
+  extends SelectState
+  implements Shape, RectangleBoundingOptions
+{
   constructor(options?: RectangleOptions | RectBounding) {
+    super()
     Object.assign(this, options)
   }
+
   left: number
   right: number
   bottom: number
@@ -20,6 +26,7 @@ export class RectangleBounding implements Shape, RectangleBoundingOptions {
   center() {
     return { x: this.left + this.width / 2, y: this.top + this.height / 2 }
   }
+
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.save()
     const path = new Path2D()
@@ -53,29 +60,24 @@ export class RectangleBounding implements Shape, RectangleBoundingOptions {
     ctx.closePath()
     ctx.restore()
   }
+
   isInnerPos(pos: Vector2D): boolean {
     throw new Error('Method not implemented.')
   }
+
   isInArea(area: RectBounding): boolean {
     throw new Error('Method not implemented.')
   }
-  setSelect(): void {
-    throw new Error('Method not implemented.')
-  }
-  unSelect(): void {
-    throw new Error('Method not implemented.')
-  }
-  toggleSelect(): void {
-    throw new Error('Method not implemented.')
-  }
+
   move(x: number, y: number): void {
     throw new Error('Method not implemented.')
   }
+
   getRectBounding(): RectBounding {
     throw new Error('Method not implemented.')
   }
+
   fillStyle?: string
   strokeStyle?: string
   pos?: Vector2D
-  selected?: boolean
 }

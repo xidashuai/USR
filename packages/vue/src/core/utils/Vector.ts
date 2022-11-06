@@ -54,7 +54,7 @@ export function lerp(a: number, b: number, t: number): number {
  * @param p2
  * @returns 插值后的数组
  */
-export function insert(p1: Vector2D, p2: Vector2D, step = calcStep(p1, p2, 2)) {
+export function insert(p1: Vector2D, p2: Vector2D, step = calcStep(p1, p2, 1)) {
   const result = []
   for (let i = 0; i < step; i++) {
     result.push({

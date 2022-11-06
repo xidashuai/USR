@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 module.exports = {
-  // plugins: [require('prettier-plugin-tailwindcss')],
-  // tailwindConfig: './tailwind.config.js',
+  plugins: [require('prettier-plugin-tailwindcss')],
+  tailwindConfig: './tailwind.config.js',
   arrowParens: 'avoid',
   endOfLine: 'auto',
   printWidth: 80,

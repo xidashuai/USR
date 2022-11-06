@@ -5,6 +5,7 @@ import {
   BrushOptions,
   Circle,
   CircleOptions,
+  ImageBrush,
   Line,
   LineOptions,
   Oval,
@@ -18,13 +19,15 @@ import { calcMousePos, moveUp } from './utils/events'
 
 import {
   calcRectBounding,
+  calcStep,
   distance,
   insert,
   smooth3Vector,
   Vector2D
 } from './utils/Vector'
 
-import { logoUrl } from '@/assets'
+import { brushUrl, logoUrl } from '@/assets'
+import { clearCanvas } from './utils/Canvas'
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
  * 记得在修改状态之前创建快照
@@ -36,8 +39,6 @@ export default class WhiteBoard {
   readonly layer: Layer
   readonly history: SnapshotManager
 
-  logoImg: HTMLImageElement
-
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.ctx = this.canvas.getContext('2d')
@@ -45,10 +46,8 @@ export default class WhiteBoard {
     this.canvasEvent = new CanvasEvent(this.canvas)
     this.layer = new Layer(this.ctx)
     this.history = new SnapshotManager(this.layer)
-
-    this.logoImg = new Image()
-    this.logoImg.src = logoUrl
   }
+
   addSnapshot() {
     this.history.addSnapshot()
   }
@@ -211,41 +210,78 @@ export default class WhiteBoard {
     })
   }
 
-  useDrawImageBrush() {
+  useDrawImageBrush(brushType) {
+    // const showBrush = (e: MouseEvent) => {
+    //   const pos = this.getMousePos(e)
+    //   clearCanvas(this.ctx)
+    //   drawImage(pos.x, pos.y)
+    // }
+
+    // window.addEventListener('mousemove', showBrush)
+
     this.setMouseDown((e: MouseEvent) => {
       let start = this.getMousePos(e)
-      this.ctx.drawImage(this.logoImg, start.x, start.y, 10, 10)
+      this.createCache()
 
-      let oddTimes = true
+      this.addSnapshot()
+      const brush = new ImageBrush({ vectors: [{ x: start.x, y: start.y }] })
+      this.layer.push(brush)
+      brush.img.src = brushUrl[brushType]
+      brush.useCacheCtx(cacheCtx => {
+        cacheCtx.canvas.width = this.canvas.width
+        cacheCtx.canvas.height = this.canvas.height
+        cacheCtx.drawImage(brush.img, start.x, start.y, 20, 20)
+        brush.draw(this.ctx)
+      })
 
-      let ctrl = start
-
+      // 线性插值
       const move = (e: MouseEvent) => {
+        this.drawCache()
         const end = this.getMousePos(e)
-        oddTimes = !oddTimes
 
-        if (oddTimes) {
-          // console.table({ start, ctrl, end })
-          console.log(
-            start.x < ctrl.x && start.y < ctrl.y,
-            ctrl.x < end.x && ctrl.y < end.y
-          )
+        const tempVectors = insert(start, end, calcStep(start, end, 5))
 
-          const temp = smooth3Vector(start, ctrl, end)
-          temp.forEach(t => {
-            this.ctx.drawImage(this.logoImg, t.x, t.y, 10, 10)
+        brush.useCacheCtx(cacheCtx => {
+          tempVectors.forEach(v => {
+            console.log(v)
+            cacheCtx.drawImage(brush.img, v.x, v.y, 20, 20)
           })
-          start = end
-        } else {
-          ctrl = this.getMousePos(e)
-        }
+        })
+
+        brush.draw(this.ctx)
+        start = end
       }
+      // 贝塞尔曲线插值
+      // let oddTimes = true
+
+      // let ctrl = start
+
+      // const move = (e: MouseEvent) => {
+      //   const end = this.getMousePos(e)
+      //   oddTimes = !oddTimes
+
+      //   if (oddTimes) {
+      //     // console.table({ start, ctrl, end })
+      //     console.log(
+      //       start.x < ctrl.x && start.y < ctrl.y,
+      //       ctrl.x < end.x && ctrl.y < end.y
+      //     )
+
+      //     const temp = smooth3Vector(start, ctrl, end)
+      //     temp.forEach(t => {
+      //       this.ctx.drawImage(this.logoImg, t.x, t.y, 10, 10)
+      //     })
+      //     start = end
+      //   } else {
+      //     ctrl = this.getMousePos(e)
+      //   }
+      // }
       moveUp(move)
     })
   }
 
   useDrawRectangle() {
-    this.canvasEvent.setMouseDown((e: MouseEvent) => {
+    this.setMouseDown((e: MouseEvent) => {
       this.layer.createCache()
       this.layer.drawCache()
       const rectangle = this.addRectangle({
@@ -264,7 +300,7 @@ export default class WhiteBoard {
   }
 
   useDrawCircle() {
-    this.canvasEvent.setMouseDown((e: MouseEvent) => {
+    this.setMouseDown((e: MouseEvent) => {
       const circle = this.addCircle({ pos: this.getMousePos(e) })
 
       const move = (e: MouseEvent) => {
@@ -277,7 +313,7 @@ export default class WhiteBoard {
   }
 
   useDrawOval() {
-    this.canvasEvent.setMouseDown((e: MouseEvent) => {
+    this.setMouseDown((e: MouseEvent) => {
       const oval = this.addOval({ pos: this.getMousePos(e) })
 
       const move = (e: MouseEvent) => {
@@ -291,7 +327,7 @@ export default class WhiteBoard {
   }
 
   useDrawBrush() {
-    this.canvasEvent.setMouseDown((e: MouseEvent) => {
+    this.setMouseDown((e: MouseEvent) => {
       this.createCache()
       const brush = this.addBrush({ vectors: [this.getMousePos(e)] })
       const move = (e: MouseEvent) => {

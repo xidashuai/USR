@@ -59,14 +59,10 @@ export class CanvasEvent {
    * @param fn
    */
   setClick(fn: MouseFN) {
-    this.offClick()
-    this.add('click', fn)
+    this.on('click').set(fn)
   }
   offClick() {
-    this.getEventListener('click').forEach(l => {
-      this.canvas.removeEventListener('click', l)
-    })
-    this.getEventListener('click').clear()
+    this.on('click').off()
   }
 
   /**
@@ -74,13 +70,24 @@ export class CanvasEvent {
    * @param fn
    */
   setMouseDown(fn: MouseFN) {
-    this.offMouseDown()
-    this.add('mousedown', fn)
+    this.on('mousedown').set(fn)
   }
   offMouseDown() {
-    this.getEventListener('mousedown').forEach(l => {
-      this.canvas.removeEventListener('mousedown', l)
-    })
-    this.getEventListener('mousedown').clear()
+    this.on('mousedown').off()
+  }
+
+  on(type: EventType) {
+    const set = (fn: MouseFN) => {
+      off()
+      this.add(type, fn)
+    }
+
+    const off = () => {
+      this.getEventListener(type).forEach(l => {
+        this.canvas.removeEventListener(type, l)
+      })
+      this.getEventListener(type).clear()
+    }
+    return { set, off }
   }
 }

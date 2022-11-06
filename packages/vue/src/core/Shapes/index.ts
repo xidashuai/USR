@@ -6,6 +6,7 @@ export * from './Rectangle'
 export * from './Oval'
 export * from './Brush'
 export * from './RectangleBounding'
+export * from './ImageBrush'
 
 export interface ShapeOptions {
   fillStyle?: string

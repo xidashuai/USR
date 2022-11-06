@@ -1,4 +1,5 @@
 import { OvalOptions, RectangleBounding, Shape } from '.'
+import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
   isInRectArea,
@@ -7,21 +8,11 @@ import {
   Vector2D
 } from '../utils/Vector'
 
-export class Oval implements Shape, OvalOptions {
+export class Oval extends SelectState implements Shape, OvalOptions {
   constructor(options: OvalOptions) {
+    super()
     Object.assign(this, JSON.parse(JSON.stringify(options)))
     // Object.assign(this, options)
-  }
-
-  selected?: boolean = false
-  toggleSelect() {
-    this.selected = !this.selected
-  }
-  setSelect(): void {
-    this.selected = true
-  }
-  unSelect(): void {
-    this.selected = false
   }
 
   pos?: Vector2D = { x: 0, y: 0 }
