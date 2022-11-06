@@ -75,9 +75,15 @@ const joinPublicWhiteBoard = () => {
 }
 const joinPrivateBoard = () => {
   if (room.value) {
+    if (isNaN(Number(room.value))) {
+      alert('房间号只能是数字')
+      return
+    }
     isShow.value = true
     name.value = 'join'
     roomValue.value = room.value
+  } else {
+    alert('请输入房间号')
   }
 }
 const createPrivateBoard = () => {
@@ -85,6 +91,8 @@ const createPrivateBoard = () => {
     isShow.value = true
     name.value = 'create'
     roomNameValue.value = roomName.value
+  } else {
+    alert('请输入白板名字')
   }
 }
 
