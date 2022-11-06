@@ -23,6 +23,7 @@ import {
   distance,
   insert,
   smooth3Vector,
+  V2D,
   Vector2D
 } from './utils/Vector'
 
@@ -100,6 +101,10 @@ export default class WhiteBoard {
     this.layer.drawShapes()
   }
 
+  drawNoSideEffect() {
+    return drawNoSideEffect(this.ctx)
+  }
+
   undo(): void {
     this.history.undo()
     this.drawShapes()
@@ -135,6 +140,13 @@ export default class WhiteBoard {
     return calcMousePos(e, this.canvas)
   }
 
+  removeSelected() {
+    this.layer.setStyleAsDefault()
+    this.addSnapshot()
+    this.layer.removeSelected()
+    this.drawShapes()
+  }
+
   useSelect() {
     this.setMouseDown((e: MouseEvent) => {
       this.createCache()
@@ -143,21 +155,23 @@ export default class WhiteBoard {
 
       let area
       let end
+
       const move = (e: MouseEvent) => {
         this.drawCache()
-
-        this.ctx.save()
-
         const cur = this.getMousePos(e)
 
-        const areaPath = Path.rectangle(start, cur.x - start.x, cur.y - start.y)
+        this.drawNoSideEffect()(ctx => {
+          const areaPath = Path.rectangle(
+            start,
+            cur.x - start.x,
+            cur.y - start.y
+          )
 
-        this.ctx.fillStyle = 'rgba(77, 173, 190, 0.3)'
-        this.ctx.fill(areaPath)
+          ctx.fillStyle = 'rgba(77, 173, 190, 0.3)'
+          ctx.fill(areaPath)
+        })
 
         end = cur
-
-        this.ctx.restore()
       }
 
       moveUp(move, () => {
@@ -172,7 +186,7 @@ export default class WhiteBoard {
         }
 
         // 选中后可移动
-        this.layer.setSelectedStyle()
+        this.layer.setStyleAsActived()
         this.drawShapes()
         this.useMove()
       })
@@ -182,9 +196,9 @@ export default class WhiteBoard {
   useMove() {
     this.setMouseDown((e: MouseEvent) => {
       // 移动前保存快照
-      this.layer.unsetSelectedStyle()
+      this.layer.setStyleAsDefault()
       this.addSnapshot()
-      this.layer.setSelectedStyle()
+      this.layer.setStyleAsActived()
 
       let pre = this.getMousePos(e)
       const move = (e: MouseEvent) => {
@@ -197,7 +211,7 @@ export default class WhiteBoard {
       }
 
       moveUp(move, () => {
-        this.layer.unsetSelectedStyle()
+        this.layer.setStyleAsDefault()
         this.useSelect()
       })
     })
@@ -219,29 +233,41 @@ export default class WhiteBoard {
 
   useDrawImageBrush(brushType) {
     this.setMouseDown((e: MouseEvent) => {
-      let start = this.getMousePos(e)
       this.createCache()
 
       const brush = this.addImageBrush({})
-
       brush.img.src = brushUrl[brushType]
+
+      let start = this.getMousePos(e)
+      const leftTop = { ...start }
+      const rightBottom = { ...start }
 
       // 线性插值
       const move = (e: MouseEvent) => {
         this.drawCache()
         const end = this.getMousePos(e)
 
+        const { x, y } = end
+        leftTop.x = Math.min(leftTop.x, x)
+        leftTop.y = Math.min(leftTop.y, y)
+        rightBottom.x = Math.max(rightBottom.x, x)
+        rightBottom.y = Math.max(rightBottom.y, y)
+
+        brush.leftTop = leftTop
+        brush.rightBottom = rightBottom
+
         const tempVectors = insert(start, end, calcStep(start, end, 5))
-
-        brush.useCacheCtx(cacheCtx => {
-          tempVectors.forEach(v => {
-            console.log(v)
-            cacheCtx.drawImage(brush.img, v.x, v.y, 20, 20)
-          })
-        })
-
-        brush.draw(this.ctx)
         start = end
+
+        this.drawNoSideEffect()(ctx => {
+          brush.useCacheCtx(cacheCtx => {
+            tempVectors.forEach(v => {
+              cacheCtx.drawImage(brush.img, v.x, v.y, 20, 20)
+            })
+          })
+
+          brush.draw(this.ctx)
+        })
       }
       // 贝塞尔曲线插值
       // let oddTimes = true
@@ -323,11 +349,25 @@ export default class WhiteBoard {
 
       const brush = this.addBrush({ vectors: [this.getMousePos(e)] })
 
+      const pos = this.getMousePos(e)
+      const leftTop = { ...pos }
+      const rightBottom = { ...pos }
+
       const move = (e: MouseEvent) => {
         this.drawCache()
         const pos = this.getMousePos(e)
+        const { x, y } = pos
+        leftTop.x = Math.min(leftTop.x, x)
+        leftTop.y = Math.min(leftTop.y, y)
+        rightBottom.x = Math.max(rightBottom.x, x)
+        rightBottom.y = Math.max(rightBottom.y, y)
         brush.vectors.push(pos)
-        brush.draw(this.ctx)
+        brush.leftTop = leftTop
+        brush.rightBottom = rightBottom
+
+        this.drawNoSideEffect()(ctx => {
+          brush.draw(ctx)
+        })
       }
 
       moveUp(move)

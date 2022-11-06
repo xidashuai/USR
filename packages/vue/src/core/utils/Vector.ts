@@ -261,7 +261,7 @@ export function isInRectArea(p: Vector2D, area: RectBounding) {
 }
 
 /**
- * 函数柯里化
+ * 函数柯里化 {@link isInRectArea}
  * @param area
  * @returns
  */

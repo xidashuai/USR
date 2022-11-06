@@ -41,27 +41,21 @@ export class Layer implements SnapshotOriginator {
   shapesSelected: Shape[] = []
 
   /**更好的api */
-  get selected() {
-    return {
-      shapes: this.shapesSelected,
-      forEach: this.modifySelected,
-      setStyleAsActive: this.setSelectedStyle,
-      setStyleAsDefault: this.unsetSelectedStyle,
-      clear: this.clearSelected,
-      remove: this.deleteSelected
-    }
-  }
+  // get selected() {
+  //   return {
+  //     shapes: this.shapesSelected,
+  //     forEach: this.shapesSelected.forEach,
+  //     setStyleAsActive: this.setSelectedStyle,
+  //     setStyleAsDefault: this.unsetSelectedStyle,
+  //     clear: this.clearSelected,
+  //     remove: this.removeSelected
+  //   }
+  // }
 
-  modifySelected(fn: (shape: Shape) => void): void {
-    this.shapesSelected.forEach(shape => {
-      fn(shape)
-    })
-  }
-
-  setSelectedStyle() {
+  setStyleAsActived() {
     this.shapesSelected.forEach(s => s.setSelect())
   }
-  unsetSelectedStyle() {
+  setStyleAsDefault() {
     this.shapesSelected.forEach(s => s.unSelect())
   }
 
@@ -69,10 +63,11 @@ export class Layer implements SnapshotOriginator {
     this.shapesSelected.splice(0, this.shapesSelected.length)
   }
 
-  deleteSelected() {
-    this.selected.forEach(shape => {
+  removeSelected() {
+    this.shapesSelected.forEach(shape => {
       this.remove(shape)
     })
+    this.clearSelected()
   }
 
   getShapesInArea(area: RectBounding): Shape[] {

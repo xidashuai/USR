@@ -1,9 +1,17 @@
-import type { BrushOptions, Shape } from '.'
+import { BrushOptions, RectangleBounding, Shape } from '.'
 import SelectState from '../utils/SelectState'
-import type { RectBounding, Vector2D } from '../utils/Vector'
+import {
+  areaInOtherArea,
+  calcRectBounding,
+  moveVector,
+  RectBounding,
+  V2D,
+  Vector2D
+} from '../utils/Vector'
 
 import { brushUrl } from '@/assets'
-import { drawCanvasElement } from '../utils/Canvas'
+import { drawCanvasElement, drawNoSideEffect } from '../utils/Canvas'
+import OffscreenCanvas from '../utils/OffscreenCanvas'
 
 export class ImageBrush extends SelectState implements Shape {
   constructor(options?: BrushOptions) {
@@ -14,17 +22,25 @@ export class ImageBrush extends SelectState implements Shape {
 
   img = new Image()
 
+  pos?: Vector2D = V2D()
   vectors?: Vector2D[] = [{ x: 0, y: 0 }]
 
-  cache: HTMLCanvasElement = document.createElement('canvas')
+  offScreenCanvas = new OffscreenCanvas()
+  cache: HTMLCanvasElement = this.offScreenCanvas.cache
   cacheCtx = this.cache.getContext('2d')
 
   draw(ctx: CanvasRenderingContext2D): void {
-    drawCanvasElement(ctx, this.cache)
+    if (this.selected) {
+      const b = new RectangleBounding(this.getRectBounding())
+      b.draw(ctx)
+    }
+    this.offScreenCanvas.drawCache(ctx, this.pos.x, this.pos.y)
   }
 
   drawImg(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.drawImage(this.img, x, y)
+    drawNoSideEffect(ctx)(ctx => {
+      ctx.drawImage(this.img, x, y)
+    })
   }
 
   useCacheCtx(fn: (ctx: CanvasRenderingContext2D) => void) {
@@ -36,14 +52,18 @@ export class ImageBrush extends SelectState implements Shape {
   }
 
   isInArea(area: RectBounding): boolean {
-    return false
+    return areaInOtherArea(this.getRectBounding(), area)
   }
 
   move(x: number, y: number): void {
-    throw Error('un implement')
+    moveVector(this.pos, x, y)
+    moveVector(this.leftTop, x, y)
+    moveVector(this.rightBottom, x, y)
   }
 
+  leftTop: Vector2D
+  rightBottom: Vector2D
   getRectBounding(): RectBounding {
-    throw Error('un implement')
+    return calcRectBounding(this.leftTop, this.rightBottom)
   }
 }

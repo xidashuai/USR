@@ -1,7 +1,10 @@
-import type { BrushOptions, Shape } from '.'
+import { BrushOptions, RectangleBounding, Shape } from '.'
+import { drawNoSideEffect } from '../utils/Canvas'
 import SelectState from '../utils/SelectState'
 import {
+  areaInOtherArea,
   arrayIterator,
+  calcRectBounding,
   moveVector,
   RectBounding,
   Vector2D
@@ -14,28 +17,30 @@ export class Brush extends SelectState implements Shape, BrushOptions {
   }
 
   vectors?: Vector2D[] = [{ x: 0, y: 0 }]
+  leftTop: Vector2D
+  rightBottom: Vector2D
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.save()
-
-    if (this.selected) {
-      ctx.strokeStyle = 'blue'
-    }
-    const brushPath = new Path2D()
-    const shadowPath = arrayIterator(this.vectors)
-    const a = shadowPath.next()
-    brushPath.moveTo(a.x, a.y)
-    let b = shadowPath.next()
-    let c = shadowPath.next()
-    while (b || c) {
-      // 只有两点之间做直线，有三点做贝塞尔曲线
-      c
-        ? brushPath.quadraticCurveTo(b.x, b.y, c.x, c.y)
-        : brushPath.lineTo(b.x, b.y)
-      b = shadowPath.next()
-      c = shadowPath.next()
-    }
-    ctx.stroke(brushPath)
-    ctx.restore()
+    drawNoSideEffect(ctx)(ctx => {
+      if (this.selected) {
+        const b = new RectangleBounding(this.getRectBounding())
+        b.draw(ctx)
+      }
+      const brushPath = new Path2D()
+      const shadowPath = arrayIterator(this.vectors)
+      const a = shadowPath.next()
+      brushPath.moveTo(a.x, a.y)
+      let b = shadowPath.next()
+      let c = shadowPath.next()
+      while (b || c) {
+        // 只有两点之间做直线，有三点做贝塞尔曲线
+        c
+          ? brushPath.quadraticCurveTo(b.x, b.y, c.x, c.y)
+          : brushPath.lineTo(b.x, b.y)
+        b = shadowPath.next()
+        c = shadowPath.next()
+      }
+      ctx.stroke(brushPath)
+    })
   }
 
   isInnerPos(pos: Vector2D): boolean {
@@ -43,18 +48,18 @@ export class Brush extends SelectState implements Shape, BrushOptions {
   }
 
   isInArea(area: RectBounding): boolean {
-    return false
+    return areaInOtherArea(this.getRectBounding(), area)
   }
 
   move(x: number, y: number): void {
-    console.log(this.vectors.length)
-
     this.vectors.forEach(v => {
       moveVector(v, x, y)
     })
+    moveVector(this.leftTop, x, y)
+    moveVector(this.rightBottom, x, y)
   }
 
   getRectBounding(): RectBounding {
-    throw Error('un implement')
+    return calcRectBounding(this.leftTop, this.rightBottom)
   }
 }

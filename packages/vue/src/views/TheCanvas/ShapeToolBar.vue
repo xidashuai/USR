@@ -20,6 +20,7 @@
       <UndoIcon />
       <RedoIcon />
       <AreaIcon />
+      <TrashIcon />
     </div>
   </div>
 </template>
@@ -38,6 +39,7 @@ import AngleRight from './icons/AngleRight.vue'
 import BrushCircleIcon from './icons/BrushCircleIcon.vue'
 
 import { ref } from 'vue'
+import TrashIcon from './icons/TrashIcon.vue'
 
 const unFold = ref(true)
 const toggleFold = () => {
