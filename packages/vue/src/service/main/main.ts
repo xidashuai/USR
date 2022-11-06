@@ -1,4 +1,6 @@
 import apiRequest from '../index'
+import type { IDataType } from '../types'
+import type { IAddUserRequest } from './types'
 
 /**
  * 增加新用户
@@ -6,9 +8,8 @@ import apiRequest from '../index'
  *
  */
 export function addUser(name: string) {
-  return apiRequest.request({
-    url: '/users',
-    method: 'POST',
+  return apiRequest.post<IDataType<IAddUserRequest>>({
+    url: '/adduser',
     // body请求参数
     data: {
       name
@@ -22,9 +23,8 @@ export function addUser(name: string) {
  *
  */
 export function updateUsername(userid: number, newname: string) {
-  return apiRequest.request({
+  return apiRequest.post({
     url: `/updateusername`,
-    method: 'POST',
     data: {
       userid,
       newname
@@ -43,9 +43,8 @@ export function createRoom(
   roomname: string,
   isPublic: number
 ) {
-  return apiRequest.request({
+  return apiRequest.post({
     url: `/createroom`,
-    method: 'POST',
     data: {
       ownerid,
       roomname,

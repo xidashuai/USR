@@ -2,8 +2,11 @@ import ApiRequest from './request'
 import localCache from '@/utils/cache'
 
 const apiRequest = new ApiRequest({
-  baseURL: import.meta.env.VITE_APP_BASE_URL,
+  baseURL: import.meta.env.VITE_BASE_URL,
   timeout: import.meta.env.VITE_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
   interceptors: {
     requestInterceptor: config => {
       //携带token拦截

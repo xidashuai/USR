@@ -9,8 +9,9 @@
 <script setup lang="ts">
 import router from '@/router'
 import BackIcon from './icons/BackIcon.vue'
-import { defineAsyncComponent, onMounted, ref } from 'vue'
+import { defineAsyncComponent, inject, onMounted, ref } from 'vue'
 import { useWhiteBoard } from '@/stores/useWhiteBoard'
+
 const backHome = () => {
   router.push('/')
 }
@@ -21,6 +22,16 @@ const canvasRef = ref<HTMLCanvasElement>(null)
 onMounted(() => {
   wb.canvas = canvasRef.value
   wb.instance()
+  // let socket = io('https://www.xdsbty.cn')
+  // socket.on('connect', () => {
+  //   console.log(socket.id, '监听客户端连接成功-connect')
+  // })
+
+  // 使用websocket
+  let socket = new WebSocket('wss://www.xdsbty.cn')
+  socket.onopen = () => {
+    console.log('监听客户端连接成功-onopen')
+  }
 })
 
 const AsyncShapeToolBar = defineAsyncComponent({
