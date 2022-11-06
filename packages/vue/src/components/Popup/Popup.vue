@@ -1,7 +1,10 @@
 <template>
   <div class="Popup">
-    <div class="Popup__content">
+    <div class="Popup_content">
       <template v-if="props.isName === 'join'">
+        <div class="Popup_content_title">
+          <h2>房间号：{{ props.room }}</h2>
+        </div>
         <input type="text" placeholder="请输入用户名" v-model="username" />
         <button @click="join">加入</button>
         <button @click="anonymousJoin">匿名加入</button>
@@ -22,6 +25,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { addUserStore } from '@/stores/white'
 const router = useRouter()
 const props = defineProps<{
   isName: string
@@ -30,15 +34,22 @@ const props = defineProps<{
 }>()
 
 const username = ref('')
-// 获取当前的房间号
-const room = ref(props.room)
-const roomName = ref(props.roomName)
-console.log(roomName.value, 'roomName', room.value, 'room')
 
 const join = () => {
-  if (username.value) {
-    router.push(`/white/${room.value}`)
+  if (!username.value) {
+    alert('请输入用户名')
+    return
   }
+  const room = props.room
+  console.log('room', room)
+  //把名字存储到pinia中
+  addUserStore().addUser(username.value)
+  router.push({
+    path: '/white',
+    query: {
+      room
+    }
+  })
 }
 const anonymousJoin = () => {
   // todo:调用接口获取匿名用户名
@@ -49,7 +60,8 @@ const isPublic = ref('true')
 const create = () => {
   if (username.value && isPublic.value) {
     console.log(username.value, isPublic.value)
-    console.log(roomName.value, 'roomName')
+    const roomName = props.roomName
+    console.log(roomName, '-roomName')
   }
 }
 // 匿名创建白板
@@ -67,7 +79,7 @@ const anonymousCreate = () => {}
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
-  .Popup__content {
+  .Popup_content {
     width: 400px;
     height: 300px;
     background-color: #fff;
@@ -76,6 +88,18 @@ const anonymousCreate = () => {}
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    .Popup_content_title {
+      width: 100%;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid #ccc;
+      h2 {
+        font-size: 20px;
+      }
+    }
     input,
     button {
       width: 80%;
