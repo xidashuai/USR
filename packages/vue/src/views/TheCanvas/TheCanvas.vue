@@ -1,26 +1,24 @@
 <template>
-  <div class="canvasContainer">
-    <BackIcon @click="backHome" />
-    <canvas width="1260" height="800" ref="canvasRef" />
+  <div class="canvasContainer" ref="rootRef">
+    <BackIcon />
     <AsyncShapeToolBar />
   </div>
 </template>
 
 <script setup lang="ts">
-import router from '@/router'
 import BackIcon from './icons/BackIcon.vue'
-import { defineAsyncComponent, inject, onMounted, ref } from 'vue'
-import { useWhiteBoard } from '@/stores/useWhiteBoard'
+import { defineAsyncComponent, inject, onMounted, ref, defineProps } from 'vue'
+import { useWB } from '@/stores/useWhiteBoard'
 
-const backHome = () => {
-  router.push('/')
-}
+const props = defineProps<{ name: string }>()
 
-const wb = useWhiteBoard()
-const canvasRef = ref<HTMLCanvasElement>(null)
+const rootRef = ref<HTMLDivElement>(null)
+const { wb } = useWB()
 
 onMounted(() => {
-  wb.canvas = canvasRef.value
+  const page = wb.getPage(props.name)
+  rootRef.value.insertBefore(page.canvas, rootRef.value.firstElementChild)
+
   // let socket = io('https://www.xdsbty.cn')
   // socket.on('connect', () => {
   //   console.log(socket.id, '监听客户端连接成功-connect')
@@ -42,8 +40,5 @@ const AsyncShapeToolBar = defineAsyncComponent({
 <style scoped lang="scss">
 .canvasContainer {
   @apply relative h-screen w-screen bg-gray-100;
-  canvas {
-    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white;
-  }
 }
 </style>

@@ -41,7 +41,7 @@ import BrushCircleIcon from './icons/BrushCircleIcon.vue'
 import { ref } from 'vue'
 import TrashIcon from './icons/TrashIcon.vue'
 
-const unFold = ref(true)
+const unFold = ref(false)
 const toggleFold = () => {
   unFold.value = !unFold.value
 }

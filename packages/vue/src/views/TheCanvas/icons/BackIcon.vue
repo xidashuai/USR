@@ -1,5 +1,5 @@
 <template>
-  <span class="backIcon">
+  <span class="backIcon" @click="backHome">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
       <!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
       <path
@@ -8,6 +8,15 @@
     </svg>
   </span>
 </template>
+
+<script lang="ts" setup>
+import router from '@/router'
+
+const backHome = () => {
+  router.push('/')
+}
+</script>
+
 <style scoped>
 .backIcon {
   @apply absolute top-4 left-4 h-10 w-10 rounded-lg bg-white p-3 shadow-md;

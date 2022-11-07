@@ -21,6 +21,12 @@ const routes: RouteRecordRaw[] = [
     path: '/white',
     name: 'white',
     component: () => import('@/views/TheCanvas/TheCanvas.vue')
+  },
+  {
+    path: '/test/tab',
+    name: 'CanvasTab',
+    // canvas页面
+    component: () => import('@/views/TheCanvas/CanvasTab.vue')
   }
 ]
 const router = createRouter({
@@ -28,7 +34,6 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach(to => {
-})
+router.beforeEach(to => {})
 
 export default router

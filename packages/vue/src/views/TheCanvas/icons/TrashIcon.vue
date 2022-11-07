@@ -11,10 +11,13 @@
 
 <script setup lang="ts">
 import IconWrapper from './IconWrapper.vue'
-import { useWhiteBoard } from '@/stores/useWhiteBoard'
-const wb = useWhiteBoard()
+import { useWB } from '@/stores/useWhiteBoard'
+
+const wbStore = useWB()
+const { wb } = wbStore
 const click = () => {
-  wb.instance().removeSelected()
+  const page = wb.getCurrentPage()
+  page.removeSelected()
 }
 </script>
 

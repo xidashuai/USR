@@ -28,13 +28,13 @@ import {
 } from './utils/Vector'
 
 import { brushUrl, logoUrl } from '@/assets'
-import { clearCanvas, drawNoSideEffect } from './utils/Canvas'
+import { clearCanvas, createCanvas, drawNoSideEffect } from './utils/Canvas'
 import Path from './utils/Path'
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
  * 记得在修改状态之前创建快照
  */
-export default class WhiteBoard {
+export default class WhiteBoardPage {
   readonly canvas: HTMLCanvasElement
   readonly ctx: CanvasRenderingContext2D
   readonly canvasEvent: CanvasEvent
@@ -152,9 +152,7 @@ export default class WhiteBoard {
       this.createCache()
 
       const start = this.getMousePos(e)
-
-      let area
-      let end
+      let end = start
 
       const move = (e: MouseEvent) => {
         this.drawCache()
@@ -259,7 +257,7 @@ export default class WhiteBoard {
         const tempVectors = insert(start, end, calcStep(start, end, 5))
         start = end
 
-        this.drawNoSideEffect()(ctx => {
+        this.drawNoSideEffect()(() => {
           brush.useCacheCtx(cacheCtx => {
             tempVectors.forEach(v => {
               cacheCtx.drawImage(brush.img, v.x, v.y, 20, 20)
@@ -375,14 +373,79 @@ export default class WhiteBoard {
   }
 }
 
-let wb: WhiteBoard | null = null
+let wb: WhiteBoardPage | null = null
+
 export function useWB(canvas?: HTMLCanvasElement) {
   if (wb !== null) {
     return wb
   }
   if (canvas) {
-    wb = new WhiteBoard(canvas)
+    wb = new WhiteBoardPage(canvas)
     return wb
   }
   throw Error('未初始化')
+}
+
+export class WhiteBoard {
+  pages: Map<string, WhiteBoardPage> = new Map()
+  defaultWidth = 1206
+  defaultHeight = 800
+
+  currentPageID: string
+
+  newId() {
+    return newID().toString()
+  }
+
+  ids() {
+    return [...this.pages.keys()]
+  }
+
+  constructor() {
+    const id = this.newId()
+    this.currentPageID = id
+    this.newPage(id)
+  }
+
+  newPage(id?: string) {
+    const canvas = createCanvas(this.defaultWidth, this.defaultHeight)
+    canvas.classList.add('canvas')
+    canvas.setAttribute(
+      'style',
+      `
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: ${this.defaultWidth}px;
+      height: ${this.defaultHeight}px;
+      background:white;
+    `
+    )
+    const page = new WhiteBoardPage(canvas)
+
+    if (id) {
+      this.pages.set(id, page)
+    } else {
+      this.pages.set(this.newId().toString(), page)
+    }
+    return page
+  }
+
+  deletePage(id: string): void {
+    this.pages.delete(id)
+  }
+
+  getPage(id: string) {
+    return this.pages.get(id)
+  }
+
+  getCurrentPage() {
+    return this.pages.get(this.currentPageID)
+  }
+}
+
+let id = 0
+function newID() {
+  return id++
 }
