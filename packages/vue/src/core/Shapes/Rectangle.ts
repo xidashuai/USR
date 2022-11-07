@@ -15,6 +15,8 @@ import {
  * 长方形
  */
 export class Rectangle extends SelectState implements Shape, RectangleOptions {
+  strokeStyle: string
+  fillStyle: string
   constructor(options?: RectangleOptions) {
     super()
     Object.assign(this, options)
@@ -38,7 +40,15 @@ export class Rectangle extends SelectState implements Shape, RectangleOptions {
         b.draw(ctx)
       }
       path.rect(this.pos.x, this.pos.y, this.w, this.h)
+      if (this.strokeStyle) {
+        ctx.strokeStyle = this.strokeStyle
+      }
       ctx.stroke(path)
+
+      if (this.fillStyle) {
+        ctx.fillStyle = this.fillStyle
+        ctx.fill(path)
+      }
     })
   }
 

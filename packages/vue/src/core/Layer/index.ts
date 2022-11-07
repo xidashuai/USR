@@ -51,6 +51,9 @@ export class Layer implements SnapshotOriginator {
   //     remove: this.removeSelected
   //   }
   // }
+  forEachSelected() {
+    return this.shapesSelected.forEach
+  }
 
   setStyleAsActived() {
     this.shapesSelected.forEach(s => s.setSelect())

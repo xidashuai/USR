@@ -5,22 +5,37 @@
       :class="{ actived: unFold }"
       @click="toggleFold"
     />
+    <label>画笔</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
       <BrushIcon />
       <BrushIciclesIcon />
       <BrushCircleIcon />
     </div>
+    <label>形状</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
       <ReactangleIcon />
       <CircleIcon />
       <OvalIcon />
       <LineIcon />
     </div>
+    <label>操作</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
       <UndoIcon />
       <RedoIcon />
       <AreaIcon />
       <TrashIcon />
+    </div>
+    <div class="colorPicker">
+      <label class="colorIcon" for="head">
+        颜色
+        <input
+          type="color"
+          id="head"
+          name="head"
+          value="#e66465"
+          @input="colorInput"
+        />
+      </label>
     </div>
   </div>
 </template>
@@ -40,10 +55,18 @@ import BrushCircleIcon from './icons/BrushCircleIcon.vue'
 
 import { ref } from 'vue'
 import TrashIcon from './icons/TrashIcon.vue'
+import IconWrapper from './icons/IconWrapper.vue'
+import { useWB } from '@/stores/useWhiteBoard'
+const { wb, currentPage } = useWB()
 
 const unFold = ref(false)
 const toggleFold = () => {
   unFold.value = !unFold.value
+}
+
+const colorInput = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  currentPage().setFillStyleOnSelected(target.value)
 }
 </script>
 
@@ -69,5 +92,15 @@ const toggleFold = () => {
 }
 .actived {
   @apply rotate-90;
+}
+
+.colorPicker {
+  @apply w-8 shadow-md;
+}
+.colorIcon {
+  @apply rounded-full;
+}
+.colorIcon > input {
+  @apply h-8 w-8 rounded-full;
 }
 </style>

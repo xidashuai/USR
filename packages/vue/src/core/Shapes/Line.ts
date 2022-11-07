@@ -22,6 +22,8 @@ export class Line extends SelectState implements Shape, LineOptions {
 
   begin: Vector2D = V2D()
   end: Vector2D = V2D()
+  strokeStyle: string
+  fillStyle: string
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
@@ -30,7 +32,16 @@ export class Line extends SelectState implements Shape, LineOptions {
         b.draw(ctx)
       }
       const path = Path.line(this.begin, this.end)
+
+      if (this.strokeStyle) {
+        ctx.strokeStyle = this.strokeStyle
+      }
       ctx.stroke(path)
+
+      if (this.fillStyle) {
+        ctx.fillStyle = this.fillStyle
+        ctx.fill(path)
+      }
     })
   }
 

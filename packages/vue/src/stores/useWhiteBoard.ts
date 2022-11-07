@@ -13,5 +13,6 @@ import { WhiteBoard } from '@/core'
 const wb = new WhiteBoard()
 
 export const useWB = defineStore('page', () => {
-  return { wb }
+  const currentPage = () => wb.getCurrentPage()
+  return { wb, currentPage }
 })

@@ -105,6 +105,11 @@ export default class WhiteBoardPage {
     return drawNoSideEffect(this.ctx)
   }
 
+  setFillStyleOnSelected(fillStyle: string) {
+    this.layer.shapesSelected.forEach(s => (s.fillStyle = fillStyle))
+    this.drawShapes()
+  }
+
   undo(): void {
     this.history.undo()
     this.drawShapes()

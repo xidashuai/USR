@@ -25,8 +25,8 @@ export class Oval extends SelectState implements Shape, OvalOptions {
   startAngle: number = 0
   endAngle: number = Math.PI * 2
   counterclockwise: boolean = true
-  fillStyle?: string = 'white'
-  strokeStyle?: string = 'black'
+  fillStyle?: string
+  strokeStyle?: string
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
@@ -35,7 +35,15 @@ export class Oval extends SelectState implements Shape, OvalOptions {
         b.draw(ctx)
       }
       const path = Path.oval(this.pos, this.radiusX, this.radiusY)
+      if (this.strokeStyle) {
+        ctx.strokeStyle = this.strokeStyle
+      }
       ctx.stroke(path)
+
+      if (this.fillStyle) {
+        ctx.fillStyle = this.fillStyle
+        ctx.fill(path)
+      }
     })
   }
 

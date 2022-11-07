@@ -24,6 +24,8 @@ export class Circle extends SelectState implements Shape, CircleOptions {
 
   radius: number = 0
   pos: Vector2D = V2D()
+  fillStyle: string
+  strokeStyle: string
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
@@ -33,7 +35,16 @@ export class Circle extends SelectState implements Shape, CircleOptions {
       }
 
       const circle = Path.circle(this.pos, this.radius)
+
+      if (this.strokeStyle) {
+        ctx.strokeStyle = this.strokeStyle
+      }
       ctx.stroke(circle)
+
+      if (this.fillStyle) {
+        ctx.fillStyle = this.fillStyle
+        ctx.fill(circle)
+      }
 
       // 画圆心
       const center = Path.circle(this.pos, 1)
