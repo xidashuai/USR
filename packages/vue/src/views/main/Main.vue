@@ -62,8 +62,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Popup from '@/components/Popup/Popup.vue'
-const router = useRouter()
+import { ElMessage } from 'element-plus'
+import { addUserStore } from '@/stores/white'
 
+const router = useRouter()
 const room = ref('')
 const roomName = ref('')
 const isShow = ref(false)
@@ -73,17 +75,33 @@ const roomNameValue = ref('')
 const joinPublicWhiteBoard = () => {
   router.push('/home')
 }
-const joinPrivateBoard = () => {
+const joinPrivateBoard = async () => {
   if (room.value) {
     if (isNaN(Number(room.value))) {
-      alert('房间号只能是数字')
+      ElMessage({
+        message: '房间号必须是数字',
+        type: 'error'
+      })
       return
     }
-    isShow.value = true
     name.value = 'join'
-    roomValue.value = room.value
+    const getRoom = await addUserStore().getRoomInfo(Number(room.value))
+    console.log(getRoom)
+    if (getRoom.issucceed !== true) {
+      ElMessage({
+        message: getRoom.msg,
+        type: 'error'
+      })
+      isShow.value = false
+    } else {
+      roomValue.value = room.value
+      isShow.value = true
+    }
   } else {
-    alert('请输入房间号')
+    ElMessage({
+      message: '请输入房间号',
+      type: 'error'
+    })
   }
 }
 const createPrivateBoard = () => {
@@ -92,7 +110,10 @@ const createPrivateBoard = () => {
     name.value = 'create'
     roomNameValue.value = roomName.value
   } else {
-    alert('请输入白板名字')
+    ElMessage({
+      message: '请输入白板名字',
+      type: 'error'
+    })
   }
 }
 

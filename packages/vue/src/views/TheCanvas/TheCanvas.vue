@@ -23,12 +23,6 @@ onMounted(() => {
   // socket.on('connect', () => {
   //   console.log(socket.id, '监听客户端连接成功-connect')
   // })
-
-  // 使用websocket
-  let socket = new WebSocket('wss://www.xdsbty.cn')
-  socket.onopen = () => {
-    console.log('监听客户端连接成功-onopen')
-  }
 })
 
 const AsyncShapeToolBar = defineAsyncComponent({

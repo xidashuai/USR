@@ -1,31 +1,8 @@
-<template>
-  <div class="Popup">
-    <div class="Popup_content">
-      <template v-if="props.isName === 'join'">
-        <div class="Popup_content_title">
-          <h2>房间号：{{ props.room }}</h2>
-        </div>
-        <input type="text" placeholder="请输入用户名" v-model="username" />
-        <button @click="join">加入</button>
-        <button @click="anonymousJoin">匿名加入</button>
-      </template>
-      <template v-else-if="props.isName === 'create'">
-        <input type="text" placeholder="请输入用户名" v-model="username" />
-        <select v-model="isPublic">
-          <option value="true">公开</option>
-          <option value="false">不公开</option>
-        </select>
-        <button @click="create">创建</button>
-        <button @click="anonymousCreate">匿名创建</button>
-      </template>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { addUserStore } from '@/stores/white'
+import { ElMessage } from 'element-plus'
 const router = useRouter()
 const props = defineProps<{
   isName: string
@@ -37,7 +14,10 @@ const username = ref('')
 
 const join = () => {
   if (!username.value) {
-    alert('请输入用户名')
+    ElMessage({
+      message: '请输入用户名',
+      type: 'error'
+    })
     return
   }
   const room = props.room
@@ -67,6 +47,30 @@ const create = () => {
 // 匿名创建白板
 const anonymousCreate = () => {}
 </script>
+<template>
+  <div class="Popup">
+    <div class="Popup_content">
+      <template v-if="props.isName === 'join'">
+        <div class="Popup_content_title">
+          <h2>房间号：{{ props.room }}</h2>
+        </div>
+        <input type="text" placeholder="请输入用户名" v-model="username" />
+        <button @click="join">加入</button>
+        <button @click="anonymousJoin">匿名加入</button>
+      </template>
+      <template v-else-if="props.isName === 'create'">
+        <input type="text" placeholder="请输入用户名" v-model="username" />
+        <select v-model="isPublic">
+          <option value="true">公开</option>
+          <option value="false">不公开</option>
+        </select>
+        <button @click="create">创建</button>
+        <button @click="anonymousCreate">匿名创建</button>
+      </template>
+    </div>
+  </div>
+</template>
+
 <style lang="scss" scoped>
 .Popup {
   position: fixed;
@@ -95,7 +99,7 @@ const anonymousCreate = () => {}
       display: flex;
       justify-content: center;
       align-items: center;
-      border-bottom: 1px solid #ccc;
+      margin-bottom: 20px;
       h2 {
         font-size: 20px;
       }
