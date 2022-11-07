@@ -1,6 +1,6 @@
 import apiRequest from '../index'
 import type { IDataType } from '../types'
-import type { IAddUserRequest } from './types'
+import type { IAddUserRequest, IGetRoomInfo } from './types'
 
 /**
  * 增加新用户
@@ -63,6 +63,19 @@ export function getRoomList(page: number) {
     url: '/getroomlist',
     params: {
       page
+    }
+  })
+}
+
+/**
+ * 查询房间是否存在
+ * @param roomid
+ */
+export function getRoomInfo(roomid: number) {
+  return apiRequest.get<IGetRoomInfo>({
+    url: '/getroomstatus',
+    params: {
+      roomid
     }
   })
 }
