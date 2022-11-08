@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { addUserStore } from '@/stores/white'
+import { saveWhiteBoardInfo, userStore } from '@/stores/white'
 import { ElMessage } from 'element-plus'
 const router = useRouter()
 const props = defineProps<{
@@ -23,7 +23,7 @@ const join = () => {
   const room = props.room
   console.log('room', room)
   //把名字存储到pinia中
-  addUserStore().addUser(username.value)
+  userStore().addUser(username.value)
   router.push({
     path: '/white',
     query: {
@@ -33,19 +33,122 @@ const join = () => {
 }
 const anonymousJoin = () => {
   // todo:调用接口获取匿名用户名
+  const room = props.room
+  userStore().addUser('匿名用户')
+  router.push({
+    path: '/white',
+    query: {
+      room
+    }
+  })
 }
 // 选择是否公开
-const isPublic = ref('true')
+const isPublic = ref<boolean>(true)
 // 创建白板
-const create = () => {
+const create = async () => {
+  if (!username.value) {
+    ElMessage({
+      message: '请输入用户名',
+      type: 'error'
+    })
+    return
+  }
   if (username.value && isPublic.value) {
     console.log(username.value, isPublic.value)
+    const data = await userStore().addUser(username.value)
+    const id = data.ID
+    console.log('id', id)
+
     const roomName = props.roomName
-    console.log(roomName, '-roomName')
+
+    const roomData = await userStore().createWhiteBoard(
+      id,
+      roomName,
+      Number(isPublic.value)
+    )
+    console.log('roomData', roomData)
+    if (roomData.issucceed === true) {
+      const userid = Number(roomData.msg.Ownerid)
+      const username = roomData.msg.Owner.username
+      const roomid = roomData.msg.ID
+      const roomname = roomData.msg.Roomname
+      const ispublic = Boolean(roomData.msg.Public)
+      console.log(userid, username, roomid, roomname, ispublic)
+
+      saveWhiteBoardInfo().saveWhiteBoardInfo(
+        userid,
+        username,
+        roomid,
+        roomname,
+        ispublic
+      )
+      ElMessage({
+        message: '创建成功',
+        type: 'success'
+      })
+      router.push({
+        path: '/white',
+        query: {
+          room: roomid
+        }
+      })
+    } else {
+      ElMessage({
+        message: '创建失败',
+        type: 'error'
+      })
+    }
   }
 }
 // 匿名创建白板
-const anonymousCreate = () => {}
+const anonymousCreate = async () => {
+  const username = '匿名用户'
+  if (isPublic.value) {
+    const data = await userStore().addUser(username)
+    const id = data.ID
+    console.log('id', id)
+
+    const roomName = props.roomName
+
+    const roomData = await userStore().createWhiteBoard(
+      id,
+      roomName,
+      Number(isPublic.value)
+    )
+    console.log('roomData', roomData)
+    if (roomData.issucceed === true) {
+      const userid = Number(roomData.msg.Ownerid)
+      const username = roomData.msg.Owner.username
+      const roomid = roomData.msg.ID
+      const roomname = roomData.msg.Roomname
+      const ispublic = Boolean(roomData.msg.Public)
+      console.log(userid, username, roomid, roomname, ispublic)
+
+      saveWhiteBoardInfo().saveWhiteBoardInfo(
+        userid,
+        username,
+        roomid,
+        roomname,
+        ispublic
+      )
+      ElMessage({
+        message: '创建成功',
+        type: 'success'
+      })
+      router.push({
+        path: '/white',
+        query: {
+          room: roomid
+        }
+      })
+    } else {
+      ElMessage({
+        message: '创建失败',
+        type: 'error'
+      })
+    }
+  }
+}
 </script>
 <template>
   <div class="Popup">

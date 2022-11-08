@@ -1,3 +1,70 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import Popup from '@/components/Popup/Popup.vue'
+import { ElMessage } from 'element-plus'
+import { userStore } from '@/stores/white'
+
+const router = useRouter()
+const room = ref('')
+const roomName = ref('')
+const isShow = ref(false)
+const name = ref('')
+const roomValue = ref('')
+const roomNameValue = ref('')
+const joinPublicWhiteBoard = () => {
+  router.push('/home')
+}
+const joinPrivateBoard = async () => {
+  if (room.value) {
+    if (isNaN(Number(room.value))) {
+      ElMessage({
+        message: '房间号必须是数字',
+        type: 'error'
+      })
+      return
+    }
+    name.value = 'join'
+    const getRoom = await userStore().getRoomInfo(Number(room.value))
+    console.log(getRoom)
+    if (getRoom.issucceed !== true) {
+      ElMessage({
+        message: getRoom.msg,
+        type: 'error'
+      })
+      isShow.value = false
+    } else {
+      roomValue.value = room.value
+      isShow.value = true
+    }
+  } else {
+    ElMessage({
+      message: '请输入房间号',
+      type: 'error'
+    })
+  }
+}
+const createPrivateBoard = () => {
+  if (roomName.value) {
+    isShow.value = true
+    name.value = 'create'
+    roomNameValue.value = roomName.value
+  } else {
+    ElMessage({
+      message: '请输入白板名字',
+      type: 'error'
+    })
+  }
+}
+
+const clickOut = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
+
+  if (target.className === 'Popup') {
+    isShow.value = false
+  }
+}
+</script>
 <template>
   <div class="index">
     <div class="index_header">
@@ -58,73 +125,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import Popup from '@/components/Popup/Popup.vue'
-import { ElMessage } from 'element-plus'
-import { addUserStore } from '@/stores/white'
-
-const router = useRouter()
-const room = ref('')
-const roomName = ref('')
-const isShow = ref(false)
-const name = ref('')
-const roomValue = ref('')
-const roomNameValue = ref('')
-const joinPublicWhiteBoard = () => {
-  router.push('/home')
-}
-const joinPrivateBoard = async () => {
-  if (room.value) {
-    if (isNaN(Number(room.value))) {
-      ElMessage({
-        message: '房间号必须是数字',
-        type: 'error'
-      })
-      return
-    }
-    name.value = 'join'
-    const getRoom = await addUserStore().getRoomInfo(Number(room.value))
-    console.log(getRoom)
-    if (getRoom.issucceed !== true) {
-      ElMessage({
-        message: getRoom.msg,
-        type: 'error'
-      })
-      isShow.value = false
-    } else {
-      roomValue.value = room.value
-      isShow.value = true
-    }
-  } else {
-    ElMessage({
-      message: '请输入房间号',
-      type: 'error'
-    })
-  }
-}
-const createPrivateBoard = () => {
-  if (roomName.value) {
-    isShow.value = true
-    name.value = 'create'
-    roomNameValue.value = roomName.value
-  } else {
-    ElMessage({
-      message: '请输入白板名字',
-      type: 'error'
-    })
-  }
-}
-
-const clickOut = (e: MouseEvent) => {
-  const target = e.target as HTMLElement
-
-  if (target.className === 'Popup') {
-    isShow.value = false
-  }
-}
-</script>
 <style lang="scss" scoped>
 .index {
   background-color: #f3f4f6;

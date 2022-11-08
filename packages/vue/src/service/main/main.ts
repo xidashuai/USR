@@ -1,6 +1,6 @@
 import apiRequest from '../index'
 import type { IDataType } from '../types'
-import type { IAddUserRequest, IGetRoomInfo } from './types'
+import type { IAddUserRequest, IGetRoomInfo, IRoomInfo } from './types'
 
 /**
  * 增加新用户
@@ -43,7 +43,7 @@ export function createRoom(
   roomname: string,
   isPublic: number
 ) {
-  return apiRequest.post({
+  return apiRequest.post<IRoomInfo>({
     url: `/createroom`,
     data: {
       ownerid,

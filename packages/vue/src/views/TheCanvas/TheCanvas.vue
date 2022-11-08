@@ -1,16 +1,20 @@
 <template>
   <div class="canvasContainer" ref="rootRef">
-    <BackIcon />
+    <BackIcon @click="back" />
     <AsyncShapeToolBar />
   </div>
 </template>
 
 <script setup lang="ts">
 import BackIcon from './icons/BackIcon.vue'
-import { defineAsyncComponent, inject, onMounted, ref, defineProps } from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useWB } from '@/stores/useWhiteBoard'
-import socketClient from '@/core/utils/socket'
+
 import { Rectangle } from '@/core/Shapes'
+import { useRouter } from 'vue-router'
+import socketClient from '@/utils/socket'
+
+const router = useRouter()
 
 const props = defineProps<{ name: number }>()
 
@@ -45,6 +49,10 @@ const AsyncShapeToolBar = defineAsyncComponent({
   loader: () => import('./ShapeToolBar.vue'),
   delay: 1000
 })
+
+const back = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped lang="scss">
