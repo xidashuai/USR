@@ -9,11 +9,13 @@
 import BackIcon from './icons/BackIcon.vue'
 import { defineAsyncComponent, inject, onMounted, ref, defineProps } from 'vue'
 import { useWB } from '@/stores/useWhiteBoard'
+import socketClient from '@/core/utils/socket'
+import { Rectangle } from '@/core/Shapes'
 
 const props = defineProps<{ name: string }>()
 
 const rootRef = ref<HTMLDivElement>(null)
-const { wb } = useWB()
+const { wb, currentPage } = useWB()
 
 onMounted(() => {
   const page = wb.getPage(props.name)
@@ -25,10 +27,22 @@ onMounted(() => {
   // })
 
   // 使用websocket
-  let socket = new WebSocket('wss://www.xdsbty.cn')
-  socket.onopen = () => {
-    console.log('监听客户端连接成功-onopen')
-  }
+  // let socket = new WebSocket('wss://www.xdsbty.cn')
+  // socket.onopen = () => {
+  //   console.log('监听客户端连接成功-onopen')
+  // }
+})
+
+socketClient.on('connect', () => {
+  console.log('连接成功', { socketId: socketClient.id })
+})
+
+socketClient.on('add-shape', shapes => {
+  console.table(shapes)
+  shapes.forEach(shape => {
+    currentPage().addShape(new Rectangle(shape))
+  })
+  currentPage().drawShapes()
 })
 
 const AsyncShapeToolBar = defineAsyncComponent({

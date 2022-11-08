@@ -30,6 +30,7 @@ import {
 import { brushUrl, logoUrl } from '@/assets'
 import { clearCanvas, createCanvas, drawNoSideEffect } from './utils/Canvas'
 import Path from './utils/Path'
+import socketClient from './utils/socket'
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
  * 记得在修改状态之前创建快照
@@ -315,7 +316,10 @@ export default class WhiteBoardPage {
         rectangle.draw(this.ctx)
       }
 
-      moveUp(move)
+      moveUp(move, () => {
+        const shapes = this.layer.shapes
+        socketClient.emit('add-shape', shapes)
+      })
     })
   }
 
