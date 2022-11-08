@@ -27,10 +27,10 @@ onMounted(() => {
   // })
 
   // 使用websocket
-  // let socket = new WebSocket('wss://www.xdsbty.cn')
-  // socket.onopen = () => {
-  //   console.log('监听客户端连接成功-onopen')
-  // }
+  let socket = new WebSocket('wss://www.xdsbty.cn')
+  socket.onopen = () => {
+    console.log('监听客户端连接成功-onopen')
+  }
 })
 
 socketClient.on('connect', () => {
