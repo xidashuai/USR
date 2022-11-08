@@ -1,6 +1,6 @@
 <template>
   <div class="canvasContainer" ref="rootRef">
-    <BackIcon />
+    <BackIcon @click="back" />
     <AsyncShapeToolBar />
   </div>
 </template>
@@ -11,6 +11,9 @@ import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useWB } from '@/stores/useWhiteBoard'
 
 import { Rectangle } from '@/core/Shapes'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps<{ name: string }>()
 
@@ -43,6 +46,10 @@ const AsyncShapeToolBar = defineAsyncComponent({
   loader: () => import('./ShapeToolBar.vue'),
   delay: 1000
 })
+
+const back = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped lang="scss">
