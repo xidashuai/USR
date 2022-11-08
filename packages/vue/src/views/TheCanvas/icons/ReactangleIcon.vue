@@ -11,7 +11,6 @@
 <script setup lang="ts">
 import IconWrapper from './IconWrapper.vue'
 import { useWB } from '@/stores/useWhiteBoard'
-import socketClient from '@/core/utils/socket'
 
 const wbStore = useWB()
 const { wb, currentPage } = wbStore
