@@ -1,6 +1,5 @@
-import { RectangleBounding, RectangleOptions, Shape } from '.'
+import type { RectangleOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
-import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
   isInArea,
@@ -14,13 +13,14 @@ import {
 /**
  * 长方形
  */
-export class Rectangle extends SelectState implements Shape, RectangleOptions {
+export class Rectangle implements Shape, RectangleOptions {
   strokeStyle: string
   fillStyle: string
   constructor(options?: RectangleOptions) {
-    super()
     Object.assign(this, options)
   }
+
+  type = 'rectangle'
 
   pos: Vector2D = V2D()
   w: number = 0
@@ -35,10 +35,7 @@ export class Rectangle extends SelectState implements Shape, RectangleOptions {
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
       const path = new Path2D()
-      if (this.selected) {
-        const b = new RectangleBounding(this.getRectBounding())
-        b.draw(ctx)
-      }
+
       path.rect(this.pos.x, this.pos.y, this.w, this.h)
       if (this.strokeStyle) {
         ctx.strokeStyle = this.strokeStyle

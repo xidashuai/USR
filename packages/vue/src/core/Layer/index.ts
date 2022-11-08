@@ -1,7 +1,8 @@
 import type { Shape } from '@/core/Shapes'
 import _ from 'lodash'
-import type { SnapshotOriginator } from '../Snapshot'
-import { clearCanvas } from '../utils/Canvas'
+import { SnapshotManager, SnapshotOriginator } from '../Snapshot'
+import { clearCanvas, drawNoSideEffect } from '../utils/Canvas'
+import Path from '../utils/Path'
 import type { RectBounding, Vector2D } from '../utils/Vector'
 
 /**
@@ -10,83 +11,39 @@ import type { RectBounding, Vector2D } from '../utils/Vector'
 export class Layer implements SnapshotOriginator {
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx
+    this.history = new SnapshotManager(this)
+    this.shapes = []
   }
-
   readonly ctx: CanvasRenderingContext2D
-  readonly shapes: Shape[] = []
-
+  readonly history: SnapshotManager
+  readonly shapes: Shape[]
   get size() {
     return this.shapes.length
   }
 
-  push(shape: Shape) {
+  addSnapshot() {
+    if (this.size > 0) {
+      this.history.addSnapshot()
+    }
+  }
+
+  pushShape(shape: Shape) {
+    this.addSnapshot()
     this.shapes.push(shape)
   }
 
-  pop() {
+  popShape() {
+    this.addSnapshot()
     return this.shapes.pop()
   }
 
-  clear() {
-    this.shapes.splice(0, this.shapes.length)
-  }
-
-  remove(shape: Shape) {
-    // this.clear()
+  private removeShape(shape: Shape) {
     _.remove(this.shapes, _shape => _shape === shape)
-    // this.shapes.push(...this.shapes.filter(s => s !== shape))
   }
 
-  /**限定能修改的形状 */
-  shapesSelected: Shape[] = []
-
-  /**更好的api */
-  // get selected() {
-  //   return {
-  //     shapes: this.shapesSelected,
-  //     forEach: this.shapesSelected.forEach,
-  //     setStyleAsActive: this.setSelectedStyle,
-  //     setStyleAsDefault: this.unsetSelectedStyle,
-  //     clear: this.clearSelected,
-  //     remove: this.removeSelected
-  //   }
-  // }
-  forEachSelected() {
-    return this.shapesSelected.forEach
-  }
-
-  setStyleAsActived() {
-    this.shapesSelected.forEach(s => s.setSelect())
-  }
-  setStyleAsDefault() {
-    this.shapesSelected.forEach(s => s.unSelect())
-  }
-
-  clearSelected() {
-    this.shapesSelected.splice(0, this.shapesSelected.length)
-  }
-
-  removeSelected() {
-    this.shapesSelected.forEach(shape => {
-      this.remove(shape)
-    })
-    this.clearSelected()
-  }
-
-  getShapesInArea(area: RectBounding): Shape[] {
-    this.shapesSelected = this.shapes.filter(shape => shape.isInArea(area))
-    return this.shapesSelected
-  }
-
-  getShapeByPos(pos: Vector2D): Shape | null {
-    this.clearSelected()
-    _.eachRight(this.shapes, shape => {
-      if (shape.isInnerPos(pos)) {
-        this.shapesSelected.push(shape)
-        return shape
-      }
-    })
-    return null
+  clearShapes() {
+    this.addSnapshot()
+    this.shapes.splice(0, this.shapes.length)
   }
 
   /**
@@ -94,9 +51,100 @@ export class Layer implements SnapshotOriginator {
    */
   drawShapes(): void {
     this.clearCanvas()
+
     this.shapes.forEach(shape => {
       shape.draw(this.ctx)
     })
+
+    // 如果有形状被选中
+    if (this.selected.length > 0) {
+      this.drawSelected()
+    }
+  }
+
+  /**选中的形状：限定能修改的范围 */
+  selected: Shape[] = []
+
+  /**
+   * 绘制选中形状的边界
+   */
+  drawSelected() {
+    drawNoSideEffect(this.ctx)(ctx => {
+      this.selected.forEach(s => {
+        const rectBounding = s.getRectBounding()
+        const rectBoundingPath = Path.rectBounding(rectBounding)
+        ctx.stroke(rectBoundingPath)
+      })
+    })
+  }
+
+  /**
+   * 设置未选中任何形状
+   */
+  setUnSelected() {
+    this.selected.splice(0, this.selected.length)
+  }
+
+  /**
+   * 修改选中形状的配置
+   * @param options
+   */
+  setOnSelected(options) {
+    this.addSnapshot()
+    this.selected.forEach(s => {
+      _.assign(s, options)
+    })
+    this.drawSelected()
+  }
+
+  /**
+   * 移动选中的形状
+   * @param x
+   * @param y
+   */
+  moveSelected(x: number, y: number) {
+    this.selected.forEach(shape => {
+      shape.move(x, y)
+    })
+  }
+
+  /**
+   * 删除已选中的形状
+   */
+  removeSelected() {
+    this.addSnapshot()
+    this.selected.forEach(shape => {
+      this.removeShape(shape)
+    })
+
+    this.setUnSelected()
+    this.drawShapes()
+  }
+
+  /**
+   * 得到在给定区域内的形状
+   * @param area
+   * @returns
+   */
+  calcShapesInArea(area: RectBounding): Shape[] {
+    this.selected = this.shapes.filter(shape => shape.isInArea(area))
+    return this.selected
+  }
+
+  /**
+   * 得到一个在给的位置的形状
+   * @param pos
+   * @returns
+   */
+  calcShapeByPos(pos: Vector2D): Shape | null {
+    this.setUnSelected()
+    _.eachRight(this.shapes, shape => {
+      if (shape.isInnerPos(pos)) {
+        this.selected.push(shape)
+        return shape
+      }
+    })
+    return null
   }
 
   clearCanvas(): void {
@@ -135,8 +183,20 @@ export class Layer implements SnapshotOriginator {
 
   /**快照恢复 */
   restore(snapshot: Shape[]) {
-    this.clear()
+    this.shapes.splice(0, this.shapes.length)
     this.shapes.push(...snapshot)
+  }
+
+  undo() {
+    this.setUnSelected()
+    this.history.undo()
+    this.drawShapes()
+  }
+
+  redo() {
+    this.setUnSelected()
+    this.history.redo()
+    this.drawShapes()
   }
 }
 

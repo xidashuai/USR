@@ -1,6 +1,5 @@
-import { BrushOptions, RectangleBounding, Shape } from '.'
+import type { BrushOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
-import SelectState from '../utils/SelectState'
 import {
   areaInOtherArea,
   arrayIterator,
@@ -10,21 +9,17 @@ import {
   Vector2D
 } from '../utils/Vector'
 
-export class Brush extends SelectState implements Shape, BrushOptions {
+export class Brush implements Shape, BrushOptions {
   constructor(options: BrushOptions) {
-    super()
     Object.assign(this, options)
   }
 
+  type = 'brush'
   vectors?: Vector2D[] = [{ x: 0, y: 0 }]
   leftTop: Vector2D
   rightBottom: Vector2D
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
-      if (this.selected) {
-        const b = new RectangleBounding(this.getRectBounding())
-        b.draw(ctx)
-      }
       const brushPath = new Path2D()
       const shadowPath = arrayIterator(this.vectors)
       const a = shadowPath.next()

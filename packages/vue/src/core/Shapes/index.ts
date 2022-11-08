@@ -1,27 +1,24 @@
 import type { RectBounding, Vector2D } from '../utils/Vector'
 
+export * from './createShape'
+
 export * from './Line'
 export * from './Circle'
 export * from './Rectangle'
 export * from './Oval'
 export * from './Brush'
-export * from './RectangleBounding'
 export * from './ImageBrush'
 
 export interface ShapeOptions {
   fillStyle?: string
   strokeStyle?: string
   pos?: Vector2D
-  selected?: boolean
 }
 
 export interface Shape extends ShapeOptions {
   draw(ctx: CanvasRenderingContext2D): void
   isInnerPos(pos: Vector2D): boolean
   isInArea(area: RectBounding): boolean
-  setSelect(): void
-  unSelect(): void
-  toggleSelect(): void
   move(x: number, y: number): void
   getRectBounding(): RectBounding
 }
@@ -54,5 +51,3 @@ export interface CurveOptions extends LineOptions {}
 export interface BrushOptions extends ShapeOptions, CurveOptions {
   vectors?: Vector2D[]
 }
-
-export interface RectangleBoundingOptions extends ShapeOptions, RectBounding {}

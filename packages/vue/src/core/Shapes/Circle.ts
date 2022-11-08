@@ -1,7 +1,6 @@
-import { CircleOptions, RectangleBounding, Shape } from '.'
+import type { CircleOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
-import SelectState from '../utils/SelectState'
 import {
   areaInOtherArea,
   distance,
@@ -16,12 +15,12 @@ import {
 /**
  * 圆形
  */
-export class Circle extends SelectState implements Shape, CircleOptions {
+export class Circle implements Shape, CircleOptions {
   constructor(options?: CircleOptions) {
-    super()
     Object.assign(this, options)
   }
 
+  type = 'cricle'
   radius: number = 0
   pos: Vector2D = V2D()
   fillStyle: string
@@ -29,11 +28,6 @@ export class Circle extends SelectState implements Shape, CircleOptions {
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
-      if (this.selected) {
-        const b = new RectangleBounding(this.getRectBounding())
-        b.draw(ctx)
-      }
-
       const circle = Path.circle(this.pos, this.radius)
 
       if (this.strokeStyle) {

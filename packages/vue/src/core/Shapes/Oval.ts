@@ -1,7 +1,6 @@
-import { OvalOptions, RectangleBounding, Shape } from '.'
+import type { OvalOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
-import SelectState from '../utils/SelectState'
 import {
   areaInOtherArea,
   calcRectBounding,
@@ -11,13 +10,13 @@ import {
   Vector2D
 } from '../utils/Vector'
 
-export class Oval extends SelectState implements Shape, OvalOptions {
+export class Oval implements Shape, OvalOptions {
   constructor(options: OvalOptions) {
-    super()
     Object.assign(this, JSON.parse(JSON.stringify(options)))
     // Object.assign(this, options)
   }
 
+  type = 'oval'
   pos?: Vector2D = { x: 0, y: 0 }
   radiusX: number = 0
   radiusY: number = 0
@@ -30,14 +29,7 @@ export class Oval extends SelectState implements Shape, OvalOptions {
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
-      if (this.selected) {
-        const b = new RectangleBounding(this.getRectBounding())
-        b.draw(ctx)
-      }
       const path = Path.oval(this.pos, this.radiusX, this.radiusY)
-      if (this.strokeStyle) {
-        ctx.strokeStyle = this.strokeStyle
-      }
       ctx.stroke(path)
 
       if (this.fillStyle) {

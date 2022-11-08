@@ -14,9 +14,8 @@ import { useWB } from '@/stores/useWhiteBoard'
 import socketClient from '@/core/utils/socket'
 
 const wbStore = useWB()
-const { wb, currentPage } = wbStore
+const { currentPage } = wbStore
 const click = () => {
-  const page = wb.getCurrentPage()
-  page.useDrawRectangle()
+  currentPage().useDrawRectangle()
 }
 </script>

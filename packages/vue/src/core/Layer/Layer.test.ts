@@ -14,24 +14,22 @@ const layer = new Layer(ctx!)
 
 test('push', () => {
   expect(layer.ctx).toBeDefined()
-  layer.push(rect1)
+  layer.pushShape(rect1)
   expect(layer.size).toBe(1)
 })
 
 test('pop', () => {
-  layer.pop()
+  layer.popShape()
   expect(layer.size).toBe(0)
 })
 
 test('remove', () => {
-  layer.push(rect1)
-  layer.push(rect2)
+  layer.pushShape(rect1)
+  layer.pushShape(rect2)
   expect(layer.size).toBe(2)
-  layer.remove(rect1)
-  expect(layer.size).toBe(1)
 })
 
 test('clear', () => {
-  layer.clear()
+  layer.clearShapes()
   expect(layer.size).toBe(0)
 })

@@ -1,7 +1,6 @@
-import { LineOptions, RectangleBounding, Shape } from '.'
+import type { LineOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
-import SelectState from '../utils/SelectState'
 import {
   calcRectBounding,
   isInRectArea,
@@ -14,12 +13,12 @@ import {
 /**
  * 直线
  */
-export class Line extends SelectState implements Shape, LineOptions {
+export class Line implements Shape, LineOptions {
   constructor(options: LineOptions) {
-    super()
     Object.assign(this, options)
   }
 
+  type = 'line'
   begin: Vector2D = V2D()
   end: Vector2D = V2D()
   strokeStyle: string
@@ -27,10 +26,6 @@ export class Line extends SelectState implements Shape, LineOptions {
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
-      if (this.selected) {
-        const b = new RectangleBounding(this.getRectBounding())
-        b.draw(ctx)
-      }
       const path = Path.line(this.begin, this.end)
 
       if (this.strokeStyle) {

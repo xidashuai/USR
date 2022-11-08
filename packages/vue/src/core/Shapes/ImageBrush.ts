@@ -1,5 +1,4 @@
-import { BrushOptions, RectangleBounding, Shape } from '.'
-import SelectState from '../utils/SelectState'
+import type { BrushOptions, Shape } from '.'
 import {
   areaInOtherArea,
   calcRectBounding,
@@ -10,16 +9,16 @@ import {
 } from '../utils/Vector'
 
 import { brushUrl } from '@/assets'
-import { drawCanvasElement, drawNoSideEffect } from '../utils/Canvas'
+import { drawNoSideEffect } from '../utils/Canvas'
 import OffscreenCanvas from '../utils/OffscreenCanvas'
 
-export class ImageBrush extends SelectState implements Shape {
+export class ImageBrush implements Shape {
   constructor(options?: BrushOptions) {
-    super()
     Object.assign(this, options)
     this.img.src = brushUrl.icicles
   }
 
+  type = 'imgBrush'
   img = new Image()
 
   pos?: Vector2D = V2D()
@@ -30,10 +29,6 @@ export class ImageBrush extends SelectState implements Shape {
   cacheCtx = this.cache.getContext('2d')
 
   draw(ctx: CanvasRenderingContext2D): void {
-    if (this.selected) {
-      const b = new RectangleBounding(this.getRectBounding())
-      b.draw(ctx)
-    }
     this.offScreenCanvas.drawCache(ctx, this.pos.x, this.pos.y)
   }
 

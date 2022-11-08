@@ -5,14 +5,14 @@ const server = TheServer.instance;
 export const initSocket = () => {
   server.on("connection", (client) => {
     // 加入默认房间
-    client.join('Defult room')
+    client.join("Defult room");
     client.data.currentRoom = "Defult room";
 
     console.log("客户端id", { id: client.id });
 
-    client.on("add-shape", (shape) => {
+    client.on("add-shape", (wb) => {
       // 发送给其他客户端
-      client.broadcast.emit("add-shape", shape);
+      client.broadcast.emit("add-shape", wb);
     });
 
     client.on("join-room", (roomname: string) => {

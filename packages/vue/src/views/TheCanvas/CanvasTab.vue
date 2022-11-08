@@ -1,6 +1,6 @@
 <template>
   <el-tabs
-    v-model="currentTabName"
+    v-model="currentTabIndex"
     type="border-card"
     class="tabs"
     @tab-remove="removeTab"
@@ -26,58 +26,61 @@ import { useWB } from '@/stores/useWhiteBoard'
 
 const { wb } = useWB()
 
-const currentTabName = ref<string>(wb.currentPageID)
+const currentTabIndex = ref<number>(0)
 
-watch(currentTabName, () => {
-  wb.currentPageID = currentTabName.value
+watch(currentTabIndex, () => {
+  wb.currentIndex = currentTabIndex.value
 })
 
 const pageTabs = ref([
   {
     title: '默认页',
-    name: wb.currentPageID,
+    name: 0,
     closable: false
   }
 ])
 
 const addTab = () => {
   // 新页
-  const id = wb.newId()
-  wb.newPage(id)
-  wb.currentPageID = id
+  wb.newPage()
 
-  const newTabName = id
-
+  const activeIndex = pageTabs.value.length
   pageTabs.value.push({
     title: '新页',
-    name: newTabName,
+    name: activeIndex,
     closable: true
   })
 
-  currentTabName.value = newTabName
+  currentTabIndex.value = activeIndex
 }
 
-const removeTab = (targetName: string) => {
+const removeTab = (targetIndex: number) => {
   // 删除
-  wb.deletePage(targetName)
+  wb.deletePage(targetIndex)
 
   const tabs = pageTabs.value
 
-  let activeName = currentTabName.value
+  let activeIndex = currentTabIndex.value
 
-  if (activeName === targetName) {
-    tabs.forEach((tab, index) => {
-      if (tab.name === targetName) {
-        const nextTab = tabs[index + 1] || tabs[index - 1]
-        if (nextTab) {
-          activeName = nextTab.name
-        }
-      }
-    })
-  }
+  const nextActiveIndex = tabs[activeIndex + 1] || tabs[activeIndex - 1]
 
-  currentTabName.value = activeName
-  pageTabs.value = tabs.filter(tab => tab.name !== targetName)
+  currentTabIndex.value = nextActiveIndex.name
+
+  // if (activeIndex === targetIndex) {
+  //   tabs.forEach((tab, index) => {
+  //     if (tab.name === targetIndex) {
+  //       const nextTab = tabs[index + 1] || tabs[index - 1]
+
+  //       if (nextTab) {
+  //         activeIndex = nextTab.name
+  //       }
+  //     }
+  //   })
+  // }
+
+  // currentTabIndex.value = activeIndex
+  // pageTabs.value = tabs.filter(tab => tab.name !== targetIndex)
+  pageTabs.value.splice(activeIndex, 1)
 }
 </script>
 
