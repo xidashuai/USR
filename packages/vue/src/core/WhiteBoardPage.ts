@@ -29,7 +29,7 @@ import {
 import { brushUrl, logoUrl } from '@/assets'
 import { clearCanvas, createCanvas, drawNoSideEffect } from './utils/Canvas'
 import Path from './utils/Path'
-import socketClient from './utils/socket'
+import socketClient from '@/utils/socket'
 import { useWB } from '@/stores/useWhiteBoard'
 
 /**
