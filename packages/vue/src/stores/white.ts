@@ -77,8 +77,8 @@ export const PublicWhiteBoard = defineStore('getPublicWhiteBoard', {
   }),
   actions: {
     // 发送请求获取公共白板
-    async getPublicWhiteBoard(page: number) {
-      const publicWhiteBoard = await getRoomList(page)
+    async getPublicWhiteBoard() {
+      const publicWhiteBoard = await getRoomList()
       const { issucceed, room_list, msg } = publicWhiteBoard
       if (issucceed) {
         this.roomList = room_list
