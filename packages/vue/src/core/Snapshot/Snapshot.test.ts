@@ -7,7 +7,7 @@ class TestOrigintor implements SnapshotOriginator {
   snapshot() {
     return { value: this.value }
   }
-  restore(snapshot): void {
+  restore(snapshot: { value: number }): void {
     this.value = snapshot.value
   }
 }

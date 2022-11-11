@@ -1,4 +1,4 @@
-import type { BrushOptions, Shape } from '.'
+import type { BrushOptions, CtxSetting, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import {
   areaInOtherArea,
@@ -8,18 +8,24 @@ import {
   RectBounding,
   Vector2D
 } from '../utils/Vector'
+import { BaseShape } from './BaseShape'
 
-export class Brush implements Shape, BrushOptions {
+export class Brush extends BaseShape implements Shape, BrushOptions {
   constructor(options: BrushOptions) {
-    Object.assign(this, options)
+    super()
+    this.assign(this, options)
   }
 
-  type = 'brush'
+  readonly type = 'brush'
+  pos?: Vector2D
   vectors?: Vector2D[] = [{ x: 0, y: 0 }]
+
   leftTop: Vector2D
   rightBottom: Vector2D
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
+      this.assign(ctx, this.ctxSetting)
+
       const brushPath = new Path2D()
       const shadowPath = arrayIterator(this.vectors)
       const a = shadowPath.next()

@@ -21,7 +21,7 @@ export default class Path {
     })
   }
 
-  static oval(pos: Vector2D, radiusX: number, radiusY: number): Path2D {
+  static ellipes(pos: Vector2D, radiusX: number, radiusY: number): Path2D {
     return this.newPath(path => {
       path.ellipse(pos.x, pos.y, radiusX, radiusY, 0, 0, 2 * Math.PI)
       path.closePath()

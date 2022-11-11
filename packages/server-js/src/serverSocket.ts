@@ -15,6 +15,20 @@ export const initSocket = () => {
       client.broadcast.emit("add-shape", wb);
     });
 
+    client.on("pages-updated", (wb: string /**JSON数据 */) => {
+      // 发送给其他客户端
+      client.broadcast.emit("pages-updated", wb);
+    });
+
+    client.on("add-page", (pagename: string) => {
+      // 有服务端发送给所有人
+      server.emit("add-page", pagename);
+    });
+
+    client.on("remove-page", (pagename: string) => {
+      server.emit("remove-page", pagename);
+    });
+
     client.on("join-room", (roomname: string) => {
       client.data.currentRoom = roomname;
       // TODO: 存入数据库

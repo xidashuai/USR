@@ -1,4 +1,4 @@
-import type { LineOptions, Shape } from '.'
+import type { CtxSetting, LineOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
 import {
@@ -9,34 +9,27 @@ import {
   V2D,
   Vector2D
 } from '../utils/Vector'
+import { BaseShape } from './BaseShape'
 
 /**
  * 直线
  */
-export class Line implements Shape, LineOptions {
+export class Line extends BaseShape implements Shape, LineOptions {
   constructor(options: LineOptions) {
-    Object.assign(this, options)
+    super()
+    this.assign(this, options)
   }
-
-  type = 'line'
-  begin: Vector2D = V2D()
-  end: Vector2D = V2D()
-  strokeStyle: string
-  fillStyle: string
+  readonly type = 'line'
+  begin?: Vector2D
+  end?: Vector2D
+  pos?: Vector2D
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
+      this.assign(ctx, this.ctxSetting)
       const path = Path.line(this.begin, this.end)
-
-      if (this.strokeStyle) {
-        ctx.strokeStyle = this.strokeStyle
-      }
       ctx.stroke(path)
-
-      if (this.fillStyle) {
-        ctx.fillStyle = this.fillStyle
-        ctx.fill(path)
-      }
+      ctx.fill(path)
     })
   }
 

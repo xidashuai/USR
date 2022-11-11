@@ -17,7 +17,7 @@ const wbStore = useWB()
 const { wb } = wbStore
 const click = () => {
   const page = wb.getCurrentPage()
-  page.useDrawOval()
+  page.useDrawEllipes()
 }
 </script>
 

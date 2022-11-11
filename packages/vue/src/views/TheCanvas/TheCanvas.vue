@@ -16,13 +16,13 @@ import socketClient from '@/utils/socket'
 
 const router = useRouter()
 
-const props = defineProps<{ name: number }>()
+const props = defineProps<{ name: string }>()
 
 const rootRef = ref<HTMLDivElement>(null)
 const { wb, currentPage } = useWB()
 
 onMounted(() => {
-  const page = wb.getPage(props.name)
+  const page = wb.newPage(props.name)
   rootRef.value.insertBefore(page.canvas, rootRef.value.firstElementChild)
 
   // let socket = io('https://www.xdsbty.cn')
@@ -35,14 +35,6 @@ onMounted(() => {
   // socket.onopen = () => {
   //   console.log('监听客户端连接成功-onopen')
   // }
-})
-
-socketClient.on('connect', () => {
-  console.log('连接成功', { socketId: socketClient.id })
-})
-
-socketClient.on('add-shape', wb => {
-  console.log(wb)
 })
 
 const AsyncShapeToolBar = defineAsyncComponent({
