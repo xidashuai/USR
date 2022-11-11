@@ -60,15 +60,11 @@ export function createRoom(
 
 /**
  * 获取房间列表
- * @param page
  */
 
-export function getRoomList(page: number) {
+export function getRoomList() {
   return apiRequest.get<IRoomList>({
-    url: '/getroomlist',
-    params: {
-      page
-    }
+    url: '/getroomlist'
   })
 }
 
