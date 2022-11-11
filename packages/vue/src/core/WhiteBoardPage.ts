@@ -31,7 +31,6 @@ import { brushUrl } from '@/assets'
 import { drawNoSideEffect } from './utils/Canvas'
 import Path from './utils/Path'
 import { useWB } from '@/stores/useWhiteBoard'
-import OffscreenCanvas from './utils/OffscreenCanvas'
 import socketClient from '@/utils/socket'
 
 /**
