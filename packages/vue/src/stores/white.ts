@@ -1,7 +1,12 @@
 // 使用pinia 发送请求
 
 import { defineStore } from 'pinia'
-import { addUser, createRoom, getRoomInfo } from '@/service/main/main'
+import {
+  addUser,
+  createRoom,
+  getRoomInfo,
+  getRoomList
+} from '@/service/main/main'
 
 export const userStore = defineStore('addUser', {
   state: () => ({
@@ -60,6 +65,29 @@ export const saveWhiteBoardInfo = defineStore('saveWhiteBoardInfo', {
       this.roomname = roomname
       this.ispublic = ispublic
     }
-  },
-  getters: {}
+  }
+})
+
+// 获取公共白板
+export const PublicWhiteBoard = defineStore('getPublicWhiteBoard', {
+  state: () => ({
+    issucceed: '',
+    roomList: [],
+    msg: ''
+  }),
+  actions: {
+    // 发送请求获取公共白板
+    async getPublicWhiteBoard(page: number) {
+      const publicWhiteBoard = await getRoomList(page)
+      const { issucceed, room_list, msg } = publicWhiteBoard
+      if (issucceed) {
+        this.roomList = room_list
+        this.issucceed = issucceed
+        this.msg = msg
+      } else {
+        this.issucceed = issucceed
+        this.msg = msg
+      }
+    }
+  }
 })

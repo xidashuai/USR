@@ -14,9 +14,9 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/main/Main.vue')
   },
   {
-    path: '/home',
-    name: 'home',
-    component: () => import('@/views/HomeView/HomeView.vue')
+    path: '/publicRoom',
+    name: 'publicRoom',
+    component: () => import('@/views/PublicRoom/PublicRoom.vue')
   },
   {
     path: '/white',

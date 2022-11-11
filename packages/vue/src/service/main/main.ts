@@ -1,6 +1,11 @@
 import apiRequest from '../index'
 import type { IDataType } from '../types'
-import type { IAddUserRequest, IGetRoomInfo, IRoomInfo } from './types'
+import type {
+  IAddUserRequest,
+  IGetRoomInfo,
+  IRoomInfo,
+  IRoomList
+} from './types'
 
 /**
  * 增加新用户
@@ -59,7 +64,7 @@ export function createRoom(
  */
 
 export function getRoomList(page: number) {
-  return apiRequest.get({
+  return apiRequest.get<IRoomList>({
     url: '/getroomlist',
     params: {
       page
