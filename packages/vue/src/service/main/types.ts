@@ -21,3 +21,19 @@ export interface IRoomInfo {
     Roomname: string
   }
 }
+
+export interface IRoomList {
+  issucceed: boolean
+  room_list: [
+    {
+      ID: number
+      Roomname: string
+      Ownerid: string
+      Owner: {
+        ID: number
+        username: string
+      }
+    }
+  ]
+  msg: string
+}

@@ -13,7 +13,8 @@ const name = ref('')
 const roomValue = ref('')
 const roomNameValue = ref('')
 const joinPublicWhiteBoard = () => {
-  router.push('/home')
+  // 获取房间列表
+  router.push('/publicRoom')
 }
 const joinPrivateBoard = async () => {
   if (room.value) {

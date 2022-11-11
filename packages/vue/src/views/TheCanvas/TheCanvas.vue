@@ -9,7 +9,6 @@
 import BackIcon from './icons/BackIcon.vue'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useWB } from '@/stores/useWhiteBoard'
-
 import { Rectangle } from '@/core/Shapes'
 import { useRouter } from 'vue-router'
 import socketClient from '@/utils/socket'

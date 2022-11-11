@@ -115,7 +115,7 @@ const anonymousCreate = async () => {
       roomName,
       Number(isPublic.value)
     )
-    console.log('roomData', roomData)
+    // console.log('roomData', roomData)
     if (roomData.issucceed === true) {
       const userid = Number(roomData.msg.Ownerid)
       const username = roomData.msg.Owner.username

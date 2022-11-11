@@ -9,11 +9,17 @@
       </svg>
     </div>
     <div class="cover"></div>
-    <div class="title">is canvas preview</div>
+    <div class="title">{{ props.roomname }}</div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const props = defineProps<{
+  roomid: number
+  roomname: string
+  userid: string
+}>()
+</script>
 
 <style scoped lang="scss">
 .canvasPreview {
@@ -26,7 +32,7 @@
     @apply aspect-video w-64 rounded-md border-2 border-solid border-gray-400 bg-gray-900;
   }
   .title {
-    @apply p-2 text-gray-100;
+    @apply p-2;
   }
 }
 </style>
