@@ -1,6 +1,6 @@
 <template>
   <el-tabs
-    v-model="currentTabIndex"
+    v-model="currentTabName"
     type="border-card"
     class="tabs"
     @tab-remove="removeTab"
@@ -23,64 +23,71 @@
 import { ref, watch } from 'vue'
 import TheCanvas from './TheCanvas.vue'
 import { useWB } from '@/stores/useWhiteBoard'
+import socketClient from '@/utils/socket'
 
 const { wb } = useWB()
 
-const currentTabIndex = ref<number>(0)
+const currentTabName = ref<string>('default')
 
-watch(currentTabIndex, () => {
-  wb.currentIndex = currentTabIndex.value
+watch(currentTabName, () => {
+  wb.currentPageName = currentTabName.value
 })
 
 const pageTabs = ref([
   {
     title: '默认页',
-    name: 0,
+    name: 'default',
     closable: false
   }
 ])
 
-const addTab = () => {
-  // 新页
-  wb.newPage()
+socketClient.on('add-page', pagename => {
+  console.log({ pagename })
 
-  const activeIndex = pageTabs.value.length
+  wb.newPage(pagename)
   pageTabs.value.push({
-    title: '新页',
-    name: activeIndex,
+    title: '新页面',
+    name: pagename,
     closable: true
   })
+})
 
-  currentTabIndex.value = activeIndex
+socketClient.on('remove-page', pagename => {
+  wb.deletePage(pagename)
+  pageTabs.value = pageTabs.value.filter(page => page.name != pagename)
+})
+
+const addTab = () => {
+  // 新页
+  // wb.newPage()
+
+  const activeIndex = pageTabs.value.length
+  // pageTabs.value.push({
+  //   title: '新页',
+  //   name: activeIndex,
+  //   closable: true
+  // })
+
+  currentTabName.value = activeIndex.toString()
+
+  socketClient.emit('add-page', activeIndex)
 }
 
 const removeTab = (targetIndex: number) => {
   // 删除
-  wb.deletePage(targetIndex)
+  // wb.deletePage(targetIndex)
 
   const tabs = pageTabs.value
 
-  let activeIndex = currentTabIndex.value
+  let activeIndex = parseInt(currentTabName.value)
 
   const nextActiveIndex = tabs[activeIndex + 1] || tabs[activeIndex - 1]
 
-  currentTabIndex.value = nextActiveIndex.name
+  currentTabName.value = nextActiveIndex.name
 
-  // if (activeIndex === targetIndex) {
-  //   tabs.forEach((tab, index) => {
-  //     if (tab.name === targetIndex) {
-  //       const nextTab = tabs[index + 1] || tabs[index - 1]
+  // pageTabs.value.splice(activeIndex, 1)
 
-  //       if (nextTab) {
-  //         activeIndex = nextTab.name
-  //       }
-  //     }
-  //   })
-  // }
-
-  // currentTabIndex.value = activeIndex
-  // pageTabs.value = tabs.filter(tab => tab.name !== targetIndex)
-  pageTabs.value.splice(activeIndex, 1)
+  socketClient.emit('remove-page', activeIndex)
 }
 </script>
 

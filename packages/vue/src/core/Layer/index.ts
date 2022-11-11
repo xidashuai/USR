@@ -1,9 +1,21 @@
-import type { Shape } from '@/core/Shapes'
+import {
+  BrushOptions,
+  CircleOptions,
+  createShape,
+  EllipesOptions,
+  ImageBrushOptions,
+  LineOptions,
+  RectangleOptions,
+  Shape,
+  ShapeOptionsUnion
+} from '@/core/Shapes'
 import _ from 'lodash'
 import { SnapshotManager, SnapshotOriginator } from '../Snapshot'
 import { clearCanvas, drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
 import type { RectBounding, Vector2D } from '../utils/Vector'
+import { useWB } from '@/stores/useWhiteBoard'
+import socketClient from '@/utils/socket'
 
 /**
  * 管理一个画布中的所有形状
@@ -21,15 +33,48 @@ export class Layer implements SnapshotOriginator {
     return this.shapes.length
   }
 
-  addSnapshot() {
+  addSnapshot(): void {
     if (this.size > 0) {
       this.history.addSnapshot()
     }
   }
 
+  addShape(
+    options:
+      | BrushOptions
+      | CircleOptions
+      | EllipesOptions
+      | ImageBrushOptions
+      | LineOptions
+      | RectangleOptions
+  ) {
+    this.addSnapshot()
+    const shape = createShape(options)
+    this.shapes.push(shape)
+    return shape
+  }
+
+  import(shapesOptions: any[]) {
+    this.shapes.splice(0, this.size)
+    shapesOptions.forEach(s => {
+      this.shapes.push(createShape(s))
+    })
+    // 不能使用drawShapes
+    this.clearCanvas()
+    this.shapes.forEach(s => {
+      s.draw(this.ctx)
+    })
+  }
+
+  export() {
+    console.log(JSON.parse(JSON.stringify(this.shapes)))
+    return JSON.parse(JSON.stringify(this.shapes))
+  }
+
   pushShape(shape: Shape) {
     this.addSnapshot()
     this.shapes.push(shape)
+    return shape
   }
 
   popShape() {
@@ -50,6 +95,20 @@ export class Layer implements SnapshotOriginator {
    * 绘制所有形状
    */
   drawShapes(): void {
+    this.clearCanvas()
+
+    this.shapes.forEach(shape => {
+      shape.draw(this.ctx)
+    })
+
+    // 如果有形状被选中
+    if (this.selected.length > 0) {
+      this.drawSelected()
+    }
+    socketClient.emit('pages-updated', useWB().wb.export())
+  }
+
+  drawShapesWithoutSync() {
     this.clearCanvas()
 
     this.shapes.forEach(shape => {
@@ -161,6 +220,7 @@ export class Layer implements SnapshotOriginator {
   drawCache(): void {
     this.clearCanvas()
     this.ctx.drawImage(this.cache, 0, 0)
+    socketClient.emit('pages-updated', useWB().wb.export())
   }
 
   renderShapesOffscreen(): HTMLCanvasElement {
@@ -198,10 +258,4 @@ export class Layer implements SnapshotOriginator {
     this.history.redo()
     this.drawShapes()
   }
-}
-
-function moveShapes(x: number, y: number, shapes: Shape[]) {
-  shapes.forEach(shape => {
-    shape.move(x, y)
-  })
 }

@@ -1,27 +1,5 @@
 import { test, expect } from 'vitest'
-import { WhiteBoard } from './WhiteBoard'
-
-const wb = new WhiteBoard()
-test('White Board', () => {
-  // 默认创建
-  expect(wb.pages.length).toBe(1)
-
-  wb.newPage()
-  wb.newPage()
-  wb.newPage()
-  wb.newPage()
-
-  expect(wb.pages.length).toBe(5)
-
-  const page1 = wb.getPage(1)
-  expect(page1).toBeDefined()
-
-  const page2 = wb.getPage(999)
-  expect(page2).not.toBeDefined()
-
-  const page3 = wb.getCurrentPage()
-  expect(page3)
-})
+// import WhiteBoard from '.'
 
 const tdd = [
   [
@@ -155,3 +133,44 @@ const tdd = [
     }
   ]
 ]
+
+test('asdf', () => {
+  function toJsonObject(obj: any) {
+    return JSON.parse(JSON.stringify(obj, undefined, 2))
+  }
+  const key = 'id6'
+  const map = {
+    id1: { page: 'page1' },
+    id2: { page: 'page2' },
+    id3: { page: 'page3' },
+    id4: { page: 'page5' },
+    id5: { page: 'page1' },
+    [key]: { page: 'page6' }
+  }
+
+  function forEach(fn: (value: any) => void) {
+    for (const value of Object.values(map)) {
+      fn(value)
+    }
+  }
+
+  function get(key: string) {
+    return map[key]
+  }
+
+  function deletePage(key: string) {
+    delete map[key]
+  }
+
+  deletePage('id6')
+  console.log(map)
+
+  function importPages(pages: { page: string }[]) {
+    // for (const [key, value] of Object.entries(map)) {
+    //   map[key] = value
+    // }
+    // pages.forEach((key, value) => {
+    //   map[key] = value
+    // })
+  }
+})

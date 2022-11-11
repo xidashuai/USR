@@ -1,48 +1,38 @@
-import type { CircleOptions, Shape } from '.'
+import type { CircleOptions, CtxSetting, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
 import {
   areaInOtherArea,
   distance,
-  isInArea,
-  isInRectArea,
   moveVector,
   RectBounding,
   V2D,
   Vector2D
 } from '../utils/Vector'
+import { BaseShape } from './BaseShape'
 
 /**
  * 圆形
  */
-export class Circle implements Shape, CircleOptions {
+export class Circle extends BaseShape implements Shape, CircleOptions {
   constructor(options?: CircleOptions) {
-    Object.assign(this, options)
+    super()
+    this.assign(this, options)
   }
 
-  type = 'cricle'
-  radius: number = 0
+  readonly type = 'circle'
   pos: Vector2D = V2D()
-  fillStyle: string
-  strokeStyle: string
+  radius: number = 0
+  startAngle?: number
+  endAngle?: number
+  counterclockwise?: boolean
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
+      this.assign(ctx, this.ctxSetting)
       const circle = Path.circle(this.pos, this.radius)
-
-      if (this.strokeStyle) {
-        ctx.strokeStyle = this.strokeStyle
-      }
       ctx.stroke(circle)
-
-      if (this.fillStyle) {
-        ctx.fillStyle = this.fillStyle
-        ctx.fill(circle)
-      }
-
-      // 画圆心
-      const center = Path.circle(this.pos, 1)
-      ctx.fill(center)
+      ctx.fill(circle)
     })
   }
 

@@ -1,4 +1,4 @@
-import type { OvalOptions, Shape } from '.'
+import type { CtxSetting, EllipesOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
 import {
@@ -10,37 +10,32 @@ import {
   Vector2D
 } from '../utils/Vector'
 
-export class Oval implements Shape, OvalOptions {
-  constructor(options: OvalOptions) {
+export class Ellipes implements Shape, EllipesOptions {
+  constructor(options: EllipesOptions) {
     Object.assign(this, JSON.parse(JSON.stringify(options)))
-    // Object.assign(this, options)
   }
 
-  type = 'oval'
+  readonly type = 'ellipes'
   pos?: Vector2D = { x: 0, y: 0 }
-  radiusX: number = 0
-  radiusY: number = 0
-  rotation: number = 0
-  startAngle: number = 0
-  endAngle: number = Math.PI * 2
-  counterclockwise: boolean = true
-  fillStyle?: string
-  strokeStyle?: string
+  radiusX?: number = 0
+  radiusY?: number = 0
+  rotation?: number = 0
+  startAngle?: number = 0
+  endAngle?: number = Math.PI * 2
+  counterclockwise?: boolean = true
+  ctxSetting: CtxSetting
 
   draw(ctx: CanvasRenderingContext2D): void {
     drawNoSideEffect(ctx)(ctx => {
-      const path = Path.oval(this.pos, this.radiusX, this.radiusY)
+      Object.assign(ctx, this.ctxSetting)
+      const path = Path.ellipes(this.pos, this.radiusX, this.radiusY)
       ctx.stroke(path)
-
-      if (this.fillStyle) {
-        ctx.fillStyle = this.fillStyle
-        ctx.fill(path)
-      }
+      ctx.fill(path)
     })
   }
 
   isInnerPos(pos: Vector2D): boolean {
-    return false
+    return isInRectArea(pos, this.getRectBounding())
   }
 
   isInArea(area: RectBounding): boolean {

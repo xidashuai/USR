@@ -1,6 +1,6 @@
 import { CanvasEvent } from './EventObserver'
 import { Layer } from './Layer'
-import {
+import type {
   Brush,
   BrushOptions,
   Circle,
@@ -8,11 +8,12 @@ import {
   ImageBrush,
   Line,
   LineOptions,
-  Oval,
-  OvalOptions,
+  Ellipes,
+  EllipesOptions,
   Rectangle,
   RectangleOptions,
-  Shape
+  ShapeOptions,
+  ImageBrushOptions
 } from './Shapes'
 import { calcMousePos, moveUp } from './utils/events'
 
@@ -26,11 +27,11 @@ import {
   Vector2D
 } from './utils/Vector'
 
-import { brushUrl, logoUrl } from '@/assets'
-import { clearCanvas, createCanvas, drawNoSideEffect } from './utils/Canvas'
+import { brushUrl } from '@/assets'
+import { drawNoSideEffect } from './utils/Canvas'
 import Path from './utils/Path'
-import socketClient from '@/utils/socket'
 import { useWB } from '@/stores/useWhiteBoard'
+import socketClient from '@/utils/socket'
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
@@ -52,47 +53,48 @@ export class WhiteBoardPage {
     // this.history = new SnapshotManager(this.layer)
   }
 
-  // addSnapshot() {
-  //   this.history.addSnapshot()
-  // }
-
   /**
    * 形状
-   * @param shape
+   * @param options
    * @returns
    */
-  addShape(shape) {
-    this.layer.pushShape(shape)
-    return shape
+  addShape(
+    options:
+      | CircleOptions
+      | RectangleOptions
+      | LineOptions
+      | EllipesOptions
+      | BrushOptions
+      | ImageBrushOptions
+  ) {
+    return this.layer.addShape(options)
   }
 
   addCircle(options: CircleOptions): Circle {
-    return this.addShape(new Circle(options))
+    return this.addShape(options) as Circle
   }
 
   addRectangle(options: RectangleOptions): Rectangle {
-    return this.addShape(new Rectangle(options))
+    return this.addShape(options) as Rectangle
   }
 
   addLine(options: LineOptions): Line {
-    return this.addShape(new Line(options))
+    return this.addShape(options) as Line
   }
 
-  addOval(options: OvalOptions): Oval {
-    return this.addShape(new Oval(options))
+  addEllipes(options: EllipesOptions): Ellipes {
+    return this.addShape(options) as Ellipes
   }
 
   addBrush(options: BrushOptions): Brush {
-    return this.addShape(new Brush(options))
+    return this.addShape(options) as Brush
   }
 
-  addImageBrush(options) {
-    const brush = new ImageBrush(options)
-    brush.useCacheCtx(cacheCtx => {
-      cacheCtx.canvas.width = this.canvas.width
-      cacheCtx.canvas.height = this.canvas.height
-    })
-    return this.addShape(brush)
+  addImageBrush(options: ImageBrushOptions): ImageBrush {
+    const brush = this.addShape(options) as ImageBrush
+    brush.offScreenCanvas.cache.width = this.canvas.width
+    brush.offScreenCanvas.cache.height = this.canvas.height
+    return brush
   }
 
   createCache() {
@@ -219,7 +221,14 @@ export class WhiteBoardPage {
   useDrawLine() {
     this.setMouseDown((e: MouseEvent) => {
       const begin = this.getMousePos(e)
-      const line = this.addLine({ begin })
+      const line = this.addLine({
+        begin,
+        type: 'line',
+        ctxSetting: {
+          fillStyle: '#00000000',
+          strokeStyle: 'red'
+        }
+      })
 
       const move = (e: MouseEvent) => {
         line.end = this.getMousePos(e)
@@ -232,9 +241,13 @@ export class WhiteBoardPage {
 
   useDrawImageBrush(brushType) {
     this.setMouseDown((e: MouseEvent) => {
-      this.createCache()
+      const brush = this.addImageBrush({
+        type: 'imageBrush'
+        // offScreenCanvas: ,
+        // cache: undefined,
+        // cacheCtx: undefined
+      })
 
-      const brush = this.addImageBrush({})
       brush.img.src = brushUrl[brushType]
 
       let start = this.getMousePos(e)
@@ -242,7 +255,7 @@ export class WhiteBoardPage {
       const rightBottom = { ...start }
 
       const move = (e: MouseEvent) => {
-        this.drawCache()
+        this.layer.drawShapesWithoutSync()
         const end = this.getMousePos(e)
 
         // 计算路径的边界
@@ -251,6 +264,7 @@ export class WhiteBoardPage {
         leftTop.y = Math.min(leftTop.y, y)
         rightBottom.x = Math.max(rightBottom.x, x)
         rightBottom.y = Math.max(rightBottom.y, y)
+
         brush.leftTop = leftTop
         brush.rightBottom = rightBottom
 
@@ -260,11 +274,17 @@ export class WhiteBoardPage {
         start = end
 
         this.drawNoSideEffect()(() => {
-          brush.useCacheCtx(cacheCtx => {
-            tempVectors.forEach(v => {
-              cacheCtx.drawImage(brush.img, v.x, v.y, 20, 20)
-            })
+          // brush.useCacheCtx(cacheCtx => {
+          tempVectors.forEach(v => {
+            brush.offScreenCanvas.cacheCtx.drawImage(
+              brush.img,
+              v.x,
+              v.y,
+              20,
+              20
+            )
           })
+          // })
 
           brush.draw(this.ctx)
         })
@@ -294,7 +314,10 @@ export class WhiteBoardPage {
       //     ctrl = this.getMousePos(e)
       //   }
       // }
-      moveUp(move)
+      moveUp(move, () => {
+        brush.cache = brush.cache.toDataURL('image/png') as any
+        socketClient.emit('pages-updated', useWB().wb.export())
+      })
     })
   }
 
@@ -303,7 +326,12 @@ export class WhiteBoardPage {
       this.layer.createCache()
 
       const rectangle = this.addRectangle({
-        pos: this.getMousePos(e)
+        pos: this.getMousePos(e),
+        type: 'rectangle',
+        ctxSetting: {
+          fillStyle: 'rgba(0,0,0,0)',
+          strokeStyle: 'red'
+        }
       })
 
       const move = (e: MouseEvent) => {
@@ -315,14 +343,17 @@ export class WhiteBoardPage {
 
       moveUp(move, () => {
         const { wb } = useWB()
-        socketClient.emit('add-shape', wb.export())
       })
     })
   }
 
   useDrawCircle() {
     this.setMouseDown((e: MouseEvent) => {
-      const circle = this.addCircle({ pos: this.getMousePos(e) })
+      const circle = this.addCircle({
+        pos: this.getMousePos(e),
+        type: 'circle',
+        ctxSetting: undefined
+      })
 
       const move = (e: MouseEvent) => {
         circle.radius = distance(this.getMousePos(e), circle.pos)
@@ -333,13 +364,20 @@ export class WhiteBoardPage {
     })
   }
 
-  useDrawOval() {
+  useDrawEllipes() {
     this.setMouseDown((e: MouseEvent) => {
-      const oval = this.addOval({ pos: this.getMousePos(e) })
+      const epllipes = this.addEllipes({
+        pos: this.getMousePos(e),
+        type: 'ellipes',
+        ctxSetting: {
+          fillStyle: 'rgba(0,0,0,0)',
+          strokeStyle: 'red'
+        }
+      })
 
       const move = (e: MouseEvent) => {
-        oval.radiusX = Math.abs(this.getMousePos(e).x - oval.pos.x)
-        oval.radiusY = Math.abs(this.getMousePos(e).y - oval.pos.y)
+        epllipes.radiusX = Math.abs(this.getMousePos(e).x - epllipes.pos.x)
+        epllipes.radiusY = Math.abs(this.getMousePos(e).y - epllipes.pos.y)
         this.layer.drawShapes()
       }
 
@@ -351,7 +389,11 @@ export class WhiteBoardPage {
     this.setMouseDown((e: MouseEvent) => {
       this.createCache()
 
-      const brush = this.addBrush({ vectors: [this.getMousePos(e)] })
+      const brush = this.addBrush({
+        vectors: [this.getMousePos(e)],
+        type: 'brush',
+        ctxSetting: undefined
+      })
 
       const pos = this.getMousePos(e)
       const leftTop = { ...pos }

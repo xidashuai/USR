@@ -1,5 +1,6 @@
-import type { RectangleOptions, Shape } from '.'
+import type { CtxSetting, RectangleOptions, Shape } from '.'
 import { drawNoSideEffect } from '../utils/Canvas'
+import Path from '../utils/Path'
 import {
   calcRectBounding,
   isInArea,
@@ -9,19 +10,18 @@ import {
   V2D,
   Vector2D
 } from '../utils/Vector'
+import { BaseShape } from './BaseShape'
 
 /**
  * 长方形
  */
-export class Rectangle implements Shape, RectangleOptions {
-  strokeStyle: string
-  fillStyle: string
+export class Rectangle extends BaseShape implements Shape, RectangleOptions {
   constructor(options?: RectangleOptions) {
-    Object.assign(this, options)
+    super()
+    this.assign(this, options)
   }
 
-  type = 'rectangle'
-
+  readonly type = 'rectangle'
   pos: Vector2D = V2D()
   w: number = 0
   h: number = 0
@@ -31,29 +31,19 @@ export class Rectangle implements Shape, RectangleOptions {
       y: this.pos.y + Math.floor(this.h / 2)
     }
   }
-
-  draw(ctx: CanvasRenderingContext2D): void {
-    drawNoSideEffect(ctx)(ctx => {
-      const path = new Path2D()
-
-      path.rect(this.pos.x, this.pos.y, this.w, this.h)
-      if (this.strokeStyle) {
-        ctx.strokeStyle = this.strokeStyle
-      }
-      ctx.stroke(path)
-
-      if (this.fillStyle) {
-        ctx.fillStyle = this.fillStyle
-        ctx.fill(path)
-      }
-    })
-  }
-
   get acrossCorner() {
     return {
       x: this.pos.x + this.w,
       y: this.pos.y + this.h
     }
+  }
+  draw(ctx: CanvasRenderingContext2D): void {
+    drawNoSideEffect(ctx)(ctx => {
+      this.assign(ctx, this.ctxSetting)
+      const path = Path.rectangle(this.pos, this.w, this.h)
+      ctx.stroke(path)
+      ctx.fill(path)
+    })
   }
 
   getRectBounding() {

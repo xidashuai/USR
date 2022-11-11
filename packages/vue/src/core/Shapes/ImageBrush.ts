@@ -1,4 +1,4 @@
-import type { BrushOptions, Shape } from '.'
+import type { BrushOptions, CtxSetting, ImageBrushOptions, Shape } from '.'
 import {
   areaInOtherArea,
   calcRectBounding,
@@ -11,36 +11,46 @@ import {
 import { brushUrl } from '@/assets'
 import { drawNoSideEffect } from '../utils/Canvas'
 import OffscreenCanvas from '../utils/OffscreenCanvas'
+import { BaseShape } from './BaseShape'
 
-export class ImageBrush implements Shape {
-  constructor(options?: BrushOptions) {
-    Object.assign(this, options)
+export class ImageBrush extends BaseShape implements Shape, ImageBrushOptions {
+  constructor(options?: ImageBrushOptions) {
+    super()
+    this.assign(this, options)
     this.img.src = brushUrl.icicles
   }
 
-  type = 'imgBrush'
+  readonly type: 'imageBrush' = 'imageBrush'
+  pos?: Vector2D = V2D()
+
   img = new Image()
 
-  pos?: Vector2D = V2D()
-  vectors?: Vector2D[] = [{ x: 0, y: 0 }]
+  offScreenCanvas? = new OffscreenCanvas()
+  cache?: any = this.offScreenCanvas.cache
 
-  offScreenCanvas = new OffscreenCanvas()
-  cache: HTMLCanvasElement = this.offScreenCanvas.cache
-  cacheCtx = this.cache.getContext('2d')
+  // cacheCtx? = this.cache.getContext('2d')
 
   draw(ctx: CanvasRenderingContext2D): void {
-    this.offScreenCanvas.drawCache(ctx, this.pos.x, this.pos.y)
+    // this.offScreenCanvas.drawCache(ctx, this.pos.x, this.pos.y)
+    if (typeof this.cache === 'string' && this.cache.length > 0) {
+      const img = new Image()
+      img.src = this.cache
+      ctx.drawImage(img, this.pos.x, this.pos.y)
+      return
+    }
+    ctx.drawImage(this.cache, this.pos.x, this.pos.y)
   }
 
-  drawImg(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    drawNoSideEffect(ctx)(ctx => {
-      ctx.drawImage(this.img, x, y)
-    })
-  }
+  // drawImg(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  //   drawNoSideEffect(ctx)(ctx => {
+  //     this.assign(ctx, this.ctxSetting)
+  //     ctx.drawImage(this.img, x, y)
+  //   })
+  // }
 
-  useCacheCtx(fn: (ctx: CanvasRenderingContext2D) => void) {
-    fn(this.cacheCtx)
-  }
+  // useCacheCtx(fn: (ctx: CanvasRenderingContext2D) => void) {
+  //   fn(this.cacheCtx)
+  // }
 
   isInnerPos(pos: Vector2D): boolean {
     return false
