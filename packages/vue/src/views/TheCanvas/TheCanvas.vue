@@ -8,17 +8,16 @@
 <script setup lang="ts">
 import BackIcon from './icons/BackIcon.vue'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
-import { useWB } from '@/stores/useWhiteBoard'
-import { Rectangle } from '@/core/Shapes'
 import { useRouter } from 'vue-router'
-import socketClient from '@/utils/socket'
+import { userStore } from '@/stores/white'
+const { wb } = userStore()
 
 const router = useRouter()
 
 const props = defineProps<{ name: string }>()
 
 const rootRef = ref<HTMLDivElement>(null)
-const { wb, currentPage } = useWB()
+// const { wb, currentPage } = useWB()
 
 onMounted(() => {
   const page = wb.newPage(props.name)

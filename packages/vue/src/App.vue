@@ -4,7 +4,9 @@ import TheCanvas from './views/TheCanvas/TheCanvas.vue'
 
 <template>
   <div class="app">
-    <router-view />
+    <Suspense>
+      <router-view />
+    </Suspense>
   </div>
 </template>
 

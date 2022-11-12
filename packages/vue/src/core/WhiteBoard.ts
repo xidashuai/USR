@@ -1,4 +1,3 @@
-import socketClient from '@/utils/socket'
 import _ from 'lodash'
 import type { Shape } from './Shapes'
 import { createCanvas } from './utils/Canvas'
@@ -51,11 +50,7 @@ export class WhiteBoard {
   }
 
   getCurrentPage() {
-    return this.pages[this.currentPageName]
-  }
-
-  sentPages() {
-    socketClient.emit('pages-updated', this.export())
+    return this.pages[this.currentPageName] as WhiteBoardPage
   }
 
   import(data) {

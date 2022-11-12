@@ -14,18 +14,43 @@
       :name="item.name"
       :closable="item.closable"
     >
-      <TheCanvas :name="item.name" />
+      <AsyncTheCanvas :name="item.name" />
     </el-tab-pane>
   </el-tabs>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import TheCanvas from './TheCanvas.vue'
-import { useWB } from '@/stores/useWhiteBoard'
-import socketClient from '@/utils/socket'
+import { defineAsyncComponent, ref, watch } from 'vue'
+import { userStore } from '@/stores/white'
+import io from 'socket.io-client'
 
-const { wb } = useWB()
+const AsyncTheCanvas = defineAsyncComponent({
+  loader: () => import('./TheCanvas.vue'),
+  delay: 1000
+})
+
+const { wb, getSocket } = userStore()
+
+// const socketClient = getSocket()
+const socketClient = io(`wss://www.xdsbty.cn/?roomid=33`)
+
+socketClient.on('connect', () => {
+  console.log('socket.io 连接成功', { id: socketClient.id })
+})
+
+socketClient.on('pages-updated', data => {
+  console.log(JSON.stringify(JSON.parse(data), v => v, 2))
+
+  wb.import(data)
+})
+
+socketClient.on('chatmessage', data => {
+  console.log(
+    'chatmessage',
+    JSON.stringify(JSON.parse(data), v => v, 2)
+  )
+  wb.import(data)
+})
 
 const currentTabName = ref<string>('default')
 
@@ -42,8 +67,6 @@ const pageTabs = ref([
 ])
 
 socketClient.on('add-page', pagename => {
-  console.log({ pagename })
-
   wb.newPage(pagename)
   pageTabs.value.push({
     title: '新页面',
@@ -58,36 +81,23 @@ socketClient.on('remove-page', pagename => {
 })
 
 const addTab = () => {
-  // 新页
-  // wb.newPage()
-
-  const activeIndex = pageTabs.value.length
-  // pageTabs.value.push({
-  //   title: '新页',
-  //   name: activeIndex,
-  //   closable: true
-  // })
-
-  currentTabName.value = activeIndex.toString()
-
-  socketClient.emit('add-page', activeIndex)
+  const newPageName = pageTabs.value.length.toString()
+  currentTabName.value = newPageName.toString()
+  // socket
+  socketClient.emit('add-page', newPageName)
 }
 
-const removeTab = (targetIndex: number) => {
-  // 删除
-  // wb.deletePage(targetIndex)
-
+const removeTab = async (targetIndex: number) => {
   const tabs = pageTabs.value
 
-  let activeIndex = parseInt(currentTabName.value)
+  let pendingRemoveTabName = parseInt(currentTabName.value)
 
-  const nextActiveIndex = tabs[activeIndex + 1] || tabs[activeIndex - 1]
+  const nextActiveIndex =
+    tabs[pendingRemoveTabName + 1] || tabs[pendingRemoveTabName - 1]
 
   currentTabName.value = nextActiveIndex.name
-
-  // pageTabs.value.splice(activeIndex, 1)
-
-  socketClient.emit('remove-page', activeIndex)
+  // socket
+  socketClient.emit('remove-page', pendingRemoveTabName)
 }
 </script>
 

@@ -30,8 +30,11 @@ import {
 import { brushUrl } from '@/assets'
 import { drawNoSideEffect } from './utils/Canvas'
 import Path from './utils/Path'
-import { useWB } from '@/stores/useWhiteBoard'
-import socketClient from '@/utils/socket'
+// import { useWB } from '@/stores/useWhiteBoard'
+// import { useSocketStore } from '@/stores/useSocket'
+// const { socketClient } = useSocketStore()
+// import { userStore } from '@/stores/white'
+// const { wb } = userStore()
 
 /**
  * 暴露所有API, 并且提供各个类之间的上下文，共享数据
@@ -316,7 +319,7 @@ export class WhiteBoardPage {
       // }
       moveUp(move, () => {
         brush.cache = brush.cache.toDataURL('image/png') as any
-        socketClient.emit('pages-updated', useWB().wb.export())
+        // socketClient.emit('pages-updated', useWB().wb.export())
       })
     })
   }
@@ -342,7 +345,7 @@ export class WhiteBoardPage {
       }
 
       moveUp(move, () => {
-        const { wb } = useWB()
+        // const { wb } = useWB()
       })
     })
   }

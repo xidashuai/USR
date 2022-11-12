@@ -7,23 +7,23 @@
     />
     <label>画笔</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
-      <BrushIcon />
-      <BrushIciclesIcon />
-      <BrushCircleIcon />
+      <BrushIcon @click="clickBrushIcon" />
+      <BrushIciclesIcon @click="clickBrushCircleIcon" />
+      <BrushCircleIcon @click="clickBrushCiclesIcon" />
     </div>
     <label>形状</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
-      <ReactangleIcon />
-      <CircleIcon />
-      <OvalIcon />
-      <LineIcon />
+      <ReactangleIcon @click="clickRectangleIcon" />
+      <CircleIcon @click="clickCircleIcon" />
+      <OvalIcon @click="clickOvalIcon" />
+      <LineIcon @click="clickLineIcon" />
     </div>
     <label>操作</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
-      <UndoIcon />
-      <RedoIcon />
-      <AreaIcon />
-      <TrashIcon />
+      <UndoIcon @click="clickUndoIcon" />
+      <RedoIcon @click="clickRedoIcon" />
+      <AreaIcon @click="clickAreaIcon" />
+      <TrashIcon @click="clickTrashIcon" />
     </div>
     <div class="colorPicker">
       <label class="colorIcon" for="head">
@@ -52,21 +52,65 @@ import AreaIcon from './icons/AreaIcon.vue'
 import BrushIciclesIcon from './icons/BrushIciclesIcon.vue'
 import AngleRight from './icons/AngleRight.vue'
 import BrushCircleIcon from './icons/BrushCircleIcon.vue'
-
 import { ref } from 'vue'
 import TrashIcon from './icons/TrashIcon.vue'
-import IconWrapper from './icons/IconWrapper.vue'
-import { useWB } from '@/stores/useWhiteBoard'
-const { wb, currentPage } = useWB()
+import { userStore } from '@/stores/white'
+const { wb, getSocket } = userStore()
+const socket = getSocket()
 
+// AngleRight
 const unFold = ref(false)
 const toggleFold = () => {
   unFold.value = !unFold.value
 }
 
+const clickBrushIcon = () => {
+  wb.getCurrentPage().useDrawBrush()
+}
+
+const clickBrushCircleIcon = () => {
+  wb.getCurrentPage().useDrawImageBrush('cicle')
+}
+
+const clickBrushCiclesIcon = () => {
+  wb.getCurrentPage().useDrawImageBrush('cicles')
+}
+
+const clickRectangleIcon = () => {
+  wb.getCurrentPage().useDrawRectangle()
+}
+
+const clickCircleIcon = () => {
+  wb.getCurrentPage().useDrawCircle()
+}
+
+const clickOvalIcon = () => {
+  wb.getCurrentPage().useDrawEllipes()
+}
+
+const clickLineIcon = () => {
+  wb.getCurrentPage().useDrawLine()
+}
+
+const clickUndoIcon = () => {
+  wb.getCurrentPage().undo()
+}
+
+const clickRedoIcon = () => {
+  wb.getCurrentPage().redo()
+}
+
+const clickAreaIcon = () => {
+  wb.getCurrentPage().useSelect()
+}
+
+const clickTrashIcon = () => {
+  wb.getCurrentPage().layer.removeSelected()
+}
+
 const colorInput = (e: Event) => {
   const target = e.target as HTMLInputElement
-  currentPage().setFillStyleOnSelected(target.value)
+  wb.getCurrentPage().setFillStyleOnSelected(target.value)
 }
 </script>
 

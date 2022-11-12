@@ -1,4 +1,4 @@
-import TheServer, { ServerSocket } from "./TheServer.js";
+import TheServer from "./TheServer.js";
 
 const server = TheServer.instance;
 
@@ -15,17 +15,24 @@ export const initSocket = () => {
       client.broadcast.emit("add-shape", wb);
     });
 
-    client.on("pages-updated", (wb: string /**JSON数据 */) => {
-      // 发送给其他客户端
-      client.broadcast.emit("pages-updated", wb);
+    server.on("pages-updated", (wb: string /**JSON数据 */) => {
+      // 发送给此房间的其他客户端，不包括自己
+      server.emit("pages-updated", wb);
+      server.emit("chatmessage", wb);
     });
 
-    client.on("add-page", (pagename: string) => {
-      // 有服务端发送给所有人
+    server.on("test", (wb: string /**JSON数据 */) => {
+      // 发送给此房间的其他客户端，不包括自己
+      server.emit('test',wb)
+    });
+
+    server.on("add-page", (pagename: string) => {
+      // 发送到此房间，包括自己
       server.emit("add-page", pagename);
     });
 
     client.on("remove-page", (pagename: string) => {
+      // 发送到此房间，包括自己
       server.emit("remove-page", pagename);
     });
 

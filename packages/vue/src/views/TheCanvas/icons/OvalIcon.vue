@@ -1,5 +1,5 @@
 <template>
-  <IconWrapper @click="click">
+  <IconWrapper>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
       <!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
       <path
@@ -11,14 +11,6 @@
 
 <script setup lang="ts">
 import IconWrapper from './IconWrapper.vue'
-import { useWB } from '@/stores/useWhiteBoard'
-
-const wbStore = useWB()
-const { wb } = wbStore
-const click = () => {
-  const page = wb.getCurrentPage()
-  page.useDrawEllipes()
-}
 </script>
 
 <style scoped>

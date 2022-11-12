@@ -7,13 +7,25 @@ import {
   getRoomInfo,
   getRoomList
 } from '@/service/main/main'
+import io from 'socket.io-client'
+import WhiteBoard from '@/core'
 
 export const userStore = defineStore('addUser', {
   state: () => ({
     id: 0,
-    username: ''
+    username: '',
+    wb: new WhiteBoard(),
+    socket: null
   }),
   actions: {
+    getSocket(): typeof io {
+      if (this.socket) {
+        return this.socket
+      }
+      this.socket = io(`wss://www.xdsbty.cn/?roomid=${33}`)
+      // this.socket = io('https://localhost:3080')
+      return this.socket
+    },
     async addUser(userName: string) {
       const addUserName = await addUser(userName)
       const { ID, username } = addUserName.user

@@ -14,8 +14,12 @@ import { SnapshotManager, SnapshotOriginator } from '../Snapshot'
 import { clearCanvas, drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
 import type { RectBounding, Vector2D } from '../utils/Vector'
-import { useWB } from '@/stores/useWhiteBoard'
-import socketClient from '@/utils/socket'
+// import { useWB } from '@/stores/useWhiteBoard'
+// import { useSocketStore } from '@/stores/useSocket'
+// import { userStore } from '@/stores/white'
+// const { getSocket, wb } = userStore()
+// const socketClient = getSocket()
+// const { socketClient } = useSocketStore()
 
 /**
  * 管理一个画布中的所有形状
@@ -67,7 +71,6 @@ export class Layer implements SnapshotOriginator {
   }
 
   export() {
-    console.log(JSON.parse(JSON.stringify(this.shapes)))
     return JSON.parse(JSON.stringify(this.shapes))
   }
 
@@ -105,7 +108,6 @@ export class Layer implements SnapshotOriginator {
     if (this.selected.length > 0) {
       this.drawSelected()
     }
-    socketClient.emit('pages-updated', useWB().wb.export())
   }
 
   drawShapesWithoutSync() {
@@ -220,7 +222,6 @@ export class Layer implements SnapshotOriginator {
   drawCache(): void {
     this.clearCanvas()
     this.ctx.drawImage(this.cache, 0, 0)
-    socketClient.emit('pages-updated', useWB().wb.export())
   }
 
   renderShapesOffscreen(): HTMLCanvasElement {
