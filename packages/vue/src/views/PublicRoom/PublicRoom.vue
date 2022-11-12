@@ -3,22 +3,24 @@ import { useRouter } from 'vue-router'
 import HomeViewCanvasPreview from './PublicRoomPreview.vue'
 import BackIcon from '../TheCanvas/icons/BackIcon.vue'
 import { PublicWhiteBoard, saveWhiteBoardInfo } from '@/stores/white'
-import { onBeforeMount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeMount, onMounted, onUpdated, ref } from 'vue'
 
 const router = useRouter()
 const back = () => {
   router.push('/')
 }
+const issucceed = ref('')
+const roomList = ref([])
+const msg = ref('')
+// 延迟获取pinia数据
+setTimeout(() => {
+  const data = PublicWhiteBoard()
+  issucceed.value = data.issucceed
+  roomList.value = data.roomList
+  msg.value = data.msg
+}, 500)
 
-// 获取房间列表
-
-const issucceed = PublicWhiteBoard().issucceed
-const roomList = PublicWhiteBoard().roomList
-const msg = PublicWhiteBoard().msg
-
-console.log('issucceed', issucceed)
-console.log('roomList', roomList)
-console.log('msg', msg)
+// 加入房间
 const joinRoom = (userid, username, roomid, roomname, ispublic) => {
   saveWhiteBoardInfo().saveWhiteBoardInfo(
     userid,
