@@ -57,12 +57,15 @@ import TrashIcon from './icons/TrashIcon.vue'
 import { userStore } from '@/stores/white'
 const { wb } = userStore()
 // const socket = getSocket()
+const props = defineProps<{ name: string }>()
 
 // AngleRight
 const unFold = ref(false)
 const toggleFold = () => {
   unFold.value = !unFold.value
 }
+
+const page = wb.getPage(props.name)
 
 // wb.getCurrentPage().sync = () => {
 //   // wb.getCurrentPage().layer.addSnapshot()
@@ -74,57 +77,57 @@ const toggleFold = () => {
 // }
 
 const clickBrushIcon = () => {
-  wb.getCurrentPage().useDrawBrush()
+  page.useDrawBrush()
 }
 
 const clickBrushCircleIcon = () => {
-  wb.getCurrentPage().useDrawImageBrush('circle')
+  page.useDrawImageBrush('circle')
 }
 
 const clickBrushLciclesIcon = () => {
-  wb.getCurrentPage().useDrawImageBrush('icicles')
+  page.useDrawImageBrush('icicles')
 }
 
 const clickRectangleIcon = () => {
-  wb.getCurrentPage().useDrawRectangle()
+  page.useDrawRectangle()
 }
 
 const clickCircleIcon = () => {
-  wb.getCurrentPage().useDrawCircle()
+  page.useDrawCircle()
 }
 
 const clickOvalIcon = () => {
-  wb.getCurrentPage().useDrawEllipes()
+  page.useDrawEllipes()
 }
 
 const clickLineIcon = () => {
-  wb.getCurrentPage().useDrawLine()
+  page.useDrawLine()
 }
 
 const clickUndoIcon = () => {
-  wb.getCurrentPage().undo()
+  page.undo()
 }
 
 const clickRedoIcon = () => {
-  wb.getCurrentPage().redo()
+  page.redo()
 }
 
 const clickAreaIcon = () => {
-  wb.getCurrentPage().useSelect()
+  page.useSelect()
 }
 
 const clickTrashIcon = () => {
-  wb.getCurrentPage().layer.removeSelected()
+  page.layer.removeSelected()
 }
 
 const colorInput = (e: Event) => {
   const target = e.target as HTMLInputElement
   console.log({ color: target.value })
-  wb.getCurrentPage().layer.setOnSelected({
+  page.layer.setOnSelected({
     fillStyle: target.value,
     strokeStyle: target.value
   })
-  wb.getCurrentPage().sync()
+  page.sync()
 }
 </script>
 

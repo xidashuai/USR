@@ -20,12 +20,11 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, ref, watch } from 'vue'
+import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { userStore } from '@/stores/white'
 import io from 'socket.io-client'
-import type { WhiteBoardPage } from '@/core/WhiteBoardPage'
 
-const { id, username } = userStore()
+const { roomid, username } = userStore()
 
 const AsyncTheCanvas = defineAsyncComponent({
   loader: () => import('./TheCanvas.vue'),
@@ -35,22 +34,51 @@ const AsyncTheCanvas = defineAsyncComponent({
 const { wb, getRoomInfo } = userStore()
 
 // const socketClient = getSocket()
-console.log({ id, username })
+console.log({ roomid, username })
 
-const socketClient = io(`wss://www.xdsbty.cn?roomid=${id}&userid=${username}`, {
+const socketClient = io(`wss://www.xdsbty.cn?roomid=2&userid=2`, {
   transports: ['websocket']
 })
 // const socketClient = io('http://localhost:4096', {
 //   transports: ['websocket']
 // })
 const sync = () => {
+  console.log({ query: socketClient.query })
   socketClient.emit('pages-updated', wb.export())
 }
 
-const useSync = (page: WhiteBoardPage) => {
-  page.sync = sync
-  page.layer.sync = sync
+const useSync = () => {
+  for (const page of Object.values(wb.pages)) {
+    page.sync = sync
+    page.layer.sync = sync
+  }
 }
+
+const pageTabs = ref([])
+
+onMounted(async () => {
+  const room = await getRoomInfo(roomid)
+
+  const tabs = []
+  if (room.stastus && room.stastus.length > 0) {
+    wb.import(room.stastus)
+    for (const key of Object.keys(JSON.parse(room.stastus))) {
+      pageTabs.value.push({
+        title: key,
+        name: key,
+        closable: key.toString() === 'default' ? false : true
+      })
+    }
+  } else {
+    pageTabs.value.push({
+      title: '默认',
+      name: 'default',
+      closable: false
+    })
+  }
+
+  useSync()
+})
 
 socketClient.on('connect', () => {
   console.log('socket.io 连接成功', { id: socketClient.id })
@@ -71,52 +99,30 @@ const currentTabName = ref<string>('default')
 
 watch(currentTabName, () => {
   wb.currentPageName = currentTabName.value
+  useSync()
 })
 
-const pageTabs = ref([
-  {
-    title: '默认页',
-    name: 'default',
-    closable: false
-  }
-])
+socketClient.on('add-page', (pagename: string) => {
+  wb.newPage(pagename)
+  useSync()
 
-getRoomInfo(1).then(room => {
-  const tabs = []
-  for (const key of Object.keys(JSON.parse(room.stastus))) {
-    tabs.push({
-      title: key,
-      name: key,
-      closable: true
-    })
-  }
-  pageTabs.value = tabs
-  wb.import(room.stastus)
-
-  for (const page of Object.values(wb.pages)) {
-    useSync(page)
-  }
-})
-
-socketClient.on('add-page', pagename => {
-  const page = wb.newPage(pagename)
-  useSync(page)
-
-  currentTabName.value = pagename
   pageTabs.value.push({
-    title: '新页面',
+    title: pagename,
     name: pagename,
     closable: true
   })
+
+  currentTabName.value = pagename
 })
 
 socketClient.on('remove-page', pagename => {
   wb.deletePage(pagename)
+  useSync()
   pageTabs.value = pageTabs.value.filter(page => page.name != pagename)
 })
 
 const addTab = () => {
-  const newPageName = pageTabs.value.length.toString()
+  const newPageName = Date.now().toString()
   // socket
   socketClient.emit('add-page', newPageName)
 }
@@ -124,14 +130,14 @@ const addTab = () => {
 const removeTab = async (targetIndex: number) => {
   const tabs = pageTabs.value
 
-  let pendingRemoveTabName = parseInt(currentTabName.value)
+  let pendingRemoveIndex = tabs.findIndex(t => t.name === currentTabName.value)
 
   const nextActiveIndex =
-    tabs[pendingRemoveTabName + 1] || tabs[pendingRemoveTabName - 1]
+    tabs[pendingRemoveIndex + 1] || tabs[pendingRemoveIndex - 1]
 
+  socketClient.emit('remove-page', currentTabName.value)
   currentTabName.value = nextActiveIndex.name
   // socket
-  socketClient.emit('remove-page', pendingRemoveTabName)
 }
 </script>
 
