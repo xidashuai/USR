@@ -10,6 +10,8 @@ import BackIcon from './icons/BackIcon.vue'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { userStore } from '@/stores/white'
+import io from 'socket.io-client'
+
 const { wb } = userStore()
 
 const router = useRouter()

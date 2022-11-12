@@ -116,10 +116,11 @@ export class WhiteBoardPage {
     return drawNoSideEffect(this.ctx)
   }
 
-  setFillStyleOnSelected(fillStyle: string) {
-    // this.layer.selected.forEach(s => (s.fillStyle = fillStyle))
-    this.layer.setOnSelected(fillStyle)
-  }
+  // setFillStyleOnSelected(fillStyle: string) {
+  //   // this.layer.selected.forEach(s => (s.fillStyle = fillStyle))
+  //   this.layer.setOnSelected({ fillStyle, strokeStyle: fillStyle },() => {
+  //   })
+  // }
 
   undo(): void {
     this.layer.undo()
@@ -157,6 +158,8 @@ export class WhiteBoardPage {
   removeSelected() {
     this.layer.removeSelected()
   }
+
+  sync: () => void = () => {}
 
   useSelect() {
     this.setMouseDown((e: MouseEvent) => {
@@ -217,6 +220,7 @@ export class WhiteBoardPage {
 
       moveUp(move, () => {
         this.useSelect()
+        this.sync()
       })
     })
   }
@@ -238,7 +242,9 @@ export class WhiteBoardPage {
         this.layer.drawShapes()
       }
 
-      moveUp(move)
+      moveUp(move, () => {
+        this.sync()
+      })
     })
   }
 
@@ -290,6 +296,7 @@ export class WhiteBoardPage {
           // })
 
           brush.draw(this.ctx)
+          this.sync()
         })
       }
 
@@ -319,6 +326,7 @@ export class WhiteBoardPage {
       // }
       moveUp(move, () => {
         brush.cache = brush.cache.toDataURL('image/png') as any
+        this.sync()
         // socketClient.emit('pages-updated', useWB().wb.export())
       })
     })
@@ -346,6 +354,7 @@ export class WhiteBoardPage {
 
       moveUp(move, () => {
         // const { wb } = useWB()
+        this.sync()
       })
     })
   }
@@ -363,7 +372,9 @@ export class WhiteBoardPage {
         this.layer.drawShapes()
       }
 
-      moveUp(move)
+      moveUp(move, () => {
+        this.sync()
+      })
     })
   }
 
@@ -384,7 +395,9 @@ export class WhiteBoardPage {
         this.layer.drawShapes()
       }
 
-      moveUp(move)
+      moveUp(move, () => {
+        this.sync()
+      })
     })
   }
 
@@ -420,7 +433,9 @@ export class WhiteBoardPage {
         })
       }
 
-      moveUp(move)
+      moveUp(move, () => {
+        this.sync()
+      })
     })
   }
 }

@@ -14,12 +14,6 @@ import { SnapshotManager, SnapshotOriginator } from '../Snapshot'
 import { clearCanvas, drawNoSideEffect } from '../utils/Canvas'
 import Path from '../utils/Path'
 import type { RectBounding, Vector2D } from '../utils/Vector'
-// import { useWB } from '@/stores/useWhiteBoard'
-// import { useSocketStore } from '@/stores/useSocket'
-// import { userStore } from '@/stores/white'
-// const { getSocket, wb } = userStore()
-// const socketClient = getSocket()
-// const { socketClient } = useSocketStore()
 
 /**
  * 管理一个画布中的所有形状
@@ -94,10 +88,11 @@ export class Layer implements SnapshotOriginator {
     this.shapes.splice(0, this.shapes.length)
   }
 
+  afterDraw: () => void = () => {}
   /**
    * 绘制所有形状
    */
-  drawShapes(): void {
+  drawShapes(afterDraw?: () => {}): void {
     this.clearCanvas()
 
     this.shapes.forEach(shape => {
@@ -108,6 +103,7 @@ export class Layer implements SnapshotOriginator {
     if (this.selected.length > 0) {
       this.drawSelected()
     }
+    this.afterDraw()
   }
 
   drawShapesWithoutSync() {
@@ -150,12 +146,14 @@ export class Layer implements SnapshotOriginator {
    * 修改选中形状的配置
    * @param options
    */
-  setOnSelected(options) {
+  setOnSelected(options, fn?: () => void) {
     this.addSnapshot()
     this.selected.forEach(s => {
-      _.assign(s, options)
+      _.assign((s as any).ctxSetting, options)
     })
+    this.drawShapes()
     this.drawSelected()
+    if (fn) fn()
   }
 
   /**
@@ -222,6 +220,7 @@ export class Layer implements SnapshotOriginator {
   drawCache(): void {
     this.clearCanvas()
     this.ctx.drawImage(this.cache, 0, 0)
+    this.afterDraw()
   }
 
   renderShapesOffscreen(): HTMLCanvasElement {

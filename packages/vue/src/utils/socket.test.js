@@ -2,7 +2,9 @@
 const io = require('socket.io-client')
 
 // const socketClient = io(`wss://www.xdsbty.cn/?roomid=33`)
-const socketClient = io('wss://127.0.0.1:3080')
+const socketClient = io('http://localhost:4096', {
+  transports: ['websocket']
+})
 
 console.log('=====run')
 
