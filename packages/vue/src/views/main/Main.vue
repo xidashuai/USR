@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Popup from '@/components/Popup/Popup.vue'
 import { ElMessage } from 'element-plus'
-import { userStore } from '@/stores/white'
+import { PublicWhiteBoard, userStore } from '@/stores/white'
 
 const router = useRouter()
 const room = ref('')
@@ -14,6 +14,7 @@ const roomValue = ref('')
 const roomNameValue = ref('')
 const joinPublicWhiteBoard = () => {
   // 获取房间列表
+  PublicWhiteBoard().getPublicWhiteBoard()
   router.push('/publicRoom')
 }
 const joinPrivateBoard = async () => {

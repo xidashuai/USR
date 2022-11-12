@@ -2,20 +2,20 @@
 import { useRouter } from 'vue-router'
 import HomeViewCanvasPreview from './PublicRoomPreview.vue'
 import BackIcon from '../TheCanvas/icons/BackIcon.vue'
-import { onMounted, ref } from 'vue'
 import { PublicWhiteBoard, saveWhiteBoardInfo } from '@/stores/white'
+import { onBeforeMount, onMounted, ref } from 'vue'
 
 const router = useRouter()
 const back = () => {
   router.push('/')
 }
-const page = ref(0)
 
 // 获取房间列表
-PublicWhiteBoard().getPublicWhiteBoard(page.value)
+
 const issucceed = PublicWhiteBoard().issucceed
 const roomList = PublicWhiteBoard().roomList
 const msg = PublicWhiteBoard().msg
+
 console.log('issucceed', issucceed)
 console.log('roomList', roomList)
 console.log('msg', msg)
