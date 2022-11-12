@@ -101,5 +101,8 @@ export const PublicWhiteBoard = defineStore('getPublicWhiteBoard', {
         this.msg = msg
       }
     }
+  },
+  persist: {
+    enabled: true
   }
 })
