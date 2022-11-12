@@ -18,12 +18,16 @@ export const userStore = defineStore('addUser', {
     socket: null
   }),
   actions: {
-    getSocket(): typeof io {
+    getSocket() {
       if (this.socket) {
         return this.socket
       }
-      this.socket = io(`wss://www.xdsbty.cn/?roomid=${33}`)
-      // this.socket = io('https://localhost:3080')
+      this.socket = io('wss://www.xdsbty.cn/?roomid=1&userid=2', {
+        // transports: ['websocket']
+      })
+      // this.socket = io('http://localhost:4096', {
+      //   transports: ['websocket']
+      // })
       return this.socket
     },
     async addUser(userName: string) {

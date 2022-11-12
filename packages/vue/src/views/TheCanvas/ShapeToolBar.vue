@@ -8,8 +8,8 @@
     <label>画笔</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
       <BrushIcon @click="clickBrushIcon" />
-      <BrushIciclesIcon @click="clickBrushCircleIcon" />
-      <BrushCircleIcon @click="clickBrushCiclesIcon" />
+      <BrushIciclesIcon @click="clickBrushLciclesIcon" />
+      <BrushCircleIcon @click="clickBrushCircleIcon" />
     </div>
     <label>形状</label>
     <div class="toolBar" :class="{ toolBarUnFold: unFold }">
@@ -33,7 +33,7 @@
           id="head"
           name="head"
           value="#e66465"
-          @input="colorInput"
+          @change="colorInput"
         />
       </label>
     </div>
@@ -64,16 +64,23 @@ const toggleFold = () => {
   unFold.value = !unFold.value
 }
 
+// wb.getCurrentPage().layer.afterDraw = () => {
+//   socket.emit('pages-updated', wb.export())
+// }
+wb.getCurrentPage().sync = () => {
+  socket.emit('pages-updated', wb.export())
+}
+
 const clickBrushIcon = () => {
   wb.getCurrentPage().useDrawBrush()
 }
 
 const clickBrushCircleIcon = () => {
-  wb.getCurrentPage().useDrawImageBrush('cicle')
+  wb.getCurrentPage().useDrawImageBrush('circle')
 }
 
-const clickBrushCiclesIcon = () => {
-  wb.getCurrentPage().useDrawImageBrush('cicles')
+const clickBrushLciclesIcon = () => {
+  wb.getCurrentPage().useDrawImageBrush('icicles')
 }
 
 const clickRectangleIcon = () => {
@@ -110,7 +117,16 @@ const clickTrashIcon = () => {
 
 const colorInput = (e: Event) => {
   const target = e.target as HTMLInputElement
-  wb.getCurrentPage().setFillStyleOnSelected(target.value)
+  console.log({ color: target.value })
+  wb.getCurrentPage().layer.setOnSelected(
+    {
+      fillStyle: target.value,
+      strokeStyle: target.value
+    },
+    () => {
+      socket.emit('pages-updated', wb.export())
+    }
+  )
 }
 </script>
 

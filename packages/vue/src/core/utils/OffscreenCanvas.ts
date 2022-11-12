@@ -1,8 +1,10 @@
 export default class OffscreenCanvas {
   constructor(width?: number, height?: number) {
     this.cache = document.createElement('canvas')
+
     if (width) this.cache.width = width
     if (height) this.cache.height = height
+
     this.cacheCtx = this.cache.getContext('2d')
   }
   cache: HTMLCanvasElement

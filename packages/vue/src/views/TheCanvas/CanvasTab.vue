@@ -31,12 +31,21 @@ const AsyncTheCanvas = defineAsyncComponent({
 
 const { wb, getSocket } = userStore()
 
-// const socketClient = getSocket()
-const socketClient = io(`wss://www.xdsbty.cn/?roomid=33`)
+const socketClient = getSocket()
+// const socketClient = io(`wss://www.xdsbty.cn?roomid=1&userid=2`)
+// const socketClient = io('http://localhost:4096', {
+//   transports: ['websocket']
+// })
 
 socketClient.on('connect', () => {
+  console.log({ socketClient })
   console.log('socket.io 连接成功', { id: socketClient.id })
 })
+
+socketClient.on('init', data => {
+  wb.import(data)
+})
+socketClient.emit('init')
 
 socketClient.on('pages-updated', data => {
   console.log(JSON.stringify(JSON.parse(data), v => v, 2))
@@ -67,7 +76,10 @@ const pageTabs = ref([
 ])
 
 socketClient.on('add-page', pagename => {
+  console.log({ pagename })
+
   wb.newPage(pagename)
+  currentTabName.value = pagename
   pageTabs.value.push({
     title: '新页面',
     name: pagename,
@@ -82,7 +94,6 @@ socketClient.on('remove-page', pagename => {
 
 const addTab = () => {
   const newPageName = pageTabs.value.length.toString()
-  currentTabName.value = newPageName.toString()
   // socket
   socketClient.emit('add-page', newPageName)
 }

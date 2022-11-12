@@ -6,7 +6,7 @@ import { WhiteBoardPage } from './WhiteBoardPage'
 export class WhiteBoard {
   // pages: Map<string, WhiteBoardPage> = new Map()
   // pages: WhiteBoardPage[] = []
-  pages = new Object()
+  pages = new Object() as { [key: string]: WhiteBoardPage }
   defaultWidth = 1206
   defaultHeight = 800
 
@@ -57,7 +57,7 @@ export class WhiteBoard {
     const _data = JSON.parse(data)
     for (const [key, value] of Object.entries(_data)) {
       if (this.pages[key]) {
-        this.pages[key].layer.import(value)
+        this.pages[key].layer.import(value as any)
       } else {
         const page = this.newPage(key)
         page.layer.import(value as any)

@@ -2,6 +2,8 @@ import TheServer from "./TheServer.js";
 
 const server = TheServer.instance;
 
+const pages = new Object();
+
 export const initSocket = () => {
   server.on("connection", (client) => {
     // 加入默认房间
@@ -15,25 +17,31 @@ export const initSocket = () => {
       client.broadcast.emit("add-shape", wb);
     });
 
-    server.on("pages-updated", (wb: string /**JSON数据 */) => {
-      // 发送给此房间的其他客户端，不包括自己
-      server.emit("pages-updated", wb);
-      server.emit("chatmessage", wb);
+    client.on("init", () => {
+      server.emit("init", JSON.stringify(pages));
     });
 
-    server.on("test", (wb: string /**JSON数据 */) => {
+    client.on("pages-updated", (wb: string /**JSON数据 */) => {
       // 发送给此房间的其他客户端，不包括自己
-      server.emit('test',wb)
+      client.to(client.data.currentRoom).emit("pages-updated", wb);
+
+      const json = JSON.parse(wb);
+      Object.assign(pages, json);
     });
 
-    server.on("add-page", (pagename: string) => {
+    client.on("test", (wb: string /**JSON数据 */) => {
+      // 发送给此房间的其他客户端，不包括自己
+      server.to(client.data.currentRoom).emit("test", wb);
+    });
+
+    client.on("add-page", (pagename: string) => {
       // 发送到此房间，包括自己
-      server.emit("add-page", pagename);
+      server.to(client.data.currentRoom).emit("add-page", pagename);
     });
 
     client.on("remove-page", (pagename: string) => {
       // 发送到此房间，包括自己
-      server.emit("remove-page", pagename);
+      server.to(client.data.currentRoom).emit("remove-page", pagename);
     });
 
     client.on("join-room", (roomname: string) => {
