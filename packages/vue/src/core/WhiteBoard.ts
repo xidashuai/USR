@@ -55,6 +55,8 @@ export class WhiteBoard {
 
   import(data) {
     const _data = JSON.parse(data)
+    console.table(_data)
+
     for (const [key, value] of Object.entries(_data)) {
       if (this.pages[key]) {
         this.pages[key].layer.import(value as any)

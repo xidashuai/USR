@@ -35,8 +35,8 @@ export const initSocket = () => {
     });
 
     client.on("add-page", (pagename: string) => {
-      // 发送到此房间，包括自己
-      console.log({currentRoom:client.data.currentRoom});
+      // // 发送到此房间，包括自己
+      // console.log({currentRoom:client.data.currentRoom});
       
       server.to(client.data.currentRoom).emit("add-page", pagename);
     });

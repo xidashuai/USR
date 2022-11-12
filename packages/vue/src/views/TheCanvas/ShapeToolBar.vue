@@ -55,8 +55,8 @@ import BrushCircleIcon from './icons/BrushCircleIcon.vue'
 import { ref } from 'vue'
 import TrashIcon from './icons/TrashIcon.vue'
 import { userStore } from '@/stores/white'
-const { wb, getSocket } = userStore()
-const socket = getSocket()
+const { wb } = userStore()
+// const socket = getSocket()
 
 // AngleRight
 const unFold = ref(false)
@@ -64,12 +64,14 @@ const toggleFold = () => {
   unFold.value = !unFold.value
 }
 
-wb.getCurrentPage().sync = () => {
-  socket.emit('pages-updated', wb.export())
-}
-wb.getCurrentPage().layer.sync = () => {
-  socket.emit('pages-updated', wb.export())
-}
+// wb.getCurrentPage().sync = () => {
+//   // wb.getCurrentPage().layer.addSnapshot()
+//   socket.emit('pages-updated', wb.export())
+// }
+// wb.getCurrentPage().layer.sync = () => {
+//   // wb.getCurrentPage().layer.addSnapshot()
+//   socket.emit('pages-updated', wb.export())
+// }
 
 const clickBrushIcon = () => {
   wb.getCurrentPage().useDrawBrush()
@@ -118,15 +120,11 @@ const clickTrashIcon = () => {
 const colorInput = (e: Event) => {
   const target = e.target as HTMLInputElement
   console.log({ color: target.value })
-  wb.getCurrentPage().layer.setOnSelected(
-    {
-      fillStyle: target.value,
-      strokeStyle: target.value
-    },
-    () => {
-      socket.emit('pages-updated', wb.export())
-    }
-  )
+  wb.getCurrentPage().layer.setOnSelected({
+    fillStyle: target.value,
+    strokeStyle: target.value
+  })
+  wb.getCurrentPage().sync()
 }
 </script>
 

@@ -22,12 +22,12 @@ export const userStore = defineStore('addUser', {
       if (this.socket) {
         return this.socket
       }
-      // this.socket = io('wss://www.xdsbty.cn/?roomid=1&userid=2', {
-      //   // transports: ['websocket']
-      // })
-      this.socket = io('http://localhost:4096', {
+      this.socket = io('wss://www.xdsbty.cn/?roomid=1&userid=2', {
         transports: ['websocket']
       })
+      // this.socket = io('http://localhost:4096', {
+      //   transports: ['websocket']
+      // })
       return this.socket
     },
     async addUser(userName: string) {
@@ -41,8 +41,8 @@ export const userStore = defineStore('addUser', {
     },
     async getRoomInfo(roomid: number) {
       const roomInfo = await getRoomInfo(roomid)
-      const { issucceed, msg } = roomInfo
-      return { issucceed, msg }
+      const { issucceed, msg, stastus } = roomInfo
+      return { issucceed, msg, stastus }
     },
     // 发送请求创建白板
     async createWhiteBoard(

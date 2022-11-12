@@ -23,6 +23,7 @@
 import { defineAsyncComponent, ref, watch } from 'vue'
 import { userStore } from '@/stores/white'
 import io from 'socket.io-client'
+import type { WhiteBoardPage } from '@/core/WhiteBoardPage'
 
 const { id, username } = userStore()
 
@@ -31,36 +32,38 @@ const AsyncTheCanvas = defineAsyncComponent({
   delay: 1000
 })
 
-const { wb, getSocket } = userStore()
+const { wb, getRoomInfo } = userStore()
 
-const socketClient = getSocket()
-// const socketClient = io(`wss://www.xdsbty.cn?roomid=1&userid=2`)
+// const socketClient = getSocket()
+console.log({ id, username })
+
+const socketClient = io(`wss://www.xdsbty.cn?roomid=${id}&userid=${username}`, {
+  transports: ['websocket']
+})
 // const socketClient = io('http://localhost:4096', {
 //   transports: ['websocket']
 // })
+const sync = () => {
+  socketClient.emit('pages-updated', wb.export())
+}
+
+const useSync = (page: WhiteBoardPage) => {
+  page.sync = sync
+  page.layer.sync = sync
+}
 
 socketClient.on('connect', () => {
-  console.log({ socketClient })
   console.log('socket.io 连接成功', { id: socketClient.id })
-  socketClient.emit('join-room', id.toString())
 })
 
-socketClient.on('init', data => {
-  wb.import(data)
-})
-socketClient.emit('init')
+// socketClient.on('pages-updated', data => {
+//   console.log(JSON.stringify(JSON.parse(data), v => v, 2))
 
-socketClient.on('pages-updated', data => {
-  console.log(JSON.stringify(JSON.parse(data), v => v, 2))
-
-  wb.import(data)
-})
+//   wb.import(data)
+// })
 
 socketClient.on('chatmessage', data => {
-  console.log(
-    'chatmessage',
-    JSON.stringify(JSON.parse(data), v => v, 2)
-  )
+  console.log('chatmessage', data)
   wb.import(data)
 })
 
@@ -78,10 +81,27 @@ const pageTabs = ref([
   }
 ])
 
-socketClient.on('add-page', pagename => {
-  console.log({ pagename })
+getRoomInfo(1).then(room => {
+  const tabs = []
+  for (const key of Object.keys(JSON.parse(room.stastus))) {
+    tabs.push({
+      title: key,
+      name: key,
+      closable: true
+    })
+  }
+  pageTabs.value = tabs
+  wb.import(room.stastus)
 
-  wb.newPage(pagename)
+  for (const page of Object.values(wb.pages)) {
+    useSync(page)
+  }
+})
+
+socketClient.on('add-page', pagename => {
+  const page = wb.newPage(pagename)
+  useSync(page)
+
   currentTabName.value = pagename
   pageTabs.value.push({
     title: '新页面',

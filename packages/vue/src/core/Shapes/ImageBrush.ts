@@ -32,13 +32,13 @@ export class ImageBrush extends BaseShape implements Shape, ImageBrushOptions {
 
   draw(ctx: CanvasRenderingContext2D): void {
     // this.offScreenCanvas.drawCache(ctx, this.pos.x, this.pos.y)
-    if (typeof this.cache === 'string' && this.cache.length > 0) {
+    if (typeof this.cache === 'string') {
       const img = new Image()
       img.src = this.cache
       ctx.drawImage(img, this.pos.x, this.pos.y)
-      return
+    } else {
+      ctx.drawImage(this.cache, this.pos.x, this.pos.y)
     }
-    ctx.drawImage(this.cache, this.pos.x, this.pos.y)
   }
 
   // drawImg(ctx: CanvasRenderingContext2D, x: number, y: number) {

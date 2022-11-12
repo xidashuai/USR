@@ -103,11 +103,10 @@ export class Layer implements SnapshotOriginator {
     if (this.selected.length > 0) {
       this.drawSelected()
     }
-    this.sync()
   }
 
   drawShapesWithoutSync() {
-    this.clearCanvas()
+    // this.clearCanvas()
 
     this.shapes.forEach(shape => {
       shape.draw(this.ctx)
@@ -154,6 +153,7 @@ export class Layer implements SnapshotOriginator {
     this.drawShapes()
     this.drawSelected()
     if (fn) fn()
+    this.sync()
   }
 
   /**
@@ -178,6 +178,7 @@ export class Layer implements SnapshotOriginator {
 
     this.setUnSelected()
     this.drawShapes()
+    this.sync()
   }
 
   /**
@@ -220,7 +221,6 @@ export class Layer implements SnapshotOriginator {
   drawCache(): void {
     this.clearCanvas()
     this.ctx.drawImage(this.cache, 0, 0)
-    this.sync()
   }
 
   renderShapesOffscreen(): HTMLCanvasElement {
@@ -251,11 +251,13 @@ export class Layer implements SnapshotOriginator {
     this.setUnSelected()
     this.history.undo()
     this.drawShapes()
+    this.sync()
   }
 
   redo() {
     this.setUnSelected()
     this.history.redo()
     this.drawShapes()
+    this.sync()
   }
 }

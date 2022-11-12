@@ -116,12 +116,6 @@ export class WhiteBoardPage {
     return drawNoSideEffect(this.ctx)
   }
 
-  // setFillStyleOnSelected(fillStyle: string) {
-  //   // this.layer.selected.forEach(s => (s.fillStyle = fillStyle))
-  //   this.layer.setOnSelected({ fillStyle, strokeStyle: fillStyle },() => {
-  //   })
-  // }
-
   undo(): void {
     this.layer.undo()
   }
@@ -250,6 +244,7 @@ export class WhiteBoardPage {
 
   useDrawImageBrush(brushType) {
     this.setMouseDown((e: MouseEvent) => {
+      this.createCache()
       const brush = this.addImageBrush({
         type: 'imageBrush'
         // offScreenCanvas: ,
@@ -264,7 +259,7 @@ export class WhiteBoardPage {
       const rightBottom = { ...start }
 
       const move = (e: MouseEvent) => {
-        this.layer.drawShapesWithoutSync()
+        this.drawCache()
         const end = this.getMousePos(e)
 
         // 计算路径的边界
@@ -283,7 +278,6 @@ export class WhiteBoardPage {
         start = end
 
         this.drawNoSideEffect()(() => {
-          // brush.useCacheCtx(cacheCtx => {
           tempVectors.forEach(v => {
             brush.offScreenCanvas.cacheCtx.drawImage(
               brush.img,
@@ -293,10 +287,7 @@ export class WhiteBoardPage {
               20
             )
           })
-          // })
-
           brush.draw(this.ctx)
-          this.sync()
         })
       }
 
@@ -326,6 +317,7 @@ export class WhiteBoardPage {
       // }
       moveUp(move, () => {
         brush.cache = brush.cache.toDataURL('image/png') as any
+        this.drawShapes()
         this.sync()
         // socketClient.emit('pages-updated', useWB().wb.export())
       })

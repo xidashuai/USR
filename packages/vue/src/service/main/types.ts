@@ -6,6 +6,7 @@ export interface IAddUserRequest {
 export interface IGetRoomInfo {
   issucceed: boolean
   msg: string
+  stastus: string
 }
 
 export interface IRoomInfo {
