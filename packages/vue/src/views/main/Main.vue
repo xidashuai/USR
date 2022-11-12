@@ -38,6 +38,7 @@ const joinPrivateBoard = async () => {
     } else {
       roomValue.value = room.value
       isShow.value = true
+      userStore().roomid = Number(room.value)
     }
   } else {
     ElMessage({
