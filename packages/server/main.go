@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	socketio "github.com/googollee/go-socket.io"
@@ -11,6 +10,24 @@ import (
 	"qny/models"
 )
 
+// GinMiddleware 跨域处理
+func GinMiddleware(allowOrigin string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
+
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Request.Header.Del("Origin")
+
+		c.Next()
+	}
+}
 func main() {
 	r := gin.Default()
 	//添加新用户
@@ -42,6 +59,7 @@ func main() {
 		newroomid:=s.URL().RawQuery[7:i]
 		fmt.Println(newroomid)
 		s.Join(newroomid)
+		models.Broom[s.ID()]=newroomid
 		fmt.Println("连接成功：", s.ID())
 		return nil
 	})
@@ -54,15 +72,16 @@ func main() {
 		return last
 	})
 	//接收message事件
-	server.OnEvent("/", "message", func(s socketio.Conn, msg string) string {
+	server.OnEvent("/", "pages-updated", func(s socketio.Conn, msg string) string {
 		s.SetContext(msg)
 		fmt.Println("=====chat====>", msg)
-		var umjsonmsg models.Receivexy //解序列化结构
-		err1:=json.Unmarshal([]byte(msg),&umjsonmsg)
-		if err1!=nil{
-			log.Println(err1)
-		}
-		server.BroadcastToRoom("", umjsonmsg.Roomid, "chatmessage", &umjsonmsg)
+		//var umjsonmsg models.Receivexy //解序列化结构
+		//err1:=json.Unmarshal([]byte(msg),&umjsonmsg)
+		//if err1!=nil{
+		//	log.Println(err1)
+		//}
+		room:=models.Broom[s.ID()]
+		server.BroadcastToRoom("", room, "chatmessage", msg)
 		return "recv " + msg
 	})
 
@@ -78,7 +97,8 @@ func main() {
 
 	go server.Serve()
 	defer server.Close()
-//socket.io实现的websocket
+	//socket.io实现的websocket
+   r.Use(GinMiddleware("http://localhost:8080"))
 	r.GET("/socket.io/*any", gin.WrapH(server))
 	//r.POST("/socket.io/*any", gin.WrapH(server))
 	r.StaticFS("/public", http.Dir("../asset"))

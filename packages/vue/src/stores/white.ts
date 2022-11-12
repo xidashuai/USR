@@ -13,6 +13,7 @@ import WhiteBoard from '@/core'
 export const userStore = defineStore('addUser', {
   state: () => ({
     id: 0,
+    roomid: 0,
     username: '',
     wb: new WhiteBoard(),
     socket: null
