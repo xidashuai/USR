@@ -64,10 +64,10 @@ const toggleFold = () => {
   unFold.value = !unFold.value
 }
 
-// wb.getCurrentPage().layer.afterDraw = () => {
-//   socket.emit('pages-updated', wb.export())
-// }
 wb.getCurrentPage().sync = () => {
+  socket.emit('pages-updated', wb.export())
+}
+wb.getCurrentPage().layer.sync = () => {
   socket.emit('pages-updated', wb.export())
 }
 

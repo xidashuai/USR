@@ -24,6 +24,8 @@ import { defineAsyncComponent, ref, watch } from 'vue'
 import { userStore } from '@/stores/white'
 import io from 'socket.io-client'
 
+const { id, username } = userStore()
+
 const AsyncTheCanvas = defineAsyncComponent({
   loader: () => import('./TheCanvas.vue'),
   delay: 1000
@@ -40,6 +42,7 @@ const socketClient = getSocket()
 socketClient.on('connect', () => {
   console.log({ socketClient })
   console.log('socket.io 连接成功', { id: socketClient.id })
+  socketClient.emit('join-room', id.toString())
 })
 
 socketClient.on('init', data => {

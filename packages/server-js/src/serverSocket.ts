@@ -36,6 +36,8 @@ export const initSocket = () => {
 
     client.on("add-page", (pagename: string) => {
       // 发送到此房间，包括自己
+      console.log({currentRoom:client.data.currentRoom});
+      
       server.to(client.data.currentRoom).emit("add-page", pagename);
     });
 
@@ -45,7 +47,10 @@ export const initSocket = () => {
     });
 
     client.on("join-room", (roomname: string) => {
+      client.join(roomname)
       client.data.currentRoom = roomname;
+      console.log({ roomname });
+
       // TODO: 存入数据库
     });
 

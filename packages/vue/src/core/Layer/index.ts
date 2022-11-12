@@ -88,7 +88,7 @@ export class Layer implements SnapshotOriginator {
     this.shapes.splice(0, this.shapes.length)
   }
 
-  afterDraw: () => void = () => {}
+  sync: () => void = () => {}
   /**
    * 绘制所有形状
    */
@@ -103,7 +103,7 @@ export class Layer implements SnapshotOriginator {
     if (this.selected.length > 0) {
       this.drawSelected()
     }
-    this.afterDraw()
+    this.sync()
   }
 
   drawShapesWithoutSync() {
@@ -220,7 +220,7 @@ export class Layer implements SnapshotOriginator {
   drawCache(): void {
     this.clearCanvas()
     this.ctx.drawImage(this.cache, 0, 0)
-    this.afterDraw()
+    this.sync()
   }
 
   renderShapesOffscreen(): HTMLCanvasElement {
