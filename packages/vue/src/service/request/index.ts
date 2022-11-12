@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance } from 'axios'
+import { ElMessage } from 'element-plus'
 import type { ApiRequestConfig, ApiRequestInterceptors } from './type'
 
 const DEAFULT_LOADING = true
@@ -24,7 +25,7 @@ class ApiRequest {
 
     this.instance.interceptors.response.use(
       this.interceptors?.responseInterceptor,
-      this.interceptors?.responseInterceptorCatch
+      this.interceptors?.responseInterceptorCatch,
     )
 
     //添加所有的拦截器
@@ -47,6 +48,14 @@ class ApiRequest {
       res => {
         // 将loading关闭
         // this.loading?.close()
+        //@ts-ignore
+        if (res.message === 'Network Error') {
+          ElMessage({
+            message: '网络错误',
+            type: 'error'
+          })
+        }
+
         const data = res.data
         if (data.returnCode === '-1001') {
           console.log('请求失败')
@@ -57,6 +66,7 @@ class ApiRequest {
       error => {
         // 将loading组件关闭
         // this.loading?.close()
+
         if (error.response.status === 404) {
           console.log('页面不存在')
         }
