@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 import HomeViewCanvasPreview from './PublicRoomPreview.vue'
 import BackIcon from '../TheCanvas/icons/BackIcon.vue'
-import { PublicWhiteBoard, saveWhiteBoardInfo } from '@/stores/white'
+import { PublicWhiteBoard, saveWhiteBoardInfo, userStore } from '@/stores/white'
 import { nextTick, onBeforeMount, onMounted, onUpdated, ref } from 'vue'
 
 const router = useRouter()
@@ -29,6 +29,11 @@ const joinRoom = (userid, username, roomid, roomname, ispublic) => {
     roomname,
     ispublic
   )
+  userStore().$patch({
+    id: userid,
+    roomid: roomid,
+    username: username
+  })
   router.push({
     path: '/white',
     query: {
