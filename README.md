@@ -10,7 +10,7 @@
 
 - 3.演示视频下载：https://xdbtyobs.obs.cn-north-1.myhuaweicloud.com/show-video.mp4
   
-  # 运行步骤
+  # 服务端运行步骤
   
   服务端部分: 安装go1.17版本，在../packages/server目录下go run main.go （注：实际代码已经部署到服务器，可以不执行这一步，直接访问在线地址就可以运行demo）
 
