@@ -25,6 +25,7 @@ import { userStore } from '@/stores/white'
 import io from 'socket.io-client'
 
 const { roomid, username } = userStore()
+console.log(roomid, username)
 
 const AsyncTheCanvas = defineAsyncComponent({
   loader: () => import('./TheCanvas.vue'),
