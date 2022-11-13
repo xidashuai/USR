@@ -55,8 +55,7 @@ import BrushCircleIcon from './icons/BrushCircleIcon.vue'
 import { ref } from 'vue'
 import TrashIcon from './icons/TrashIcon.vue'
 import { userStore } from '@/stores/white'
-const { wb } = userStore()
-// const socket = getSocket()
+const { wb, getSocket } = userStore()
 const props = defineProps<{ name: string }>()
 
 // AngleRight
@@ -76,58 +75,74 @@ const page = wb.getPage(props.name)
 //   socket.emit('pages-updated', wb.export())
 // }
 
+const debug = () => {
+  console.log({ page: wb.currentPageName })
+}
+
 const clickBrushIcon = () => {
-  page.useDrawBrush()
+  wb.getCurrentPage().useDrawBrush()
+  debug()
 }
 
 const clickBrushCircleIcon = () => {
-  page.useDrawImageBrush('circle')
+  wb.getCurrentPage().useDrawImageBrush('circle')
+  debug()
 }
 
 const clickBrushLciclesIcon = () => {
-  page.useDrawImageBrush('icicles')
+  wb.getCurrentPage().useDrawImageBrush('icicles')
+  debug()
 }
 
 const clickRectangleIcon = () => {
-  page.useDrawRectangle()
+  wb.getCurrentPage().useDrawRectangle()
+  debug()
 }
 
 const clickCircleIcon = () => {
-  page.useDrawCircle()
+  wb.getCurrentPage().useDrawCircle()
+  debug()
 }
 
 const clickOvalIcon = () => {
-  page.useDrawEllipes()
+  wb.getCurrentPage().useDrawEllipes()
+  debug()
 }
 
 const clickLineIcon = () => {
-  page.useDrawLine()
+  wb.getCurrentPage().useDrawLine()
+  debug()
 }
 
 const clickUndoIcon = () => {
-  page.undo()
+  wb.getCurrentPage().undo()
+  debug()
 }
 
 const clickRedoIcon = () => {
-  page.redo()
+  wb.getCurrentPage().redo()
+  debug()
 }
 
 const clickAreaIcon = () => {
-  page.useSelect()
+  wb.getCurrentPage().useSelect()
+  debug()
 }
 
 const clickTrashIcon = () => {
-  page.layer.removeSelected()
+  wb.getCurrentPage().layer.removeSelected()
+  debug()
 }
 
 const colorInput = (e: Event) => {
   const target = e.target as HTMLInputElement
   console.log({ color: target.value })
-  page.layer.setOnSelected({
+  wb.getCurrentPage().layer.setOnSelected({
     fillStyle: target.value,
     strokeStyle: target.value
   })
-  page.sync()
+  wb.getCurrentPage().sync()
+  debug()
 }
 </script>
 
