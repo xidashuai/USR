@@ -56,6 +56,12 @@ export const userStore = defineStore('addUser', {
       const { issucceed, msg } = whiteBoardInfo
       return { issucceed, msg }
     }
+  },
+  persist: {
+    enabled: true,
+    strategies: [
+      { storage: sessionStorage, paths: ['id', 'roomid', 'username'] }
+    ]
   }
 })
 // 创建白板
@@ -82,6 +88,9 @@ export const saveWhiteBoardInfo = defineStore('saveWhiteBoardInfo', {
       this.roomname = roomname
       this.ispublic = ispublic
     }
+  },
+  persist: {
+    enabled: true
   }
 })
 
