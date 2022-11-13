@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"qny/middleware"
 	"qny/models"
+	"sync"
 )
 
 // GinMiddleware 跨域处理
@@ -22,7 +23,6 @@ func GinMiddleware(allowOrigin string) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
-
 		c.Request.Header.Del("Origin")
 
 		c.Next()
@@ -42,7 +42,7 @@ func main() {
 	r.GET("/getroomlist",middleware.Jwt, models.Getroomlist)
 	//进入房间获得状态
 	r.GET("/getroomstatus",models.Roomexist)
-
+	var rux sync.RWMutex  //加个读写锁解决map线程不安全
 	//socket.io实现的websocket方法
 	server := socketio.NewServer(nil)
 	// 连接成功
@@ -59,7 +59,9 @@ func main() {
 		newroomid:=s.URL().RawQuery[7:i]
 		fmt.Println(newroomid)
 		s.Join(newroomid)
+		rux.Lock()
 		models.Broom[s.ID()]=newroomid
+		rux.Unlock()
 		fmt.Println("连接成功：", s.ID())
 		return nil
 	})
@@ -80,8 +82,43 @@ func main() {
 		//if err1!=nil{
 		//	log.Println(err1)
 		//}
+		rux.RLock()
 		room:=models.Broom[s.ID()]
+		rux.RUnlock()
+		models.RRux.Lock()
+		models.Roomstatus[room]=msg
+		models.RRux.Unlock()
 		server.BroadcastToRoom("", room, "chatmessage", msg)
+		return "recv " + msg
+	})
+	//接收message事件
+	server.OnEvent("/", "add-page", func(s socketio.Conn, msg string) string {
+		s.SetContext(msg)
+		fmt.Println("=====chat====>", msg)
+		//var umjsonmsg models.Receivexy //解序列化结构
+		//err1:=json.Unmarshal([]byte(msg),&umjsonmsg)
+		//if err1!=nil{
+		//	log.Println(err1)
+		//}
+		rux.RLock()
+		room:=models.Broom[s.ID()]
+		rux.RUnlock()
+		server.BroadcastToRoom("", room, "add-page", msg)
+		return "recv " + msg
+	})
+	//接收message事件
+	server.OnEvent("/", "remove-page", func(s socketio.Conn, msg string) string {
+		s.SetContext(msg)
+		fmt.Println("=====chat====>", msg)
+		//var umjsonmsg models.Receivexy //解序列化结构
+		//err1:=json.Unmarshal([]byte(msg),&umjsonmsg)
+		//if err1!=nil{
+		//	log.Println(err1)
+		//}
+		rux.RLock()
+		room:=models.Broom[s.ID()]
+		rux.RUnlock()
+		server.BroadcastToRoom("", room, "remove-page", msg)
 		return "recv " + msg
 	})
 
