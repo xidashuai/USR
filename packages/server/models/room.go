@@ -6,13 +6,15 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 )
 var Roomer=make(map[string]map[string]struct{})//对应房间的在线成员列表，用map模拟集合加快存取速度
+var Broom=make(map[string]string)
+var Roomstatus=make(map[string]string)
 var Chatclient = make(map[string]*websocket.Conn)
 var Rux sync.RWMutex  //加个读写锁解决map线程不安全
+var RRux sync.RWMutex
 var wsupgrader = websocket.Upgrader{
 	ReadBufferSize:   1024,
 	WriteBufferSize:  1024,
@@ -22,7 +24,6 @@ var wsupgrader = websocket.Upgrader{
 		return true
 	},
 }
-
 
 func Createroom (context *gin.Context){
 Db.AutoMigrate(&Room{})
@@ -60,18 +61,18 @@ var roomuser User
 }
 
 func Getroomlist (context *gin.Context){
-	page:=context.Query("page")
-	intpage,err1:=strconv.Atoi(page)
-	if err1!=nil {
-		context.JSON(200, gin.H{
-			"issucceed": false,
-			"msg":       "传参有误",
-		})
-		return
-	}
-	inpage:=intpage*10
+//	page:=context.Query("page")
+//	intpage,err1:=strconv.Atoi(page)
+//	if err1!=nil {
+//		context.JSON(200, gin.H{
+//			"issucceed": false,
+//			"msg":       "传参有误",
+//		})
+//		return
+//	}
+	//inpage:=intpage*10
 	rlist:=make([]Room,0)
-	Db.Where("public=?",0).Preload("Owner").Offset(inpage).Limit(10).Find(&rlist)
+	Db.Where("public=?",0).Preload("Owner").Find(&rlist)
 	if len(rlist)==0{
 		context.JSON(200,gin.H{
 			"issucceed":false,
@@ -84,11 +85,42 @@ func Getroomlist (context *gin.Context){
 		"room_list":rlist,
 	})
 }
+func Roomexist (context *gin.Context){
+
+	roomid:= context.Query("roomid")
+	var room Room
+	tx:=Db.Where("id=?",roomid).First(&room)
+	if tx.RowsAffected==0{
+		context.JSON(200,gin.H{
+			"issucceed":false,
+			"msg":"房间不存在，请先创建房间",
+		})
+		return
+	}
+	RRux.RLock()
+	status:=Roomstatus[roomid]
+	RRux.RUnlock()
+	context.JSON(200,gin.H{
+		"issucceed":true,
+		"msg":"房间存在",
+		"stastus":status,
+	})
+
+}
 
 func Addroom(context *gin.Context){
 	roomid:= context.Query("roomid")
 	userid:= context.Query("userid")
 	log.Println(userid+" 用户进入 "+roomid+"房间 ")
+	var room Room
+	tx:=Db.Where("id=?",roomid).First(&room)
+	if tx.RowsAffected==0{
+		context.JSON(200,gin.H{
+			"issucceed":false,
+			"msg":"房间不存在，请先创建房间",
+		})
+		return
+	}
 	wshandletlfunc(context.Writer,context.Request,roomid,userid)
 }
 
@@ -155,6 +187,8 @@ func wshandletlfunc(w http.ResponseWriter, r *http.Request, roomid string,userid
 
 type Receivexy struct{
 	Roomid string
+	Userid string
+	Type int
  	X float64
 	Y float64
 }
