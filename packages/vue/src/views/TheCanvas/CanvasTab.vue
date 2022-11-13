@@ -62,25 +62,6 @@ socketClient.on('chatmessage', data => {
   wb.import(data)
 })
 
-socketClient.on('add-page', (pagename: string) => {
-  wb.newPage(pagename)
-  useSync()
-
-  pageTabs.value.push({
-    title: '新页面',
-    name: pagename,
-    closable: true
-  })
-
-  currentTabName.value = pagename
-})
-
-socketClient.on('remove-page', pagename => {
-  wb.deletePage(pagename)
-  useSync()
-  pageTabs.value = pageTabs.value.filter(page => page.name != pagename)
-  currentTabName.value = pagename
-})
 // const socketClient = io('http://localhost:4096', {
 //   transports: ['websocket']
 // })
@@ -94,10 +75,36 @@ const useSync = () => {
     page.layer.sync = syncPage
   }
 }
+socketClient.on('add-page', (pagename: string) => {
+  wb.newPage(pagename)
+  useSync()
+
+  pageTabs.value.push({
+    title: '新页面',
+    name: pagename,
+    closable: true
+  })
+
+  currentTabName.value = pagename
+})
+
+socketClient.on('remove-page', (pagename: string) => {
+  wb.deletePage(pagename)
+  const tabs = pageTabs.value
+
+  let pendingRemoveIndex = tabs.findIndex(t => t.name === pagename)
+
+  const nextActive =
+    tabs[pendingRemoveIndex + 1] || tabs[pendingRemoveIndex - 1]
+
+  // pageTabs.value = pageTabs.value.filter(page => page.name != pagename)
+  pageTabs.value.splice(pendingRemoveIndex, 1)
+
+  currentTabName.value = nextActive.name
+  useSync()
+})
 
 const pageTabs = ref([])
-
-useSync()
 
 // socketClient.on('pages-updated', data => {
 //   console.log(JSON.stringify(JSON.parse(data), v => v, 2))
@@ -108,6 +115,8 @@ useSync()
 const currentTabName = ref<string>('default')
 
 watchEffect(() => {
+  console.log({ curTab: currentTabName.value })
+
   wb.currentPageName = currentTabName.value
   wb.getCurrentPage().sync = syncPage
   wb.getCurrentPage().layer.sync = syncPage
@@ -120,14 +129,7 @@ const addTab = () => {
 }
 
 const removeTab = async (targetIndex: number) => {
-  const tabs = pageTabs.value
-
-  let pendingRemoveIndex = tabs.findIndex(t => t.name === currentTabName.value)
-
-  const nextActive =
-    tabs[pendingRemoveIndex + 1] || tabs[pendingRemoveIndex - 1]
-
-  socketClient.emit('remove-page', nextActive.value)
+  socketClient.emit('remove-page', currentTabName.value)
   // socket
 }
 
@@ -141,6 +143,7 @@ onMounted(async () => {
         title: '新页面',
         name: key,
         closable: key.toString() === 'default' ? false : true
+        // closable: false
       })
     }
   } else {
@@ -151,8 +154,10 @@ onMounted(async () => {
     })
   }
   useSync()
-  currentTabName.value = 'default'
-  wb.currentPageName = 'default'
+  currentTabName.value = pageTabs.value[0].name
+  for (const page of Object.values(wb.pages)) {
+    page.layer.drawShapes()
+  }
 })
 
 // socketClient.on('bye', (msg: string) => {
